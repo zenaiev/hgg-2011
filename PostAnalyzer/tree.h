@@ -1,90 +1,83 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Thu Aug  4 23:45:53 2016 by ROOT version 6.04/06
-// from TTree tree/ttbar
-// found on file: ttbarSel_emu10p.root
-//////////////////////////////////////////////////////////
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// This class contains all needed variables to read ROOT ntuples for ttbar abalysis
+// (automaticlly produced by ROOT, then slightly tuned manually)
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 #ifndef ZTree_h
 #define ZTree_h
 
 #include <TROOT.h>
 #include <TChain.h>
-//#include <TFile.h>
-//#include <TSelector.h>
 
-// Header file for the classes stored in the TTree if any.
-
-class ZTree {//: public TSelector {
+// Class which gives access to all information in each event stored in ntuples
+class ZTree {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+   // public members (for direct access outside the class)
+   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+   // pointer to the analyzed TTree or TChain   TTree          *fChain;   
 
-// Fixed size dimensions of array or collections stored in the TTree if any.
-
-   // MC flag
+   // MC flag (true for MC, false for data)
    bool _flagMC;
 
    // variable array max sizes
-   static const int maxNel = 10;
-   static const int maxNmu = 10;
-   static const int maxNjet = 25;
+   static const int maxNel = 10; // electrons
+   static const int maxNmu = 10; // muons
+   static const int maxNjet = 25; // jets
 
-   // Declaration of leaf types
-   Int_t           evRunNumber;
-   Int_t           evLumiBlock;
-   Int_t           evEventNumber;
-   Int_t           Nmu;
-   Float_t         muPt[maxNmu];   //[Nmu]
-   Float_t         muEta[maxNmu];   //[Nmu]
-   Float_t         muPhi[maxNmu];   //[Nmu]
-   Float_t         muIso03[maxNmu];   //[Nmu]
-   Float_t         muIso04[maxNmu];   //[Nmu]
-   Int_t           muHitsValid[maxNmu];   //[Nmu]
-   Int_t           muHitsPixel[maxNmu];   //[Nmu]
-   Float_t         muDistPV0[maxNmu];   //[Nmu]
-   Float_t         muDistPVz[maxNmu];   //[Nmu]
-   Float_t         muTrackChi2NDOF[maxNmu];   //[Nmu]
-   Int_t           Nel;
-   Float_t         elPt[maxNel];   //[Nel]
-   Float_t         elEta[maxNel];   //[Nel]
-   Float_t         elPhi[maxNel];   //[Nel]
-   /*Float_t         elIso03TkSumPt[4];   //[Nel]
-   Float_t         elIso03EcalRecHitSumEt[4];   //[Nel]
-   Float_t         elIso03HcalTowerSumEt[4];   //[Nel]
-   Float_t         elIso04TkSumPt[4];   //[Nel]
-   Float_t         elIso04EcalRecHitSumEt[4];   //[Nel]
-   Float_t         elIso04HcalTowerSumEt[4];   //[Nel]*/
-   Float_t         elIso03[maxNel];   //[Nel]
-   Float_t         elIso04[maxNel];   //[Nel]
-   Int_t           elConvFlag[maxNel];   //[Nel]
-   Float_t         elConvDist[maxNel];   //[Nel]
-   Float_t         elConvDcot[maxNel];   //[Nel]
-   Float_t         elMissHits[maxNel];   //[Nel]
-   Int_t           Njet;
-   Float_t         jetPt[maxNjet];   //[Njet]
-   Float_t         jetEta[maxNjet];   //[Njet]
-   Float_t         jetPhi[maxNjet];   //[Njet]
-   Float_t         jetMass[maxNjet];   //[Njet]
-   Float_t         jetMuEn[maxNjet];   //[Njet]
-   Float_t         jetElEn[maxNjet];   //[Njet]
-   Float_t         jetBTagDiscr[maxNjet];   //[Njet]
-   Float_t         jetBTagMatchDiff1[maxNjet];   //[Njet]
-   Float_t         jetBTagMatchDiff2[maxNjet];   //[Njet]
-   Float_t         metPx;
-   Float_t         metPy;
-   Int_t           Npv;
-   Int_t           pvNDOF;
-   Float_t         pvZ;
-   Float_t         pvRho;
-   Int_t           Triggers;
-   // MC
-   Int_t           mcEventType;
-   float mcT[4];
-   float mcTbar[4];
+   // Ntuple variables
+   //[N] means that this is fixed size array with N elements
+   Int_t           evRunNumber; // run number
+   Int_t           evEventNumber; // event number
+   
+   Int_t           Nmu; // number of muons
+   Float_t         muPt[maxNmu];   //[Nmu] muon pT
+   Float_t         muEta[maxNmu];   //[Nmu] muon eta
+   Float_t         muPhi[maxNmu];   //[Nmu] muon phi
+   Float_t         muIso03[maxNmu];   //[Nmu] muon isolation delta_R=0.3
+   Float_t         muIso04[maxNmu];   //[Nmu] muon isolation delta_R=0.4
+   Int_t           muHitsValid[maxNmu];   //[Nmu] muon valid hits number
+   Int_t           muHitsPixel[maxNmu];   //[Nmu] muon pixel hits number
+   Float_t         muDistPV0[maxNmu];   //[Nmu] muon distance to the primary vertex (projection on transverse plane)
+   Float_t         muDistPVz[maxNmu];   //[Nmu] muon distance to the primary vertex (z projection)
+   Float_t         muTrackChi2NDOF[maxNmu];   //[Nmu] muon track number of degrees of freedom
 
-   // List of branches
+   Int_t           Nel; // number of electrons
+   Float_t         elPt[maxNel];   //[Nel] electron pT
+   Float_t         elEta[maxNel];   //[Nel] electron eta
+   Float_t         elPhi[maxNel];   //[Nel] electron phi
+   Float_t         elIso03[maxNel];   //[Nel] electron isolation delta_R=0.3
+   Float_t         elIso04[maxNel];   //[Nel] electron isolation delta_R=0.4
+   Int_t           elConvFlag[maxNel];   //[Nel] (not used) electron conversion flag
+   Float_t         elConvDist[maxNel];   //[Nel] (not used) electron conversion distance
+   Float_t         elConvDcot[maxNel];   //[Nel] (not used) electron conversion cotangent
+   Float_t         elMissHits[maxNel];   //[Nel] electron missing hits number
+
+   Int_t           Njet; // number of jets
+   Float_t         jetPt[maxNjet];   //[Njet] jet pT
+   Float_t         jetEta[maxNjet];   //[Njet] jet eta
+   Float_t         jetPhi[maxNjet];   //[Njet] jet phi
+   Float_t         jetMass[maxNjet];   //[Njet] jet mass
+   Float_t         jetMuEn[maxNjet];   //[Njet] jet muon energy
+   Float_t         jetElEn[maxNjet];   //[Njet] jet electron energy
+   Float_t         jetBTagDiscr[maxNjet];   //[Njet] jet b-tagging discriminant (Combined Secondary Vertex, CSV)
+   Float_t         jetBTagMatchDiff1[maxNjet];   //[Njet] (not used, for checks) jet b-tagging: eta-phi distance to the closest matched jet
+   Float_t         jetBTagMatchDiff2[maxNjet];   //[Njet] (not used, for checks) jet b-tagging: eta-phi distance to the second closest matched jet
+   Float_t         metPx; // missing transverse energy x component
+   Float_t         metPy; // missing transverse energy y component
+   Int_t           Npv; // total number of primary vertices
+   Int_t           pvNDOF; // number of degrees of freedom of the primary vertex
+   Float_t         pvZ; // z component of the primary vertex
+   Float_t         pvRho; // rho of the primary vertex (projection on transverse plane)
+   Int_t           Triggers; // trigger bits
+   
+   // variables for MC only
+   Int_t           mcEventType; // type of event: 1 ttbar decay into ee, 2 ttbar decay into mumu, 3 ttbar decay into emu, 0 anything else
+   float mcT[4];    // top quark four momentum
+   float mcTbar[4]; // antitop quark four momentum
+
+   // List of branches (their names follow variable names with prefix b_)
    TBranch        *b_evRunNumber;   //!
-   TBranch        *b_evLumiBlock;   //!
    TBranch        *b_evEventNumber;   //!
    TBranch        *b_Nmu;   //!
    TBranch        *b_muPt;   //!
@@ -101,12 +94,6 @@ public :
    TBranch        *b_elPt;   //!
    TBranch        *b_elEta;   //!
    TBranch        *b_elPhi;   //!
-   /*TBranch        *b_elIso03TkSumPt;   //!
-   TBranch        *b_elIso03EcalRecHitSumEt;   //!
-   TBranch        *b_elIso03HcalTowerSumEt;   //!
-   TBranch        *b_elIso04TkSumPt;   //!
-   TBranch        *b_elIso04EcalRecHitSumEt;   //!
-   TBranch        *b_elIso04HcalTowerSumEt;   //!*/
    TBranch        *b_elIso03;   //!
    TBranch        *b_elIso04;   //!
    TBranch        *b_elConvFlag;   //!
@@ -130,50 +117,33 @@ public :
    TBranch        *b_pvZ;   //!
    TBranch        *b_pvRho;   //!
    TBranch        *b_Triggers;   //!
-   // MC
+   // for MC only
    TBranch        *b_mcEventType; //!
    TBranch        *b_mcT; //!
    TBranch        *b_mcTbar; //!
 
+   // constructor
+   // argument: true for MC, false (default) for data
    ZTree(bool flagMC = false) : fChain(0), _flagMC(flagMC) { }
+   
+   // destructor
    virtual ~ZTree() { }
-   //virtual Int_t   Version() const { return 2; }
-   //virtual void    Begin(TTree *tree);
-   //virtual void    SlaveBegin(TTree *tree);
+   
+   // initialise with provided tree pointer
    virtual void    Init(TTree *tree);
-   /*virtual Bool_t  Notify();
-   virtual Bool_t  Process(Long64_t entry);
-   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
-   virtual void    SetOption(const char *option) { fOption = option; }
-   virtual void    SetObject(TObject *obj) { fObject = obj; }
-   virtual void    SetInputList(TList *input) { fInput = input; }
-   virtual TList  *GetOutputList() const { return fOutput; }
-   virtual void    SlaveTerminate();
-   virtual void    Terminate();*/
-
-   //ClassDef(ZTree,0);
 };
 
 //#endif
 
-//#ifdef ZTree_cxx
+// initialise with provided tree pointer
 void ZTree::Init(TTree *tree)
 {
-   // The Init() function is called when the selector needs to initialize
-   // a new tree or chain. Typically here the branch addresses and branch
-   // pointers of the tree will be set.
-   // It is normally not necessary to make changes to the generated
-   // code, but the routine can be extended by the user if needed.
-   // Init() will be called many times when running on PROOF
-   // (once per file to be processed).
-
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("evRunNumber", &evRunNumber, &b_evRunNumber);
-   //fChain->SetBranchAddress("evLumiBlock", &evLumiBlock, &b_evLumiBlock);
    fChain->SetBranchAddress("evEventNumber", &evEventNumber, &b_evEventNumber);
    fChain->SetBranchAddress("Nmu", &Nmu, &b_Nmu);
    fChain->SetBranchAddress("muPt", muPt, &b_muPt);
@@ -190,12 +160,6 @@ void ZTree::Init(TTree *tree)
    fChain->SetBranchAddress("elPt", elPt, &b_elPt);
    fChain->SetBranchAddress("elEta", elEta, &b_elEta);
    fChain->SetBranchAddress("elPhi", elPhi, &b_elPhi);
-   /*fChain->SetBranchAddress("elIso03TkSumPt", elIso03TkSumPt, &b_elIso03TkSumPt);
-   fChain->SetBranchAddress("elIso03EcalRecHitSumEt", elIso03EcalRecHitSumEt, &b_elIso03EcalRecHitSumEt);
-   fChain->SetBranchAddress("elIso03HcalTowerSumEt", elIso03HcalTowerSumEt, &b_elIso03HcalTowerSumEt);
-   fChain->SetBranchAddress("elIso04TkSumPt", elIso04TkSumPt, &b_elIso04TkSumPt);
-   fChain->SetBranchAddress("elIso04EcalRecHitSumEt", elIso04EcalRecHitSumEt, &b_elIso04EcalRecHitSumEt);
-   fChain->SetBranchAddress("elIso04HcalTowerSumEt", elIso04HcalTowerSumEt, &b_elIso04HcalTowerSumEt);*/
    fChain->SetBranchAddress("elIso03", elIso03, &b_elIso03);
    fChain->SetBranchAddress("elIso04", elIso04, &b_elIso04);
    fChain->SetBranchAddress("elConvFlag", elConvFlag, &b_elConvFlag);
@@ -224,16 +188,5 @@ void ZTree::Init(TTree *tree)
    if(_flagMC) fChain->SetBranchAddress("mcT", mcT, &b_mcT);
    if(_flagMC) fChain->SetBranchAddress("mcTbar", mcTbar, &b_mcTbar);
 }
-
-/*Bool_t ZTree::Notify()
-{
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
-
-   return kTRUE;
-}*/
 
 #endif // #ifdef ZTree_h
