@@ -1,0 +1,176 @@
+#include "tree.h"
+#include <TLorentzVector.h>
+
+
+const double massEl = 0.000511;
+const double massMu = 0.105658;
+
+// electron selection
+bool SelectEl(const ZTree* preselTree, const int el)
+{
+  if(TMath::Abs(preselTree->elPt[el]) < 20.0)
+    return false;
+  if(TMath::Abs(preselTree->elEta[el]) > 2.4)
+    return false;
+  //double iso = (preselTree->elIso03TkSumPt[el] + preselTree->elIso03EcalRecHitSumEt[el]
+  //              + preselTree->elIso03HcalTowerSumEt[el]) / TMath::Abs(preselTree->elPt[el]);
+  if(preselTree->elIso03[el] > 0.17)
+    return false;
+  if(preselTree->elMissHits[el] > 0)
+    return false;
+  //if(preselTree->elConvDist[el] < 0.02 && preselTree->elConvDcot[el] < 0.02 && preselTree->elConvDist[el] >= 0.0 && preselTree->elConvDcot[el] >=0.0)
+  //  return false;
+  // all cuts passed: return true
+  return true;
+}
+
+// muon selection
+bool SelectMu(const ZTree* preselTree, const int mu)
+{
+  if(TMath::Abs(preselTree->muPt[mu]) < 20.0)
+    return false;
+  if(TMath::Abs(preselTree->muEta[mu]) > 2.4)
+    return false;
+  if(preselTree->muIso03[mu] > 0.20)
+    return false;
+  if(preselTree->muHitsValid[mu] < 12 || preselTree->muHitsPixel[mu] < 2)
+    return false;
+  if(preselTree->muDistPV0[mu] > 0.02 || preselTree->muDistPVz[mu] > 0.5 || preselTree->muTrackChi2NDOF[mu] > 10)
+    return false;
+  // all cuts passed: return true
+  return true;
+}
+
+// electron-muon pair selection
+bool SelectDilepEMu(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
+{
+  bool flagNewDilepPair = false;
+  // loop over electrons
+  for(int el = 0; el < preselTree->Nel; el++)
+  {
+    // electron selection
+    if(!SelectEl(preselTree, el))
+      continue;
+    TLorentzVector thisEl;
+    thisEl.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el]), preselTree->elEta[el], preselTree->elPhi[el], massEl);
+    // loop over muons
+    for(int mu = 0; mu < preselTree->Nmu; mu++)
+    {
+      // opposite sign
+      if(preselTree->elPt[el] * preselTree->muPt[mu] > 0)
+        continue;
+      // muon selection
+      if(!SelectMu(preselTree, mu))
+        continue;
+      TLorentzVector thisMu;
+      thisMu.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu]), preselTree->muEta[mu], preselTree->muPhi[mu], massMu);
+      // dilepton mass
+      TLorentzVector vecDiLep = thisEl + thisMu;
+      if(vecDiLep.M() < 12.0)
+        continue;
+      // select pair with highest transverse momenta
+      //double sumPt = vecDiLep.Pt();
+      double sumPt = thisMu.Pt() + thisEl.Pt();
+      if(sumPt < maxPtDiLep)
+        continue;
+      maxPtDiLep = sumPt;
+      flagNewDilepPair = true;
+      // assign el and mu momenta to generic l+ and l-
+      vecLepM = (preselTree->elPt[el] < 0) ? thisEl : thisMu;
+      vecLepP = (preselTree->elPt[el] < 0) ? thisMu : thisEl;
+    }
+  }
+  //if(flagNewDilepPair)
+  //  printf("emu found\n");
+  return flagNewDilepPair;
+}
+
+// electron-electron pair selection
+bool SelectDilepEE(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
+{
+  bool flagNewDilepPair = false;
+  // loop over 1st electron
+  for(int el1 = 0; el1 < preselTree->Nel; el1++)
+  {
+    // electron selection
+    if(!SelectEl(preselTree, el1))
+      continue;
+    TLorentzVector thisEl1;
+    thisEl1.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el1]), preselTree->elEta[el1], preselTree->elPhi[el1], massEl);
+    // loop over 2nd electron
+    for(int el2 = el1 + 1; el2 < preselTree->Nel; el2++)
+    {
+      // opposite sign
+      if(preselTree->elPt[el1] * preselTree->elPt[el2] > 0)
+        continue;
+      // electron selection
+      if(!SelectEl(preselTree, el2))
+        continue;
+      TLorentzVector thisEl2;
+      thisEl2.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el2]), preselTree->elEta[el2], preselTree->elPhi[el2], massEl);
+      // dilepton mass
+      TLorentzVector vecDiLep = thisEl1 + thisEl2;
+      if(vecDiLep.M() < 12.0)
+        continue;
+      // this is for ee and mumu
+      if(vecDiLep.M() > 76.0 && vecDiLep.M() < 106.0)
+        continue;
+      // select pair with highest transverse momenta
+      //double sumPt = vecDiLep.Pt();
+      double sumPt = thisEl1.Pt() + thisEl2.Pt();
+      if(sumPt < maxPtDiLep)
+        continue;
+      maxPtDiLep = sumPt;
+      flagNewDilepPair = true;
+      // assign el and mu momenta to generic l+ and l-
+      vecLepM = (preselTree->elPt[el1] < 0) ? thisEl1 : thisEl2;
+      vecLepP = (preselTree->elPt[el1] < 0) ? thisEl2 : thisEl1;
+    }
+  }
+  return flagNewDilepPair;
+}
+
+// muon-muon pair selection
+bool SelectDilepMuMu(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
+{
+  bool flagNewDilepPair = false;
+  // loop over 1st muon
+  for(int mu1 = 0; mu1 < preselTree->Nmu; mu1++)
+  {
+    // muon selection
+    if(!SelectMu(preselTree, mu1))
+      continue;
+    TLorentzVector thisMu1;
+    thisMu1.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu1]), preselTree->muEta[mu1], preselTree->muPhi[mu1], massMu);
+    // loop over 2nd muon
+    for(int mu2 = mu1 + 1; mu2 < preselTree->Nmu; mu2++)
+    {
+      // opposite sign
+      if(preselTree->muPt[mu1] * preselTree->muPt[mu2] > 0)
+        continue;
+      // muon selection
+      if(!SelectMu(preselTree, mu2))
+        continue;
+      TLorentzVector thisMu2;
+      thisMu2.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu2]), preselTree->muEta[mu2], preselTree->muPhi[mu2], massMu);
+      // dilepton mass
+      TLorentzVector vecDiLep = thisMu1 + thisMu2;
+      if(vecDiLep.M() < 12.0)
+        continue;
+      // this is for ee and mumu
+      if(vecDiLep.M() > 76.0 && vecDiLep.M() < 106.0)
+        continue;
+      // select pair with highest transverse momenta
+      //double sumPt = vecDiLep.Pt();
+      double sumPt = thisMu1.Pt() + thisMu2.Pt();
+      if(sumPt < maxPtDiLep)
+        continue;
+      maxPtDiLep = sumPt;
+      flagNewDilepPair = true;
+      // assign mu and mu momenta to generic l+ and l-
+      vecLepM = (preselTree->muPt[mu1] < 0) ? thisMu1 : thisMu2;
+      vecLepP = (preselTree->muPt[mu1] < 0) ? thisMu2 : thisMu1;
+    }
+  }
+  return flagNewDilepPair;
+}
