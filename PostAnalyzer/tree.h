@@ -25,7 +25,7 @@ public :
    static const int maxNmu = 10; // muons
    static const int maxNjet = 25; // jets
 
-   // Ntuple variables
+   // Ntuple variables (their description can be found also in Analyzer/src/Analyzer.cc)
    //[N] means that this is fixed size array with N elements
    Int_t           evRunNumber; // run number
    Int_t           evEventNumber; // event number
