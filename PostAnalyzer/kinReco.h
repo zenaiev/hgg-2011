@@ -274,7 +274,7 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
     return NULL;
   
   // store and return best solution as ZSolutionKinRecoDilepton instance
-  solution = new ZSolutionKinRecoDilepton;
+  ZSolutionKinRecoDilepton* solution = new ZSolutionKinRecoDilepton;
   solution->zT = (nuBest + lp + b);
   solution->zTbar = (nubarBest + lm + bbar);
   solution->zWeight = weightBest;
