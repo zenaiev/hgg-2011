@@ -15,7 +15,9 @@ public :
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
    // public members (for direct access outside the class)
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-   // pointer to the analyzed TTree or TChain   TTree          *fChain;   
+    
+   // pointer to the analyzed TTree or TChain
+   TTree *fChain;  
 
    // MC flag (true for MC, false for data)
    bool _flagMC;

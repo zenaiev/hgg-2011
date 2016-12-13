@@ -438,7 +438,7 @@ int Analyzer::SelectMu(const edm::Handle<reco::MuonCollection>& muons, const rec
       printf("Maximum number of muons %d reached, skipping the rest\n", _maxNmu);
       return 0;
     }
-    // selection
+    // selection: pT > 20 GeV, |eta| < 2.4
     if(it->pt() < 20)
       continue;
     if(TMath::Abs(it->eta()) > 2.4)
@@ -496,7 +496,7 @@ int Analyzer::SelectEl(const edm::Handle<reco::GsfElectronCollection>& electrons
       printf("Maximum number of electrons %d reached, skipping the rest\n", _maxNel);
       return 0;
     }
-    // selection
+    // selection: pT > 20 GeV, |eta| < 2.4
     if(it->pt() < 20)
       continue;
     if(TMath::Abs(it->eta()) > 2.4)
@@ -594,7 +594,7 @@ int Analyzer::SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const re
     reco::PFJet corjet = *it;
     // apply JEC
     corjet.scaleEnergy(jec);
-    // select jet
+    // select jet: pT > 30 GeV, |eta| < 2.4
     if(corjet.pt() < 30)
       continue;
     if(TMath::Abs(corjet.eta()) > 2.4)

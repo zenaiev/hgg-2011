@@ -12,7 +12,7 @@ There are two parts in this analysis:
 
 ## Creating the working area
 
-This step is only needed the first time you run this program:
+This step is only needed the first time you setup this program:
 ```
 mkdir WorkingArea
 cd ./WorkingArea
@@ -27,8 +27,16 @@ ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1 START53_LV6A1
 ```
 (no need to download data/MC input file lists and JSON: provided with the git)
 
-## Analyzer
-Look at Analyzer/README.txt
+The code in PostAnalyzer should be compiled also:
+```
+cd PostAnalyzer
+./compile.sh
+```
 
-## PostAnalyzer
-Look at Postanalyzer/README.txt
+## Running the analysis
+Generally, the analysis steps are:
+ * run Analyzer/run.sh, this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~3GB, to be put into PostAnalyzer/data, PostAnalyzer/mc directories) cmsRun jobs, ~ 2 weeks, extensive network access)
+ * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (15 mins)
+ * run PostAnalyzer/ttbarMakePlots to produce final plots from created histograms (few seconds)
+
+Further description of Analyzer and PostAnalyzer you can find Analyzer/README.txt and Postanalyzer/README.txt

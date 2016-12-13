@@ -1,39 +1,72 @@
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>> Helper for ttbar kinematic reconstruction (kinreco) >>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// The basic problem is to recover top and antitiop momenta in the 
+// dilepton decay, having measured two leptons, jets (possibly more 
+// than 2) and missing transverse energy, see description-ttbar.pdf, 
+// page 4. Follows the method described in Phys. Rev. D73 (2006) 054015,
+// additional information can be found in DESY-THESIS-2012-037
+
 #ifndef TTBAR_KINRECO_H
 #define TTBAR_KINRECO_H
 
+// C++ library or ROOT header files
 #include <TMath.h>
+#include <Math/Polynomial.h>
 #include <TLorentzVector.h>
+#include <TH1D.h>
 #include <vector>
 #include <complex>
-#include "Math/Polynomial.h"
-#include <TH1D.h>
 
+// debugging level (0 for silence, > 0 for some messages)
 int gDebug = 0;
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>> ZSolutionKinRecoDilepton >>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// structure to store one solution of the kinematic reconstruction
 struct ZSolutionKinRecoDilepton
 {
+  // constructor
+  // (set weight to -1 by default)
   ZSolutionKinRecoDilepton(): zWeight(-1.0) {;}
+  // top and antitop four momenta
   TLorentzVector zT, zTbar;
+  // mumber of b-tagged jets (can be 0, 1 or 2)
   int zBTag;
+  // weight of this solution
+  // (calculated according to neutrino momentum spectrum, see below)
   double zWeight;
 };
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>> SolveKinRecoDilepton routine >>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Routine to solve the kinreco problem for given b, bbar jets
+// Arguments:
+//    const TLorentzVector& lm:   lepton- momentum
+//    const TLorentzVector& lp:   lepton+ momentum
+//    const TLorentzVector& b:    b momentum
+//    const TLorentzVector& bbar: bbar momentum
+//    const double metX:          x-component of missing transverse energy (MET)
+//    const double metY:          y-component of missing transverse energy
+//    TH1D* hInacc = NULL:        histogram to be filled with the calculated inaccuracy (for debugging purpose, not filled by default)
+//    TH1D* ambiguity = NULL:     histogram to be filled with the number of ambiguities (for debugging purpose, not filled by default)
+// Returns the ZSolutionKinRecoDilepton pointer (see above)
+// For math, see Lars Sonnenschein's paper Phys.Rev. D73 (2006) 054015 [Erratum Phys.Rev. D73 (2006) 054015]
 ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const TLorentzVector& lp, 
   const TLorentzVector& b, const TLorentzVector& bbar, const double metX, const double metY, 
   TH1D* hInacc = NULL, int* ambiguity = NULL)
 {
-  const double massW = 80.4;
-  const double massTopMin = 100.0;
-  const double massTopMax = 300.0;
-  const double massTopStep = 1.0;
-  const int massTopStepN = 200;
-  const double massTop = 172.5;
-  double landauMean = 58.0;
-  double landauSigma = 22.0;
-  double epsForCheck = 1e+0;
+  // constants
+  const double massW = 80.4; // W boson mass
+  const double massTop = 172.5; // top quark mass
+  double landauMean = 58.0; // mean of Landau distribution for neutrino momentum spectrum (see DESY-THESIS-2012-037)
+  double landauSigma = 22.0; // sigma of Landau distribution for neutrino momentum spectrum (see DESY-THESIS-2012-037)
+  double epsForCheck = 1e+0; // threshold for numerical precison checks (for debugging purpose)
   
-  ZSolutionKinRecoDilepton* solution = new ZSolutionKinRecoDilepton;
-
+  // Transform input into double variables with short names
   // jet1 (b)
   double xb = b.X();
   double yb = b.Y();
@@ -61,7 +94,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double mlm2 = mlm * mlm;
   double elm = lm.E();
   double elm2 = elm * elm;
-  //printf("mlm: %e\n", mlm);
   // mu (lp)
   double xlp = lp.X();
   double xlp2 = xlp * xlp;
@@ -73,7 +105,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double mlp2 = mlp * mlp;
   double elp = lp.E();
   double elp2 = elp * elp;
-  //printf("mlp: %e\n", mlp);
   // MET
   double ex = metX;
   double ex2 = ex * ex;
@@ -84,6 +115,7 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double mt2 = massTop * massTop;
   double mn2 = 0.0;
   
+  // Calculate coefficients from Lars' paper
   // a coefs
   double a1 = (eb + elp) * (mw2 - mlp2 - mn2) - elp * (mt2 - mb2 - mlp2 - mn2) + 2 * eb * elp2 - 2 * elp * (xb * xlp + yb * ylp + zb * zlp);
   double a12 = a1 * a1;
@@ -93,7 +125,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double a32 = a3 * a3;
   double a4 = 2 * (eb * zlp - elp * zb);
   double a42 = a4 * a4;
-
   // b coefs
   double b1 = (ebbar + elm) * (mw2 - mlm2 - mn2) - elm * (mt2 - mbbar2 - mlm2 - mn2) + 2 * ebbar * elm2 - 2 * elm * (xbbar * xlm + ybbar * ylm + zbbar * zlm);
   double b12 = b1 * b1;
@@ -103,7 +134,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double b32 = b3 * b3;
   double b4 = 2 * (ebbar * zlm - elm * zbbar);
   double b42 = b4 * b4;
-  
   // c coefs
   double c22 = TMath::Power(mw2 - mlp2 - mn2, 2.0) - 4 * (elp2 - zlp2) * a12 / a42 - 4 * (mw2 - mlp2 - mn2) * zlp * a1 / a4;
   double c21 = 4 * (mw2 - mlp2 - mn2) * (xlp - zlp * a2 / a4) - 8 * (elp2 - zlp2) * a1 * a2 / a42 - 8 * xlp * zlp * a1 / a4;
@@ -111,7 +141,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double c11 = 4 * (mw2 - mlp2 - mn2) * (ylp - zlp * a3 / a4) - 8 * (elp2 - zlp2) * a1 * a3 / a42 - 8 * ylp * zlp * a1 / a4;
   double c10 = -8 * (elp2 - zlp2) * a2 * a3 / a42 + 8 * xlp * ylp - 8 * xlp * zlp * a3 / a4 - 8 * ylp * zlp * a2 / a4;
   double c00 = -4 * (elp2 - ylp2) - 4 * (elp2 - zlp2) * a32 / a42 - 8 * ylp * zlp * a3 / a4;
-  
   // d' coefs
   double d22p = TMath::Power(mw2 - mlm2 - mn2, 2.0) - 4 * (elm2 - zlm2) * b12 / b42 - 4 * (mw2 - mlm2 - mn2) * zlm * b1 / b4;
   double d21p = 4 * (mw2 - mlm2 - mn2) * (xlm - zlm * b2 / b4) - 8 * (elm2 - zlm2) * b1 * b2 / b42 - 8 * xlm * zlm * b1 / b4;
@@ -119,7 +148,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double d11p = 4 * (mw2 - mlm2 - mn2) * (ylm - zlm * b3 / b4) - 8 * (elm2 - zlm2) * b1 * b3 / b42 - 8 * ylm * zlm * b1 / b4;
   double d10p = -8 * (elm2 - zlm2) * b2 * b3 / b42 + 8 * xlm * ylm - 8 * xlm * zlm * b3 / b4 - 8 * ylm * zlm * b2 / b4;
   double d00p = -4 * (elm2 - ylm2) - 4 * (elm2 - zlm2) * b32 / b42 - 8 * ylm * zlm * b3 / b4;
-  
   // d coefs
   double d22 = d22p + ex2 * d20p + ey2 * d00p + ex * ey * d10p + ex * d21p + ey * d11p;
   double d21 = - d21p - 2 * ex * d20p - ey * d10p;
@@ -127,7 +155,6 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   double d11 = - d11p - 2 * ey * d00p - ex * d10p;
   double d10 = d10p;
   double d00 = d00p;
-  
   // h coefs
   double h4 = c00 * c00 * d22 * d22 + c11 * d22 * (c11 * d00 - c00 * d11) 
             + c00 * c22 * (d11 * d11 - 2 * d00 * d22) + c22 * d00 * (c22 * d00 - c11 * d11);
@@ -152,6 +179,7 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   // solve quartic equation
   ROOT::Math::Polynomial eq(4);
   double pars[5] = { h4, h3, h2, h1, h0 };
+  // apply globale scaling to avoid possible numerical precision problems
   double minpar = 1e100;
   for(int p = 0; p < 5; p++)
     if(TMath::Abs(pars[p]) < minpar)
@@ -164,8 +192,7 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
   if(gDebug)
     printf("N roots: %ld\n", roots.size());
   
-  // restore all nu and nubar components
-  //std::vector<std::pair<TLorentzVectorvSolutions
+  // restore all nu and nubar momenta components (see again Lars' paper)
   TLorentzVector nu, nubar, nuBest, nubarBest;
   double weightBest = -1.0;
   for(int s = 0; s < roots.size(); s++)
@@ -204,9 +231,9 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
     TLorentzVector wm = lm + nubar;
     TLorentzVector t = wp + b;
     TLorentzVector tbar = wm + bbar;
-    //TLorentzVector ttbar = t + tbar;
     if(gDebug)
       printf("%e %e %e %e %e %e\n", wp.M(), wm.M(), t.M(), tbar.M(), nu.X() + nubar.X() - ex, nu.Y() + nubar.Y() - ey);
+    // below are some calculations done for debugging purpose
     double inaccuracy = TMath::Abs(wp.M() - massW) + TMath::Abs(wm.M() - massW)
                       + TMath::Abs(t.M() - massTop) + TMath::Abs(tbar.M() - massTop) 
                       + TMath::Abs((nu + nubar).X() - ex) + TMath::Abs((nu + nubar).Y() - ey);
@@ -224,55 +251,88 @@ ZSolutionKinRecoDilepton* SolveKinRecoDilepton(const TLorentzVector& lm, const T
       if(gDebug)
         printf("inaccuracy: %f\n", inaccuracy);
     }
-    // calculate weight according to nu and nubar momenta
+    // calculate weight according to nu and nubar momenta (see DESY-THESIS-2012-037)
     double wnu = TMath::Landau(nu.E(), landauMean, landauSigma);
     double wnubar = TMath::Landau(nubar.E(), landauMean, landauSigma);
     double weight = wnu * wnubar;
     if(gDebug)
       printf("nu e: %f %f  weight: %f\n", nu.E(), nubar.E(), weight);
+    // update solution, if this is the best weight
     if(weight > weightBest)
     {
       weightBest = weight;
       nuBest = nu;
       nubarBest = nubar;
     }
+    // for debugging purpose, if needed
     if(ambiguity)
       (*ambiguity)++;
   }
   
-  // set solution
+  // if the best weight is default negative, there is no solution
   if(weightBest < 0.0)
     return NULL;
+  
+  // store and return best solution as ZSolutionKinRecoDilepton instance
   solution = new ZSolutionKinRecoDilepton;
   solution->zT = (nuBest + lp + b);
   solution->zTbar = (nubarBest + lm + bbar);
   solution->zWeight = weightBest;
   return solution;
 }
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>> KinRecoDilepton routine >>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Routine to solve the kinreco problem for the whole event (possibly with more than 2 jets)
+// Arguments:
+//    const TLorentzVector& lm:   lepton- momentum
+//    const TLorentzVector& lp:   lepton+ momentum
+//    const std::vector<TLorentzVector>& jets: container with jet momenta
+//    const double metX:          x-component of missing transverse energy (MET)
+//    const double metY:          y-component of missing transverse energy
+//    const TLorentzVector& t:    top momentum (output)
+//    const TLorentzVector& tbar: top momentum (output)
+//    TH1D* hInacc = NULL:        histogram to be filled with the calculated inaccuracy (for debugging purpose, not filled by default, see there usage in SolveKinRecoDilepton())
+//    TH1D* ambiguity = NULL:     histogram to be filled with the number of ambiguities (for debugging purpose, not filled by default, see there usage in SolveKinRecoDilepton())
+// Returns 1 for successfull kinreco, 0 otherwise
+// 
 int KinRecoDilepton(const TLorentzVector& lm, const TLorentzVector& mp, const std::vector<TLorentzVector>& jets, 
   const double metX, const double metY, TLorentzVector& t, TLorentzVector& tbar, TH1D* hInacc = NULL, TH1D* hAmbig = NULL)
 {
+  // solution status (to be returned)
   int solved = 0;
+  // best number of b-tagged jets (maximum 2)
   int bTagBest = 0;
+  // best (largest) solution weight
   double weightBest = 0.0;
   
+  // container with solutions
   std::vector<ZSolutionKinRecoDilepton*> vSolutions;
+  // ambiguity and hAmbig pointers are for debugging purpose, not used normally
   int* ambiguity = NULL;
   if(hAmbig)
     ambiguity = new int(0);
+    
+  // print the number of jets if needed
   if(gDebug)
     printf("N jets: %ld\n", jets.size());
+  
+  // loop over 1st jet
   for(std::vector<TLorentzVector>::const_iterator jet1 = jets.begin(); jet1 != jets.end(); jet1++)
   {
     // skip if already have solution(s) with two b-tagged jets
     //if(jet1->pt() > 0 && bTagBest > 0)
     //  continue;
+    // loop over 2nd jet
     for(std::vector<TLorentzVector>::const_iterator jet2 = jets.begin(); jet2 != jets.end(); jet2++)
     {
       // skip same jets
       if(jet1 == jet2) continue;
-      // for this pair of jets, calculate number of b-tagged jets
+      // for this pair of jets, calculate number of b-tagged jets,
+      // b-tagged jets are provided with negative masses (see selection.h):
+      // account for this, then switch their masses to normal
       int bTagThis = 0;
       TLorentzVector jetB, jetBbar;
       if(jet1->M() < 0)
@@ -293,21 +353,26 @@ int KinRecoDilepton(const TLorentzVector& lm, const TLorentzVector& mp, const st
       }
       else
         jetBbar = *jet2;
-      //if(bTagThis < bTagBest)
-      //  continue;
-      //if(bTagThis == 0)
-      //  continue;
       // get solution
       TLorentzVector tThis, tbarThis;
       ZSolutionKinRecoDilepton* solution = SolveKinRecoDilepton(lm, mp, jetB, jetBbar, metX, metY, hInacc, ambiguity);
       if(!solution || solution->zWeight < 0)
         continue;
+      // set b-tagging number
       solution->zBTag = bTagThis;
+      // push to the container
       vSolutions.push_back(solution);
     }
   }
   
-  // find best solution
+  // find best solution, preference order:
+  //   with 2 b-tagged jets, if no then
+  //   with 1 b-tagged jet, if no then
+  //   with 0 b-tagged jets.
+  // If more than one solution with the same number of b-tagged jets 
+  // is available, take the solution with the largest weight 
+  // (calculated according to the neutrino momenta spectrum, 
+  // see DESY-THESIS-20120-037)
   for(std::vector<ZSolutionKinRecoDilepton*>::iterator it = vSolutions.begin(); it != vSolutions.end(); it++)
   {
     ZSolutionKinRecoDilepton* sol = *it;
@@ -336,16 +401,23 @@ int KinRecoDilepton(const TLorentzVector& lm, const TLorentzVector& mp, const st
   }
   if(solved && hAmbig)
   {
+    // for debugging purpose, if needed
     hAmbig->Fill(*ambiguity);
     delete ambiguity;
   }
   
-  // all done, clear and return
+  // all done, clear memory and return
   for(std::vector<ZSolutionKinRecoDilepton*>::iterator it = vSolutions.begin(); it != vSolutions.end(); it++)
     delete (*it);
   return solved;
 }
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+
+// routines below are not used in the analysis, 
+// available for debugging purpose
+
+// to generate decay a -> b, c
 void Decay(const TLorentzVector& a, const double mb, const double mc, const double r1, const double r2, 
            TLorentzVector& b, TLorentzVector& c)
 {
@@ -369,6 +441,7 @@ void Decay(const TLorentzVector& a, const double mb, const double mc, const doub
   c.Boost(boost);
 }
 
+// print four vector contents
 void PrintTLV(const TString& str, const TLorentzVector& t)
 {
   printf("%10s%10.3f%10.3f%10.3f%10.3f\n", str.Data(), t.X(), t.Y(), t.Z(), t.M());

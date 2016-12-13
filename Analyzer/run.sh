@@ -92,7 +92,8 @@ OUTPUTDIR='data_MuEG'
 # unless you want some pure generator level MC study)
 reco = 1 
 # Process generator level (should be done for signal MC to store 
-# "true" information for detetctor efficiency corrections)
+# "true" information for detector efficiency corrections,
+# not needed for background MC)
 gen  = 0
 # For MC set to 1
 mc   = 0
@@ -111,13 +112,14 @@ mc   = 0
 # this can be overcome by running many parallel jobs.
 # Things to consider when finding the optimal number of jobs:
 #  1) each parallel job eats about 250MB..1GB memory (depending on data or MC sample, how long is running etc.)
-#  2) on Intel Core i5-5300U (2.3GHz) one processor becomes ~100% busy with ~5 jobs
+#  2) on Intel Core i5-5300U (2.3GHz) one processor core becomes ~100% busy with ~5 jobs
 #  3) depends heavily on the newtork access (with slow network you will not win much with many parallel jobs)
+#  4) timing results can be quite stochastic
 # Splitting of input files between parallel jobs is done automatically
 # (there will be NP root and log files in the output directory).
 #
 NP = 1
-outrootsuffix='' # optional suffix for output root file names
+outrootsuffix='' # optional suffix for output root file names (can be a subdirectory, for instance)
 #
 ########################################################################
 
