@@ -1,7 +1,8 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// This code process ROOT ntuples for ttbar analysis (see 
+// This code processes ROOT ntuples for ttbar analysis (see 
 // Analyzer/src/Analyzer.cc) and produces histograms, which are 
 // further used to make final plots (see ttbarMakePlots.cxx).
+// Run: ./ttbarMakeHist
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //
 // additional files from this analysis (look there for description) 

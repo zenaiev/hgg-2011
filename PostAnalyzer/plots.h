@@ -1,4 +1,10 @@
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>> Helper for plotter >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// additional files from this analysis 
 #include "settings.h"
+// C++ library or ROOT header files
 #include <TCanvas.h>
 #include <TH1F.h>
 #include <TH2F.h>
@@ -9,7 +15,12 @@
 #include <TGraphAsymmErrors.h>
 #include <TMath.h>
 
-TGraphAsymmErrors* HtoGragh(TH1* h, double xpos = 0.5, TH1* hline = NULL)
+// produce graph from histogram
+// Argumnets:
+//    TH1* h: input histogram
+//    double xpos = 0.5: relative position for y point of the graph (for default 0.5 in the middle ob the bin)
+// Returns produced graph
+TGraphAsymmErrors* HtoGragh(const TH1* h, double xpos = 0.5)
 {
   TGraphAsymmErrors* g = new TGraphAsymmErrors;
   for(int b = 0; b < h->GetNbinsX(); b++)
@@ -29,28 +40,33 @@ TGraphAsymmErrors* HtoGragh(TH1* h, double xpos = 0.5, TH1* hline = NULL)
   return g;
 }
 
+// helper class which contains input for x-section plotting
 class ZPlotCSInput
 {
   public:
     // directories
     TString baseDir;
     TString plotDir;
-    // MC backgrounds
+    // MC background samples
     std::vector<TString> VecMCBackgr;
-    // variables
-    std::vector<TH2F*> VecHR;
+    // variables for x-sections and their 2D "range" histograms
     std::vector<TString> VecVar;
+    std::vector<TH2F*> VecHR;
     // channels
     std::vector<TString> VecTitle;
     std::vector<int> VecColor;
     std::vector<int> VecStyle;
-    // absolute or normalised
+    // if true, normalised cross section are plotted
     bool Norm;
-    // reference from paper
+    // if true, reference x-sections from paper are plotted
     bool Paper;
 };
 
-// paper cs ptt
+// routine to get x-section rfom TOP-11-013 (they are hardcoded inside)
+// Arguments:
+//   const TString& var: variable name (input)
+//   TGraphAsymmErrors* gstat: produced graph with statistical uncertainties (output)
+//   TGraphAsymmErrors* gsyst: produced graph with total (stat. + systematical) uncertainties (output)
 void GetPaperCS(const TString& var, TGraphAsymmErrors* gstat, TGraphAsymmErrors* gsyst)
 {
   double *sig, *stat, *syst;
@@ -94,14 +110,17 @@ void GetPaperCS(const TString& var, TGraphAsymmErrors* gstat, TGraphAsymmErrors*
   }
 }
 
-
+// routine to calculate and plot x-xsections
+// Arguments:
+//   const ZPlotCSInput& in: steering (see class ZPlotCSInput above)
+//          (not flexible: should contain variables in the needed 
+//           order, see ttbarMakePlots.cxx)
 void PlotCS(const ZPlotCSInput& in)
 {
   TCanvas* c_cs;
-  //c_cs = new TCanvas(TString::Format("ccs"), "", 800, 1200);
-  //c_cs->Divide(2,3, 0.0001);
-  c_cs = new TCanvas(TString::Format("ccs"), "", 1200, 800);
-  c_cs->Divide(3,2, 0.0001);
+  c_cs = new TCanvas("ccs", "", 1200, 800);
+  c_cs->Divide(3, 2, 0.0001);
+  // loop over variables 
   for(int v = 0; v < 5; v++)
   {
     c_cs->cd(v + 1);
@@ -109,6 +128,7 @@ void PlotCS(const ZPlotCSInput& in)
       gPad->SetLogy();
     in.VecHR[v]->Draw();
     TString var = in.VecVar[v];
+    // histograms for combined dilepton channel (to be obtained)
     TH1D *hcombsig, *hcombreco, *hcombgen;
     double nsig = 0;
     double nreco = 0;
@@ -119,7 +139,7 @@ void PlotCS(const ZPlotCSInput& in)
     leg->SetFillStyle(0);
     for (int ch = 1; ch < 4; ch++)
     {
-      // MC backgr
+      // MC background
       TH1D* hbackgr;
       for(int mc = 0; mc < in.VecMCBackgr.size(); mc++)
       {
@@ -130,18 +150,16 @@ void PlotCS(const ZPlotCSInput& in)
         else
           hbackgr->Add(h);
       }
-      //hbackgr->Print("all");
       // data
       TFile* f = TFile::Open(TString::Format("%s/data-c%d.root", in.baseDir.Data(), ch));
       TH1D* hsig = new TH1D(*(TH1D*)f->Get(TString::Format("h_%s_cs", var.Data())));
-      //hsig->Print("all");
       hsig->Add(hbackgr, -1.0);
       nsig += hsig->Integral(0, hsig->GetNbinsX());
       if(ch == 1)
         hcombsig = new TH1D(*hsig);
       else
         hcombsig->Add(hsig);
-      // MC reco
+      // MC reconstruction level
       f = TFile::Open(TString::Format("%s/mcSigReco-c%d.root", in.baseDir.Data(), ch));
       TH1D* hacc = new TH1D(*(TH1D*)f->Get(TString::Format("h_%s_cs", var.Data())));
       nreco += hacc->Integral(0, hacc->GetNbinsX());
@@ -149,7 +167,7 @@ void PlotCS(const ZPlotCSInput& in)
         hcombreco = new TH1D(*hacc);
       else
         hcombreco->Add(hacc);
-      // MC gen
+      // MC generatir level
       f = TFile::Open(TString::Format("%s/mcSigGen-c%d.root", in.baseDir.Data(), ch));
       TH1D* hgen = (TH1D*)f->Get(TString::Format("h_%s_cs", var.Data()));
       ngen += hgen->Integral(0, hgen->GetNbinsX());
@@ -157,23 +175,24 @@ void PlotCS(const ZPlotCSInput& in)
         hcombgen = new TH1D(*hgen);
       else
         hcombgen->Add(hgen);
-      // acceptance
+      // acceptance (also referred to as detector efficiency)
       hacc->Divide(hgen);
       // cross section
       TH1D* hcs = hsig;
       hcs->Divide(hacc);
       double cs, cserr;
       cs = hcs->IntegralAndError(0, hcs->GetNbinsX() + 1, cserr);
-      double br = 0.0115 * 2500.0;
+      double br = 0.0115 * 2500.0; // branching ratio (ee, mumu) times luminosity
       if(ch == 3)
-        br *= 2.0;
-      printf("CS c%d %s:  %.1f +- %.1f\n", ch, var.Data(), cs / br, cserr / br);
+        br *= 2.0; // branching ratio 2 times larger for the emu channel
+      // print calculated cross section
+      // (channel code is: c1 ee, c2 mumu, c3 emu) 
+      // print only x-section in the emu channel (most precise and the only available in the paper TOP-13-004)
+      if(ch == 3)
+        printf("x-section c%d %s:  %.1f +- %.1f\n", ch, var.Data(), cs / br, cserr / br);
       if(in.Norm)
         hcs->Scale(1.0 / hcs->Integral(), "width");
-      //hcs->Print("all");
-      //return 1;
-      // draw
-      //TGraphAsymmErrors* gcs = HtoGragh(hcs, (ch == 1) ? 0.2 : ((ch == 2) ? 0.35 : 0.65));
+      // draw plot
       TGraphAsymmErrors* gcs = HtoGragh(hcs, 0.10 + 0.1 * ch);
       gcs->SetLineColor(in.VecColor[ch]);
       gcs->SetMarkerStyle(in.VecStyle[ch]);
@@ -182,7 +201,7 @@ void PlotCS(const ZPlotCSInput& in)
       leg->AddEntry(gcs, in.VecTitle[ch], "p");
       gcs->Draw("pz0");
     }
-    // combined
+    // combined channel
     TH1D* hcombacc = hcombreco;
     hcombacc->Divide(hcombgen);
     TH1D* hcombcs = hcombsig;
@@ -190,8 +209,9 @@ void PlotCS(const ZPlotCSInput& in)
     double cs, cserr;
     cs = hcombcs->IntegralAndError(0, hcombcs->GetNbinsX() + 1, cserr);
     double br = 0.046 * 2500.0;
-    //printf("CS dilepton %s:  %.1f +- %.1f (%.1f)\n", var.Data(), cs / br, cserr / br, nsig / nreco * ngen / br);
-    printf("CS dilepton %s:  %.1f +- %.1f\n", var.Data(), cs / br, cserr / br, nsig / nreco * ngen / br);
+    // the total x-section in the combined dilepton channel is calculated, 
+    // but not plotted by default: no reference number form in CMS papers
+    //printf("x-section dilepton %s:  %.1f +- %.1f\n", var.Data(), cs / br, cserr / br, nsig / nreco * ngen / br);
     if(in.Norm)
       hcombcs->Scale(1.0 / hcombcs->Integral(), "width");
     TGraphAsymmErrors* gcombcs = HtoGragh(hcombcs);
@@ -221,7 +241,6 @@ void PlotCS(const ZPlotCSInput& in)
       GetPaperCS(var, gstat, gsyst);
       gstat->Draw("p0");
       gsyst->Draw("pz0");
-      //gstat->Print("all");
       leg->AddEntry(gstat, "CMS-TOP-11-013", "pe");
     }
     leg->Draw();
