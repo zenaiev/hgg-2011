@@ -7,7 +7,7 @@ Relevant CMS publication:
 Further relevant information can be found also in DESY-THESIS-2012-037
 
 There are two parts in this analysis:
- * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; will take ~ 2 weeks to process the full data + MC samples and ~ 3Gb free space for the produced ntuples
+ * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; will take ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
  * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); will take about 15 minutes
 
 ## Creating the working area

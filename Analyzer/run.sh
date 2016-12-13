@@ -1,58 +1,134 @@
 #/bin/bash
-
-#INPUTLIST='data/CMS_Run2011A_MuEG_AOD_12Oct2013-v1-first10.txt'
-#INPUTLIST='data/CMS_Run2011A_MuEG_AOD_12Oct2013-v1-10percent_index.txt'
-
-#INPUTLIST='data/CMS_Run2011A_MuEG_AOD_12Oct2013-v1-all_file_index.txt'
+#
+# This is the main script to run cmsRun jobs, both for data and MC
+# First configuration part comes (set 'INPUTLIST', 'OUTPUTDIR', 
+# 'reco', 'gen', 'mc', 'NP', 'outrootsuffix'), then call to cmsRun, 
+# which process analyzer_cfg.py file (find there further description 
+# if needed). To run this script, execute the command:
+# ./run.sh
+#
+# You may run this script in the terminal and close the terminal, 
+# the jobs will keep working (nohup). If you need to kill all running 
+# jobs, execute the command 'killall -9 cmsRun'
+#
+# Typically, you need to run this script once per each data and MC 
+# data sample.
+#
+########################################################################
+########################## Input lists #################################
+########################################################################
+#
+# Uncomment one 'INPUTLIST' and the corresponding 'OUTPUTDIR'
+# (by default data emu sample is uncommented). 
+# For Monte Carlo (MC) set mc = 1 below, for signal MC also set gen = 1
+#
+# Data
+INPUTLIST='data/CMS_Run2011A_MuEG_AOD_12Oct2013-v1-all_file_index.txt'
 #INPUTLIST='data/CMS_Run2011A_DoubleMu_AOD_12Oct2013-v1-all_file_index.txt'
-INPUTLIST='data/CMS_Run2011A_DoubleElectron_AOD_12Oct2013-v1-all_file_index.txt'
-
-#INPUTLIST='data/CMS_Run2011A_DoubleElectron_AOD_12Oct2013-v1_20000_file_index.txt'
-
-# MC TTJets_TuneZ2_7TeV-madgraph-tauola
-#PROCESSING 
+#INPUTLIST='data/CMS_Run2011A_DoubleElectron_AOD_12Oct2013-v1-all_file_index.txt'
+#
+# MC ttbar (signal and 'ttbar other' background) - most time consuming!
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_00001_file_index.txt'
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_010000_file_index.txt'
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_010001_file_index.txt'
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_010002_file_index.txt'
 #DONE INPUTLIST='mc/TTJets_TuneZ2_7TeV-madgraph-tauola/CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_010003_file_index.txt'
-# Single t
+#
+# MC single t (background)
 #INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_T_TuneZ2_tW-channel-DR_7TeV-powheg-tauola_AODSIM_PU_S13_START53_LV6_file_index.txt'
-INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
-# Diboson
-#INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_WW_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
-#INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_WZ_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
-#INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_ZZ_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
-# WZjets
+#INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
+#
+# MC Wjets (background)
 #DONE INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_WJetsToLNu_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6_file_index.txt'
+#
+# MC Drell-Yan (background)
 #DONE INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_DYJetsToLL_M-10To50_TuneZ2_7TeV-pythia6_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
 #DONE INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6_file_index.txt'
+#
+########################################################################
 
-#INPUTLIST='failed.txt'
-
-NP=5
-outrootsuffix=''
-
-#OUTPUTDIR='ttbarSelected_TEST'
-
-#OUTPUTDIR='data22112016_MuEG'
+########################################################################
+########################## Output directory ############################
+########################################################################
+#
+# Uncomment one 'OUTPUTDIR' based on the the corresponding 'INPUTLIST'
+# (this is just a name: it could be any, but makes sence to use consistent one)
+# (by default the directory for data emu sample is uncommented). 
+# The produced output ROOT files in this directory have to be 
+# processed by PostAnalyzer after all (see PostAnalyzer/README.txt).
+#
+# Data
+OUTPUTDIR='data_MuEG'
 #OUTPUTDIR='data_DoubleMu'
 #OUTPUTDIR='data_DoubleElectron'
+#
+# MC ttbar (signal and 'ttbar other' background)
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_00000'
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_00001'
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_010000'
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_010001'
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_010002'
+#OUTPUTDIR='MC_TTJets_TuneZ2_7TeV-madgraph-tauola_010003'
+#
+# MC single t (background)
+#OUTPUTDIR='MC_T_TuneZ2_tW-channel-DR_7TeV-powheg-tauola'
+#OUTPUTDIR='MC_Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola'
+#
+# MC Wjets (background)
+#OUTPUTDIR='MC_WJetsToLNu_TuneZ2_7TeV-madgraph-tauola'
+#
+# MC Drell-Yan (background)
+#OUTPUTDIR='MC_DYJetsToLL_M-10To50_TuneZ2_7TeV-pythia6'
+#OUTPUTDIR='MC_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola'
+#
+########################################################################
 
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_TTJets_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6-v1_010002'
-# Single t
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_T_TuneZ2_tW-channel-DR_7TeV-powheg-tauola_AODSIM_PU_S13_START53_LV6/111'
-OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola_AODSIM_PU_S13_START53_LV6'
-# Diboson
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_WW_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6'
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_WZ_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6'
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_ZZ_TuneZ2_7TeV_pythia6_tauola_AODSIM_PU_S13_START53_LV6'
-# WZjets
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_WJetsToLNu_TuneZ2_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6'
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_DYJetsToLL_M-10To50_TuneZ2_7TeV-pythia6_AODSIM_PU_S13_START53_LV6'
-#OUTPUTDIR='ttbarSelected_CMS_MonteCarlo2011_Summer11LegDR_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_AODSIM_PU_S13_START53_LV6'
+########################################################################
+########################## Flags #######################################
+########################################################################
+#
+# Process reconstruction level (normally always should be done, 
+# unless you want some pure generator level MC study)
+reco = 1 
+# Process generator level (should be done for signal MC to store 
+# "true" information for detetctor efficiency corrections)
+gen  = 0
+# For MC set to 1
+mc   = 0
+########################################################################
 
+########################################################################
+#################### Parallel jobs settings ############################
+########################################################################
+#
+# Very important part! Proper setting here might make your analysis ~ 10 times faster.
+# It will definitely require some exercises to find optimal number jobs for your machine. 
+# The default setting NP = 1 is the most simple and will always work, 
+# although performance-wise it is most likely least optimal.
+# The basic feature is that the data server responce is latent 
+# (typically data are read in portions of a few MB each 1..100 seconds), 
+# this can be overcome by running many parallel jobs.
+# Things to consider when finding the optimal number of jobs:
+#  1) each parallel job eats about 250MB..1GB memory (depending on data or MC sample, how long is running etc.)
+#  2) on Intel Core i5-5300U (2.3GHz) one processor becomes ~100% busy with ~5 jobs
+#  3) depends heavily on the newtork access (with slow network you will not win much with many parallel jobs)
+# Splitting of input files between parallel jobs is done automatically
+# (there will be NP root and log files in the output directory).
+#
+NP = 1
+outrootsuffix='' # optional suffix for output root file names
+#
+########################################################################
+
+########################################################################
+#################### Call cmsRun analyzer_cfg.py #######################
+########################################################################
+#
+# This part just makes some checks, prepares arguments and passes them 
+# to analyzer_cfg.py (settings chosen above): normally you do not need 
+# to change anything here
+#
 if [ ! -f $INPUTLIST ]
 then
   echo "Error: no input file $INPUTLIST"
@@ -72,14 +148,13 @@ else
     if [ $p == $NP ]; then p=0; fi
   done
 fi
-
-
+# call cmsRun analyzer_cfg.py for each parallel job
 for p in `seq 1 $NP`
-#for p in `echo 3 6`
 do
-  command='time cmsRun analyzer_cfg.py '${OUTPUTDIR}'/inputList'${outrootsuffix}'_'${p}'.txt '${OUTPUTDIR}'/ttbarSel'${outrootsuffix}'_'${p}'.root'
+  command='time cmsRun analyzer_cfg.py '${OUTPUTDIR}'/inputList'${outrootsuffix}'_'${p}'.txt '${OUTPUTDIR}'/ttbarSel'${outrootsuffix}'_'${p}'.root' reco gen mc
   nohup $command >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
 done
+########################################################################
 
 exit 0
 

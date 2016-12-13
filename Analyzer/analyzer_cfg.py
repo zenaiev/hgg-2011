@@ -5,40 +5,55 @@ import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.Utilities.FileUtils as FileUtils
 import sys
 
-# ******* reconstructed or/and generated *********
-reco = 1
-gen  = 0
-mc   = 1
-if gen == 1 and mc == 0: 
-  sys.exit("Error: gen = 1 requires mc = 1")
-# ************************************************
-
-inFile1MuEG = 'file:root://eospublic.cern.ch//eos/opendata/cms/Run2011A/MuEG/AOD/12Oct2013-v1/20001/00440023-843E-E311-A760-02163E008D8E.root'
-inFile1DoubleMu = 'file:root://eospublic.cern.ch//eos/opendata/cms/Run2011A/DoubleMu/AOD/12Oct2013-v1/10000/000D143E-9535-E311-B88B-002618943934.root'
-inFile1DoubleEl = 'file:root://eospublic.cern.ch//eos/opendata/cms/Run2011A/DoubleElectron/AOD/12Oct2013-v1/20000/0014CE62-9C3E-E311-8FCC-00261894389F.root'
-
-#inFileTest = 'file:/home/cms-opendata/CMSSW_5_3_32/src/ttbar/Analyzer/small.root'
-#inFileTest = 'file:root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2011/Summer11LegDR/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S13_START53_LV6-v1/00003/B47F2161-0DB6-E311-B0FB-00304867902E.root'
-#inFileTest = 'file:/home/cms-opendata/cmsOpenDataFiles/00440023-843E-E311-A760-02163E008D8E.root'
-#inFileTest = 'file:/home/cms-opendata/cmsOpenDataFiles/825B6645-B8CE-E311-A85A-0025B3E05CBC.root'
-inFileTest = 'file:/home/cms-opendata/cmsOpenDataFiles/00345E78-7CC5-E311-A9C7-001E6739730A.root'
-
-outFileTest = 'ttbarSelTmp.root'
-
-# arguments
+########################################################################
+#################### Passed arguments ##################################
+########################################################################
+#
+# can be invoked with no parameters passed, in this case use default values
+#
+# input file name
+inFileTest = 'root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2011/Summer11LegDR/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S13_START53_LV6-v1/00000/00A4E1AF-B3C7-E311-BA6D-002590200808.root'
+# for fast tests, you can copy input ROOT files to the local machine
+#inFileTest = 'file:/home/cms-opendata/cmsOpenDataFiles/00A4E1AF-B3C7-E311-BA6D-002590200808.root'
+#
+# output file name
+outFileTest = 'ttbarTmp.root'
+#
+# flags which determine what will be done
+reco = 1   # process reconstruction level
+gen  = 1   # process generated level
+mc   = 1   # 1 for mc, 0 for data
+#
+# process passed arguments, if any
+#
 if len(sys.argv) < 4:
-  print("Usage: cmsRun analyzer_cfg.py <input list> <output file>")
+  print("Usage: cmsRun analyzer_cfg.py <input list> <output file> <reco flag> <gen flag> <mc flag>")
   inputList = inFileTest;outFile = outFileTest
+  # do not stop execution at this point, run with defauls arguments
   #sys.exit("Wrong usage!")
 else:                 
   inputList = FileUtils.loadListFromFile(sys.argv[2])
-  outFile = sys.argv[3]
-
+  outFile   = sys.argv[3]
+  reco      = sys.argv[4]
+  gen       = sys.argv[5]
+  mc        = sys.argv[6]
+# consistency check
+if gen == 1 and mc == 0: 
+  sys.exit("Error: gen = 1 requires mc = 1")
+#
+########################################################################
+#
+########################################################################
+#################### Prepare and run Analyzer ##########################
+########################################################################
+#
 process = cms.Process("Demo")
+# load needed tools
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-# global tag from http://opendata.cern.ch/getting-started/CMS?ln=en
+#
+# global tag as described at http://opendata.cern.ch/getting-started/CMS?ln=en
 if mc == 0:
 # DATA
 # Before should be done:
@@ -53,38 +68,51 @@ if mc == 0:
 else:
   process.GlobalTag.connect = cms.string('sqlite_file:/cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1.db')
   process.GlobalTag.globaltag = 'START53_LV6A1::All'
-   
+#
 # intialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'ERROR'
 process.MessageLogger.categories.append('Demo')
+# change the value below if you want more or less status output
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-#process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound') )
-
+#
+# Change this to a positive value to limit the number of processed events
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-
+#
+# supply processor with input files
 if len(sys.argv) < 4:
+  # only one file in the list
   process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(inputList))
 else:
+  # many files in the list
   process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(*inputList))
-
-# JSON
-goodJSON = '/home/cms-opendata/CMSSW_5_3_32/src/ttbar/Analyzer/data/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt'
-myLumis = LumiList.LumiList(filename = goodJSON).getCMSSWString().split(',') 
+#
+# JSON (good luminosity sections), only if processing data
 if mc == 0:
+  goodJSON = 'data/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt'
+  myLumis = LumiList.LumiList(filename = goodJSON).getCMSSWString().split(',') 
   process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
   process.source.lumisToProcess.extend(myLumis) 
-
+#
 # Load jet correction services for all jet algoritms
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-
+#
+# all is ready: pass all arguments to Anlayzer (C++ code in src/Analtyzer.cc)
 process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = cms.int32(mc), reco = cms.int32(reco), gen = cms.int32(gen))
 process.p = cms.Path(process.demo)
-
-# print MC generated particles
+#
+########################################################################
+#
+########################################################################
+#################### ParticleTreeDrawer ################################
+########################################################################
+#
+# this is another processor which prints MC generated particles
+# (if you wanr this, disable Analyzer above)
+#
 #process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
 #                                   src = cms.InputTag("genParticles"),                                                                 
@@ -96,3 +124,5 @@ process.p = cms.Path(process.demo)
 #                                   #status = cms.untracked.vint32( 3 )
 #                                   )
 #process.p = cms.Path( process.printTree)
+#
+########################################################################
