@@ -10,6 +10,8 @@ There are two parts in this analysis:
  * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; will take ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
  * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); will take about 5 minutes
 
+For the general description of the analysis see also attached description-ttbar.pdf
+
 ## Instructions how to run the analysis
 
 First you need to create the working area (his step is only needed the first time you setup this program). You can create the working area for this analysis on the VM which has other instances of CMSSW, just keep them in different directories.
