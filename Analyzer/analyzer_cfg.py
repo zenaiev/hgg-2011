@@ -20,25 +20,26 @@ inFileTest = 'root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2011/Summer11
 outFileTest = 'ttbarTmp.root'
 #
 # flags which determine what will be done
-reco = 1   # process reconstruction level
-gen  = 1   # process generated level
-mc   = 1   # 1 for mc, 0 for data
+flag_reco = 1   # process reconstruction level
+flag_gen  = 1   # process generated level
+flag_mc   = 1   # 1 for mc, 0 for data
 #
 # process passed arguments, if any
 #
 if len(sys.argv) < 4:
   print("Usage: cmsRun analyzer_cfg.py <input list> <output file> <reco flag> <gen flag> <mc flag>")
-  inputList = inFileTest;outFile = outFileTest
+  inputList = inFileTest
+  outFile = outFileTest
   # do not stop execution at this point, run with defauls arguments
   #sys.exit("Wrong usage!")
 else:                 
   inputList = FileUtils.loadListFromFile(sys.argv[2])
   outFile   = sys.argv[3]
-  reco      = sys.argv[4]
-  gen       = sys.argv[5]
-  mc        = sys.argv[6]
+  flag_reco = int(sys.argv[4])
+  flag_gen  = int(sys.argv[5])
+  flag_mc   = int(sys.argv[6])
 # consistency check
-if gen == 1 and mc == 0: 
+if flag_gen == 1 and flag_mc == 0: 
   sys.exit("Error: gen = 1 requires mc = 1")
 #
 ########################################################################
@@ -54,7 +55,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #
 # global tag as described at http://opendata.cern.ch/getting-started/CMS?ln=en
-if mc == 0:
+if flag_mc == 0:
 # DATA
 # Before should be done:
 #    ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT_53_LV5_AN1_RUNA FT_53_LV5_AN1
@@ -91,7 +92,7 @@ else:
   process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(*inputList))
 #
 # JSON (good luminosity sections), only if processing data
-if mc == 0:
+if flag_mc == 0:
   goodJSON = 'data/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt'
   myLumis = LumiList.LumiList(filename = goodJSON).getCMSSWString().split(',') 
   process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
@@ -101,7 +102,7 @@ if mc == 0:
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 #
 # all is ready: pass all arguments to Anlayzer (C++ code in src/Analtyzer.cc)
-process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = cms.int32(mc), reco = cms.int32(reco), gen = cms.int32(gen))
+process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = CfgTypes.int32(flag_mc), reco = CfgTypes.int32(flag_reco), gen = CfgTypes.int32(flag_gen))
 process.p = cms.Path(process.demo)
 #
 ########################################################################

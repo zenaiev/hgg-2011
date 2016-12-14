@@ -203,7 +203,6 @@ class Analyzer : public edm::EDAnalyzer {
       int _mcNTtbarDilepton;
       int _mcNTtbarDileptonEE;
       int _mcNTtbarDileptonMuMu;
-      //int _mcNTtbarDileptonTauTau;
       int _mcNTtbarDileptonEMu;
       int _mcEventType;
       // generator level four vectors
@@ -289,8 +288,6 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("elConvDist", _elConvDist, "elConvDist[Nel]/F"); // electron (not used) electron conversion distance
     _tree->Branch("elConvDcot", _elConvDcot, "elConvDcot[Nel]/F"); // electron (not used) electron conversion cotangent
     _tree->Branch("elMissHits", _elMissHits, "elMissHits[Nel]/F"); // electron missing hits number 
-    //_tree->Branch("elDistPV0", _elDistPV0, "elDistPV0[Nel]/F"); // electron
-    //_tree->Branch("elDistPVz", _elDistPVz, "elDistPVz[Nel]/F"); // electron
     // jets
     _tree->Branch("Njet", &_Njet, "Njet/I"); // number of jets
     _tree->Branch("jetPt", _jetPt, "jetPt[Njet]/F"); // jet pT
@@ -343,7 +340,6 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _mcNTtbarDilepton = 0; // number of dielectron ttbar decays
     _mcNTtbarDileptonEE = 0; // number of dielectron ttbar decays
     _mcNTtbarDileptonMuMu = 0; // number of dielectron ttbar decays
-    //_mcNTtbarDileptonTauTau = 0;
     _mcNTtbarDileptonEMu = 0; // number of electron-muon ttbar decayse
     // MC generated info to store
     _tree->Branch("mcEventType", &_mcEventType, "mcEventType/I"); // MC generator level event type: 1 ttbar decay into ee, 2 ttbar decay into mumu, 3 ttbar decay into emu, 0 anything else
@@ -377,7 +373,6 @@ Analyzer::~Analyzer()
     printf("%25s = %10d(%5.2f%%)\n", "_mcNTtbarDilepton", _mcNTtbarDilepton, 100. * _mcNTtbarDilepton / _mcNTTbar);
     printf("%25s = %10d(%5.2f%%)\n", "_mcNTtbarDileptonEE", _mcNTtbarDileptonEE, 100. * _mcNTtbarDileptonEE / _mcNTTbar);
     printf("%25s = %10d(%5.2f%%)\n", "_mcNTtbarDileptonMuMu", _mcNTtbarDileptonMuMu, 100. * _mcNTtbarDileptonMuMu / _mcNTTbar);
-    //printf("%25s = %10d(%5.2f%%)\n", "_mcNTtbarDileptonTauTau", _mcNTtbarDileptonTauTau, 100. * _mcNTtbarDileptonTauTau / _mcNTTbar);
     printf("%25s = %10d(%5.2f%%)\n", "_mcNTtbarDileptonEMu", _mcNTtbarDileptonEMu, 100. * _mcNTtbarDileptonEMu / _mcNTTbar);
   }
 
@@ -394,7 +389,6 @@ Analyzer::~Analyzer()
 void Analyzer::InitBranchVars()
 {
   _evRunNumber = 0;
-  //_evLumiBlock = 0;
   _evEventNumber = 0;
   _Nmu = 0;
   _Nel = 0;
@@ -413,7 +407,6 @@ void Analyzer::InitBranchVars()
 int Analyzer::SelectEvent(const edm::Event& iEvent)
 {
   _evRunNumber = iEvent.id().run();
-  //_evLumiBlock = iEvent.id().luminosityBlock();
   _evEventNumber = iEvent.id().event();
   return 0;
 }

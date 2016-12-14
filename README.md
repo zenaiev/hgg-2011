@@ -8,11 +8,11 @@ Further relevant information can be found also in DESY-THESIS-2012-037
 
 There are two parts in this analysis:
  * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; will take ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
- * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); will take about 15 minutes
+ * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); will take about 5 minutes
 
-## Creating the working area
+## Instructions how to run the analysis
 
-This step is only needed the first time you setup this program:
+First you need to create the working area (his step is only needed the first time you setup this program). You can create the working area for this analysis on the VM which has other instances of CMSSW, just keep them in different directories.
 ```
 mkdir WorkingArea
 cd ./WorkingArea
@@ -25,9 +25,9 @@ cd 2011-ttbar/Analyzer
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT_53_LV5_AN1_RUNA FT_53_LV5_AN1     
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1 START53_LV6A1
 ```
-(no need to download data/MC input file lists and JSON: provided with the git)
+(no need to download data/MC input file lists and JSON: provided with the code)
 
-The code in PostAnalyzer should be compiled also:
+Also the code in PostAnalyzer should be compiled:
 ```
 cd PostAnalyzer
 ./compile.sh
@@ -35,8 +35,9 @@ cd PostAnalyzer
 
 ## Running the analysis
 Generally, the analysis steps are:
- * run Analyzer/run.sh, this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~3GB, to be put into PostAnalyzer/data, PostAnalyzer/mc directories) cmsRun jobs, ~ 2 weeks, extensive network access)
- * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (15 mins)
+ * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~3GB), takes ~ 2 weeks, extensive network access
+ * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
+ * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (~5 mins)
  * run PostAnalyzer/ttbarMakePlots to produce final plots from created histograms (few seconds)
 
-Further description of Analyzer and PostAnalyzer you can find Analyzer/README.txt and Postanalyzer/README.txt
+Further description of thse steps you can find Analyzer/README.txt and Postanalyzer/README.txt
