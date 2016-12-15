@@ -1,16 +1,15 @@
 # CMS measurements of top quark pair production in dilepton channel at 7 TeV
 
-Relevant CMS publication:
+Relevant CMS publications:
  * normalised cross sections: EPJ C73 (2013) 2339 [arXiv:1211.2220, TOP-11-013]
  * total cross section: JHEP 1608 (2016) 029 [arXiv:1603.02303,TOP-13-004]
 
 Further relevant information can be found also in DESY-THESIS-2012-037
+For the general description of the analysis see also attached description-ttbar.pdf
 
 There are two parts in this analysis:
- * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; will take ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
- * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); will take about 5 minutes
-
-For the general description of the analysis see also attached description-ttbar.pdf
+ * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
+ * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); takes about 5 minutes
 
 ## Instructions how to run the analysis
 
