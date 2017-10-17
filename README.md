@@ -13,7 +13,7 @@ There are two parts in this analysis:
 
 ## Instructions how to run the analysis
 
-First you need to create the working area (his step is only needed the first time you setup this program). You can create the working area for this analysis on the VM which has other instances of CMSSW, just keep them in different directories.
+First you need to create the working area (this step is only needed the first time you setup this program). You can create the working area for this analysis on the VM which has other instances of CMSSW, just keep them in different directories.
 ```
 mkdir WorkingArea
 cd ./WorkingArea
@@ -41,4 +41,4 @@ Generally, the analysis steps are:
  * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (~5 mins)
  * run PostAnalyzer/ttbarMakePlots to produce final plots from created histograms (few seconds)
 
-Further description of thse steps you can find Analyzer/README.txt and Postanalyzer/README.txt
+Further description of these steps you can find Analyzer/README.txt and Postanalyzer/README.txt
