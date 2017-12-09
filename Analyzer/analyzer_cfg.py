@@ -12,17 +12,21 @@ import sys
 # can be invoked with no parameters passed, in this case use default values
 #
 # input file name
-inFileTest = 'root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2011/Summer11LegDR/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S13_START53_LV6-v1/00000/00A4E1AF-B3C7-E311-BA6D-002590200808.root'
+inFileTest = 'root://eospublic.cern.ch//eos/opendata/cms/Run2011A/Photon/AOD/12Oct2013-v1/20000/04F7597C-9D38-E311-A47C-0025904B2C4E.root'
+#inFileTest = 'root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2011/Summer11LegDR/VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola/AODSIM/PU_S13_START53_LV6-v1/00000/385469CA-1C01-E411-92A7-002590AC4C24.root'
 # for fast tests, you can copy input ROOT files to the local machine
 #inFileTest = 'file:/home/cms-opendata/cmsOpenDataFiles/00A4E1AF-B3C7-E311-BA6D-002590200808.root'
 #
 # output file name
-outFileTest = 'ttbarTmp.root'
+outFileTest = 'hggTmp.root'
 #
 # flags which determine what will be done
 flag_reco = 1   # process reconstruction level
-flag_gen  = 1   # process generated level
-flag_mc   = 1   # 1 for mc, 0 for data
+flag_gen  = 0   # process generated level
+flag_mc   = 0   # 1 for mc, 0 for data
+#
+# number of events to be processed (-1 for all)
+maxEvents = -1
 #
 # process passed arguments, if any
 #
@@ -30,6 +34,7 @@ if len(sys.argv) < 4:
   print("Usage: cmsRun analyzer_cfg.py <input list> <output file> <reco flag> <gen flag> <mc flag>")
   inputList = inFileTest
   outFile = outFileTest
+  maxEvents = 1000
   # do not stop execution at this point, run with default arguments
   #sys.exit("Wrong usage!")
 else:                 
@@ -81,7 +86,7 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(limit = cms.untracked.int32
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 #
 # Change this to a positive value to limit the number of processed events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxEvents) )
 #
 # supply processor with input files
 if len(sys.argv) < 4:
