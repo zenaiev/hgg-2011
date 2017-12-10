@@ -123,7 +123,7 @@ if [ 1 -eq 1 ]; then
     # 75207487 events
     INPUTLIST='data/CMS_Run2011A_Photon_AOD_12Oct2013-v1-all_file_index.txt'
     OUTPUTDIR='ntuples-data/Photon'
-    jobName='hgg-photon-'
+    jobName='hgg-ph-'
     reco=1
     gen=0
     mc=0
