@@ -127,7 +127,8 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=0
     mc=0
-    NP=300
+    #NP=300
+    NP=600
   elif [ ${runSample} -eq 2 ]; then
     # 496559 events
     INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
@@ -136,7 +137,8 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=1
     mc=1
-    NP=10
+    #NP=10
+    NP=39
   fi
 fi
 
@@ -170,7 +172,7 @@ fi
 # call cmsRun analyzer_cfg.py for each parallel job
 for p in `seq 1 $NP`
 do
-  command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/ttbarSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc}"
+  command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/hggSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc}"
 #  nohup ${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
   #
   # optionally submit jobs to cluster (if running not on VM): modify for your environment

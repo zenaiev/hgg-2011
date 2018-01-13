@@ -9,36 +9,27 @@
 // C++ library or ROOT header files
 #include <TLorentzVector.h>
 
-// constants: electron and muon masses
-// (not the best practice to make them global variables, be aware)
-const double massEl = 0.000511;
-const double massMu = 0.105658;
+bool gFlagDebug = 0;
 
-// Routine for electron selection
-// Arguments:
-//   const ZTree* preselTree: input tree (see tree.h), GetEntry() should be done already
-//   const int el: electron candidate
-// Returns true for selected electron, false otherwise.
-// See tree.h for ZTree variables description.
-bool SelectEl(const ZTree* preselTree, const int el)
+// photon classes
+int PhotonClass(const double eta, const double r9)
 {
-  // require pT(e) > 20 GeV
-  if(TMath::Abs(preselTree->elPt[el]) < 20.0)
-    return false;
-  // require |eta(e)| > 2.4
-  if(TMath::Abs(preselTree->elEta[el]) > 2.4)
-    return false;
-  // require isolation (delta_R = 0.3) > 0.17
-  if(preselTree->elIso03[el] > 0.17)
-    return false;
-  // require no missing hits
-  if(preselTree->elMissHits[el] > 0)
-    return false;
-  // cuts on conversiopn variables not applied: study them if you want
-  //if(preselTree->elConvDist[el] < 0.02 && preselTree->elConvDcot[el] < 0.02 && preselTree->elConvDist[el] >= 0.0 && preselTree->elConvDcot[el] >=0.0)
-  //  return false;
-  // all cuts passed: return true
-  return true;
+  if(TMath::Abs(eta) < 1.44 && r9 > 0.94)
+    return 3;
+  if(TMath::Abs(eta) < 1.44 && r9 < 0.94)
+    return 4;
+  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) < 2.5 && r9 > 0.94)
+    return 5;
+  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) < 2.5 && r9 < 0.94)
+    return 6;
+
+  /*if(TMath::Abs(eta) <= 1.44)
+    return 1;
+  if(TMath::Abs(eta) >= 1.57 && TMath::Abs(eta) <= 2.5)
+    return 2;*/
+
+  printf("Error: cannot determine photon in barrel or endcap, return 0\n");
+  return 0;
 }
 
 // Routine for muon selection
@@ -47,26 +38,63 @@ bool SelectEl(const ZTree* preselTree, const int el)
 //   const int el: muon candidate
 // Returns true for selected muon, false otherwise.
 // See tree.h for ZTree variables description.
-bool SelectMu(const ZTree* preselTree, const int mu)
+double SelectPh(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  // require pT(mu) > 20 GeV
-  if(TMath::Abs(preselTree->muPt[mu]) < 20.0)
-    return false;
-  // require |eta(mu)| > 2.4
-  if(TMath::Abs(preselTree->muEta[mu]) > 2.4)
-    return false;
-  // require isolation (delta_R = 0.3) > 0.20
-  if(preselTree->muIso03[mu] > 0.20)
-    return false;
-  // require at least 11 tracker hits and at least 1 pixel hit
-  if(preselTree->muHitsValid[mu] < 12 || preselTree->muHitsPixel[mu] < 2)
-    return false;
-  // the transverse impact parameter of the muon w.r.t the primary vertex should be smaller than 0.2 mm, 
-  // the corresponding distance in z should be smaller than 5 mm and the global track should have chi2/dof > 10
-  if(preselTree->muDistPV0[mu] > 0.02 || preselTree->muDistPVz[mu] > 0.5 || preselTree->muTrackChi2NDOF[mu] > 10)
-    return false;
+  // relative combined isolation using selected event vertex 5.4.1
+  if(gFlagDebug) printf("5.4.1\n");
+  const double aEff = 0.17;
+  double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR04[ph];
+  //double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR03[ph];
+  relCombIso -= aEff * preselTree->rho;
+  relCombIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
+  if( (relCombIso > 3.8 && eventClass == 3) ||
+      (relCombIso > 2.2 && eventClass == 4) ||
+      (relCombIso > 1.77 && eventClass == 5) ||
+      (relCombIso > 1.29 && eventClass == 6) )
+    return 0;
+
+  // relative track isolation using selected event vertex 5.4.3
+  if(gFlagDebug) printf("5.4.3\n");
+  double relTrackIso = preselTree->phTrkSumPtHollowConeDR03[ph];
+  relTrackIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
+  if( (relTrackIso > 3.5 && eventClass == 3) ||
+      (relTrackIso > 2.2 && eventClass == 4) ||
+      (relTrackIso > 2.3 && eventClass == 5) ||
+      (relTrackIso > 1.45 && eventClass == 6) )
+    return 0;
+
+  // H/E 5.4.4
+  if(gFlagDebug) printf("5.4.4\n");
+  if( (preselTree->phHadronicOverEm[ph] > 0.082 && eventClass == 3) ||
+      (preselTree->phHadronicOverEm[ph] > 0.062 && eventClass == 4) ||
+      (preselTree->phHadronicOverEm[ph] > 0.065 && eventClass == 5) ||
+      (preselTree->phHadronicOverEm[ph] > 0.048 && eventClass == 6) )
+    return 0;
+
+  // covietaieta 5.4.5
+  if(gFlagDebug) printf("5.4.5\n");
+  double sigmaIEtaIEta = preselTree->phSigmaIetaIeta[ph] * preselTree->phSigmaIetaIeta[ph];
+  if( (sigmaIEtaIEta > 0.0106 && eventClass == 3) ||
+      (sigmaIEtaIEta > 0.0097 && eventClass == 4) ||
+      (sigmaIEtaIEta > 0.028 && eventClass == 5) ||
+      (sigmaIEtaIEta > 0.027 && eventClass == 6) )
+    return 0;
+
+  // r9 5.4.6
+  if(gFlagDebug) printf("5.4.6\n");
+  if( (preselTree->phR9[ph] < 0.94 && eventClass == 3) ||
+      (preselTree->phR9[ph] < 0.36 && eventClass == 4) ||
+      (preselTree->phR9[ph] < 0.94 && eventClass == 5) ||
+      (preselTree->phR9[ph] < 0.32 && eventClass == 6) )
+    return 0;
+  if(gFlagDebug) printf("PASSED\n");
+
+  // matching
+  if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
+    return 0;
+
   // all cuts passed: return true
-  return true;
+  return 1;
 }
 
 // routine for electron-muon pair selection
@@ -77,140 +105,84 @@ bool SelectMu(const ZTree* preselTree, const int mu)
 //   TLorentzVector& vecLepP: selected lepton+ (output)
 //   double& maxPtDiLep: transverse momentum of the selected dilepton pair (output)
 // If no dilepton pair is selected, maxPtDiLep remains unchanged 
-// (not the best practice to make them global variables, be aware)
-void SelectDilepEMu(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
+int SelectHgg(const ZTree* preselTree, int reqEventClass, TLorentzVector& momPh1, TLorentzVector& momPh2)
 {
-  // loop over electrons
-  for(int el = 0; el < preselTree->Nel; el++)
-  {
-    // electron selection
-    if(!SelectEl(preselTree, el))
-      continue;
-    TLorentzVector thisEl;
-    thisEl.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el]), preselTree->elEta[el], preselTree->elPhi[el], massEl);
-    // loop over muons
-    for(int mu = 0; mu < preselTree->Nmu; mu++)
-    {
-      // require opposite signs
-      if(preselTree->elPt[el] * preselTree->muPt[mu] > 0)
-        continue;
-      // muon selection
-      if(!SelectMu(preselTree, mu))
-        continue;
-      TLorentzVector thisMu;
-      thisMu.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu]), preselTree->muEta[mu], preselTree->muPhi[mu], massMu);
-      // require dilepton mass below 12 GeV
-      TLorentzVector vecDiLep = thisEl + thisMu;
-      if(vecDiLep.M() < 12.0)
-        continue;
-      // select pair with highest transverse momentum
-      double sumPt = thisMu.Pt() + thisEl.Pt();
-      if(sumPt < maxPtDiLep)
-        continue;
-      maxPtDiLep = sumPt;
-      // assign el and mu momenta to output l+ and l- vectors
-      vecLepM = (preselTree->elPt[el] < 0) ? thisEl : thisMu;
-      vecLepP = (preselTree->elPt[el] < 0) ? thisMu : thisEl;
-    }
-  }
-}
+  int phClass[2];
+  double phR9[2];
+  TLorentzVector higgs, ph[2];
+  double maxPtSum = -1.0;
+  int eventClass = -1;
 
-// routine for electron-electron pair selection
-// (select best e-e pair in the event, with highest pT)
-// Arguments:
-//   const ZTree* preselTree: input tree (see tree.h), GetEntry() should be done already
-//   TLorentzVector& vecLepM: selected lepton- (output)
-//   TLorentzVector& vecLepP: selected lepton+ (output)
-//   double& maxPtDiLep: transverse momentum of the selected dilepton pair (output)
-// If no dilepton pair is selected, maxPtDiLep remains unchanged 
-// (not the best practice to make them global variables, be aware)
-void SelectDilepEE(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
-{
-  // loop over 1st electron
-  for(int el1 = 0; el1 < preselTree->Nel; el1++)
+  // double loop over photons
+  for(int ph1 = 0; ph1 < preselTree->Nph; ph1++)
   {
-    // electron selection
-    if(!SelectEl(preselTree, el1))
+    if(TMath::Abs(preselTree->phEta[ph1]) > 2.5)
+      return 0;
+    if(TMath::Abs(preselTree->phEta[ph1]) > 1.44 && TMath::Abs(preselTree->phEta[ph1]) < 1.57)
+      return 0;
+    phClass[0] = PhotonClass(preselTree->phEta[ph1], preselTree->phR9[ph1]);
+    if(!SelectPh(phClass[0], preselTree, ph1))
       continue;
-    TLorentzVector thisEl1;
-    thisEl1.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el1]), preselTree->elEta[el1], preselTree->elPhi[el1], massEl);
-    // loop over 2nd electron
-    for(int el2 = el1 + 1; el2 < preselTree->Nel; el2++)
-    {
-      // require opposite signs
-      if(preselTree->elPt[el1] * preselTree->elPt[el2] > 0)
-        continue;
-      // electron selection
-      if(!SelectEl(preselTree, el2))
-        continue;
-      TLorentzVector thisEl2;
-      thisEl2.SetPtEtaPhiM(TMath::Abs(preselTree->elPt[el2]), preselTree->elEta[el2], preselTree->elPhi[el2], massEl);
-      // require dilepton mass below 12 GeV
-      TLorentzVector vecDiLep = thisEl1 + thisEl2;
-      if(vecDiLep.M() < 12.0)
-        continue;
-      // this is additional invariant mass requirement for ee and mumu
-      // (to supress Drell-Yan background)
-      if(vecDiLep.M() > 76.0 && vecDiLep.M() < 106.0)
-        continue;
-      // select pair with highest transverse momenta
-      double sumPt = thisEl1.Pt() + thisEl2.Pt();
-      if(sumPt < maxPtDiLep)
-        continue;
-      maxPtDiLep = sumPt;
-      // assign el and mu momenta to output l+ and l- vectors
-      vecLepM = (preselTree->elPt[el1] < 0) ? thisEl1 : thisEl2;
-      vecLepP = (preselTree->elPt[el1] < 0) ? thisEl2 : thisEl1;
-    }
-  }
-}
+    ph[0].SetPtEtaPhiM(preselTree->phPt[ph1], preselTree->phEta[ph1], preselTree->phPhi[ph1], 0.0);
 
-// routine for muon-muon pair selection
-// (select best mu-mu pair in the event, with highest pT)
-// Arguments:
-//   const ZTree* preselTree: input tree (see tree.h), GetEntry() should be done already
-//   TLorentzVector& vecLepM: selected lepton- (output)
-//   TLorentzVector& vecLepP: selected lepton+ (output)
-//   double& maxPtDiLep: transverse momentum of the selected dilepton pair (output)
-// If no dilepton pair is selected, maxPtDiLep remains unchanged 
-// (not the best practice to make them global variables, be aware)
-void SelectDilepMuMu(const ZTree* preselTree, TLorentzVector& vecLepM, TLorentzVector& vecLepP, double& maxPtDiLep)
-{
-  // loop over 1st muon
-  for(int mu1 = 0; mu1 < preselTree->Nmu; mu1++)
-  {
-    // muon selection
-    if(!SelectMu(preselTree, mu1))
-      continue;
-    TLorentzVector thisMu1;
-    thisMu1.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu1]), preselTree->muEta[mu1], preselTree->muPhi[mu1], massMu);
-    // loop over 2nd muon
-    for(int mu2 = mu1 + 1; mu2 < preselTree->Nmu; mu2++)
+    for(int ph2 = ph1 + 1; ph2 < preselTree->Nph; ph2++)
     {
-      // require opposite signs
-      if(preselTree->muPt[mu1] * preselTree->muPt[mu2] > 0)
+      if(TMath::Abs(preselTree->phEta[ph2]) > 2.5)
+        return 0;
+      if(TMath::Abs(preselTree->phEta[ph2]) > 1.44 && TMath::Abs(preselTree->phEta[ph2]) < 1.57)
+        return 0;
+      phClass[1] = PhotonClass(preselTree->phEta[ph2], preselTree->phR9[ph2]);
+      if(!SelectPh(phClass[1], preselTree, ph2))
         continue;
-      // muon selection
-      if(!SelectMu(preselTree, mu2))
+      ph[1].SetPtEtaPhiM(preselTree->phPt[ph2], preselTree->phEta[ph2], preselTree->phPhi[ph2], 0.0);
+
+      // determine event class
+      double r9Min = std::min(preselTree->phR9[ph1], preselTree->phR9[ph2]);
+      bool flagBothInBarrel = ((phClass[0] == 3 || phClass[0] == 4) && (phClass[1] == 3 || phClass[1] == 4));
+      if(flagBothInBarrel)
+      {
+        if(r9Min > 0.94)
+          eventClass = 3;
+        else
+          eventClass = 4;
+      }
+      else
+      {
+        if(r9Min > 0.94)
+          eventClass = 5;
+        else
+          eventClass = 6;
+      }
+
+
+      if(reqEventClass != 1 && reqEventClass != eventClass)
         continue;
-      TLorentzVector thisMu2;
-      thisMu2.SetPtEtaPhiM(TMath::Abs(preselTree->muPt[mu2]), preselTree->muEta[mu2], preselTree->muPhi[mu2], massMu);
-      // require dilepton mass below 12 GeV
-      TLorentzVector vecDiLep = thisMu1 + thisMu2;
-      if(vecDiLep.M() < 12.0)
+
+      // calculate higgs invariant mass and requirements on photon pT
+      higgs = ph[0] + ph[1];
+      double mgg = higgs.M();
+      if(ph[0].Pt() > ph[1].Pt())
+      {
+        if(ph[0].Pt() < (mgg / 3.0) || ph[1].Pt() < (mgg / 4.0))
+          continue;
+      }
+      else
+      {
+        if(ph[0].Pt() < (mgg / 4.0) || ph[1].Pt() < (mgg / 3.0))
+          continue;
+      }
+
+      double sumPt = ph[0].Pt() + ph[1].Pt();
+      if(sumPt < maxPtSum)
         continue;
-      // this is additional invariant mass requirement for ee and mumu
-      // (to supress Drell-Yan background)
-      if(vecDiLep.M() > 76.0 && vecDiLep.M() < 106.0)
-        continue;
-      // select pair with highest transverse momenta
-      double sumPt = thisMu1.Pt() + thisMu2.Pt();
-      if(sumPt < maxPtDiLep)
-        continue;
-      maxPtDiLep = sumPt;
-      // assign el and mu momenta to output l+ and l- vectors
-      vecLepM = (preselTree->muPt[mu1] < 0) ? thisMu1 : thisMu2;
-      vecLepP = (preselTree->muPt[mu1] < 0) ? thisMu2 : thisMu1;
+      maxPtSum = sumPt;
+      momPh1 = ph[0];
+      momPh2 = ph[1];
     }
   }
+
+  if(maxPtSum < 0.0)
+    return 0;
+
+  return eventClass;
 }
