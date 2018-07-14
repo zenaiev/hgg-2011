@@ -15,61 +15,17 @@
 #include <TCanvas.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TF1.h>
 #include <TGaxis.h>
 #include <TFile.h>
 #include <TLegend.h>
 #include <TGraphAsymmErrors.h>
+#include "TGraphErrors.h"
+#include "TGraph2DErrors.h"
+#include "TVirtualFitter.h"
+#include "TPaveText.h"
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// >>>>>>>>>>>>>>>>>>>> Prepare plot style >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-//
-// Modify as you want, if needed consult 
-// https://root.cern.ch/doc/master/classTStyle.html 
-//
-void Style()
-{
-	gStyle->SetOptStat(000000000);
-	gStyle->SetTitle(0);
-	gStyle->SetFrameFillColor(0);
-	gStyle->SetPadColor(0);
-	gStyle->SetCanvasColor(0);
-	gStyle->SetStatColor(0);
-	gStyle->SetCanvasBorderMode(0);
-	gStyle->SetCanvasBorderSize(0);
-	gStyle->SetFrameBorderMode(0);
-	gStyle->SetFrameBorderSize(0);
-	gStyle->SetPadTickX(1);
-	gStyle->SetPadTickY(1);
-	//gStyle->SetPadGridX(1);
-	//gStyle->SetPadGridY(1);
-	gStyle->SetLegendBorderSize(0);
-	gStyle->SetEndErrorSize(5);
-  TGaxis::SetMaxDigits(3);
-  gStyle->SetErrorX(0.0);
-  gStyle->SetPadLeftMargin(0.18);
-  gStyle->SetPadBottomMargin(0.12);
-  gStyle->SetPadTopMargin(0.06);
-  gStyle->SetPadRightMargin(0.08);
-  //gStyle->SetNdivisions(206, "xyz");
-}
-
-// Additional tuning for plotted histograms (font sizes etc.)
-void SetCPHRange(TH2* h)
-{
-  h->GetXaxis()->SetTitleSize(0.045);
-  h->GetXaxis()->SetLabelSize(0.045);
-  h->GetYaxis()->SetTitleSize(0.045);
-  h->GetYaxis()->SetLabelSize(0.045);
-  h->GetXaxis()->SetTitleOffset(1.20);
-  h->GetYaxis()->SetTitleOffset(1.70);
-}
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// >>>>>>>>>>>>>>>>>>>>> Main function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-int main(int argc, char** argv)
+int Plot2011()
 {
   // set user style
   Style();
@@ -78,254 +34,273 @@ int main(int argc, char** argv)
   TString baseDir = gHistDir;
   // directory for output plots (must exist)
   TString plotDir = gPlotsDir;
-  
-  // name patterns for decay channels
-  TString suf[3] = {"ee", "mumu", "emu"};
-  
-  // MC samples for control plots
-  // (does not matter which are signal and which are background);
-  // each sample can contain multiple subsamples (container of containers, 
-  // e.g. this is needed to combine in one entry DY low mass and high mass)
-  std::vector<std::vector<TString> > vecMCName; // names (must be consistent with those in ttbarMakeHist.cxx)
-  std::vector<int> vecMCColor; // color codes
-  std::vector<TString> vecMCtitle; // titles (to be plotted in the legend)
-  // they come in the reversed order w.r.t how they will appear in the legend
-  // Drell-Yan
-  std::vector<TString> DYNames;
-  DYNames.push_back("DYlm");
-  DYNames.push_back("DYhm");
-  vecMCName.push_back(DYNames);
-  vecMCColor.push_back(kBlue);
-  vecMCtitle.push_back("Z / #gamma*");
-  // W+jets
-  vecMCName.push_back(std::vector<TString>(1, "Wjets"));
-  vecMCColor.push_back(kGreen - 2);
-  vecMCtitle.push_back("W+Jets");
-  // single top
-  vecMCName.push_back(std::vector<TString>(1, "SingleTop"));
-  vecMCColor.push_back(kMagenta);
-  vecMCtitle.push_back("Single Top");
-  // ttbar other
-  vecMCName.push_back(std::vector<TString>(1, "SigOther"));
-  vecMCColor.push_back(kRed - 7);
-  vecMCtitle.push_back("t#bar{t} Other");
-  // ttbar signal
-  vecMCName.push_back(std::vector<TString>(1, "Sig"));
-  vecMCColor.push_back(kRed);
-  vecMCtitle.push_back("t#bar{t} Signal");
 
-  // *** make control plots ***
-  // container of 2D histograms used to set the plotted range, axis etc.
-  std::vector<TH2F*> cpHR;
-  // container of variable names
-  std::vector<TString> cpVar;
-  // pT(top)
-  TH2F* hr_cp_ptt = new TH2F("hr_cp_ptt", "", 1, 0, 400, 1, 0, 1000.);
-  hr_cp_ptt->GetXaxis()->SetTitle("p_{T}(t) [GeV]");
-  hr_cp_ptt->GetYaxis()->SetTitle("Top quarks / 20 GeV");
-  SetCPHRange(hr_cp_ptt);
-  cpHR.push_back(hr_cp_ptt);
-  cpVar.push_back("ptt");
-  // pT(ttbar), ttbar = top + antitop
-  TH2F* hr_cp_pttt = new TH2F("hr_cp_ptt", "", 1, 0, 300, 1, 0, 1000.);
-  hr_cp_pttt->GetXaxis()->SetTitle("p_{T}(t#bar{t}) [GeV]");
-  hr_cp_pttt->GetYaxis()->SetTitle("Top quarks / 20 GeV");
-  SetCPHRange(hr_cp_pttt);
-  cpHR.push_back(hr_cp_pttt);
-  cpVar.push_back("pttt");
-  // rapidity(top)
-  TH2F* hr_cp_yt = new TH2F("hr_cp_yt", "", 1, -2.6, 2.6, 1, 0, 800.);
-  hr_cp_yt->GetXaxis()->SetTitle("y(t)");
-  hr_cp_yt->GetYaxis()->SetTitle("Top quarks / 0.2");
-  SetCPHRange(hr_cp_yt);
-  cpHR.push_back(hr_cp_yt);
-  cpVar.push_back("yt");
-  // rapidity(ttbar)
-  TH2F* hr_cp_ytt = new TH2F("hr_cp_ytt", "", 1, -2.6, 2.6, 1, 0, 1000.);
-  hr_cp_ytt->GetXaxis()->SetTitle("y(t#bar{t})");
-  hr_cp_ytt->GetYaxis()->SetTitle("Top quarks / 0.2");
-  SetCPHRange(hr_cp_ytt);
-  cpHR.push_back(hr_cp_ytt);
-  cpVar.push_back("ytt");
-  
-  // *** TOP-11-013 Fig. 4 ***
-  // (be aware that in the paper plots for pT(top) and rapidity(top) 
-  // contains both top and antitop quantities, while here only top is plotted)
-  TCanvas* c_cp[4];
-  for(int ch = 0; ch < 4; ch++)
+  // 2012
+  TCanvas* c = new TCanvas("", "", 600, 600);
+  c->Divide(2, 3, 0.01, 0.01);
+
+  //hr->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+  //hr->GetYaxis()->SetTitle("Events / GeV");
+
+  std::vector<TString> vTitle;
+  vTitle.push_back("a) All classes combined");
+  vTitle.push_back("b) Di-jet tagged class");
+  vTitle.push_back("c) Both #gamma in barrel, R_{9}^{min}>0.94");
+  vTitle.push_back("d) Both #gamma in barrel, R_{9}^{min}<0.94");
+  vTitle.push_back("e) One or both #gamma in endcap, R_{9}^{min}>0.94");
+  vTitle.push_back("f) One or both #gamma in endcap, R_{9}^{min}<0.94");
+
+  for(int pad = 1; pad <= 6; pad++)
   {
-    c_cp[ch] = new TCanvas(TString::Format("c%d", ch), "", 800, 800);
-    c_cp[ch]->Divide(2, 2);
-  }
-  for(int v = 0; v < 4; v++)
-  {
-    TString var = cpVar[v];
-    std::vector<TH1D*> hcp;
-    hcp.resize(vecMCName.size() + 1);
-    // create legend
-    TLegend* leg = new TLegend(0.62, 0.62, 0.90, 0.92);
-    leg->SetTextSize(0.045);
-    leg->SetBorderSize(0);
-    leg->SetFillStyle(0);
-    // loop over channels
-    for (int ch = 1; ch < 4; ch++)
+    c->cd(pad);
+    TFile* f_data = TFile::Open(TString::Format("%s/data2011.root", baseDir.Data()));
+    TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg%d", pad));
+    h_data->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+    h_data->GetXaxis()->SetTitleOffset(3.0);
+    h_data->GetYaxis()->SetTitle("Events / (1 GeV)");
+    h_data->GetYaxis()->SetTitleOffset(3.0);
+    h_data->GetYaxis()->SetNdivisions(505);
+    SetHistoAxisFonts(h_data);
+    ScaleHistoFonts(h_data, 0.5);
+    h_data->SetMarkerColor(1);
+    h_data->SetLineColor(1);
+    h_data->SetMarkerStyle(20);
+    h_data->SetMarkerSize(0.35);
+    h_data->SetTitle("");
+    h_data->Draw();
+
+    if(pad != 2)
     {
-      c_cp[ch]->cd(v + 1);
-      cpHR[v]->Draw();
-      // MC
-      std::vector<TH1D*> vecHMC; // vector of cumulative histograms which are actually to be drawn
-      for(int s = 0; s < vecMCName.size(); s++)
+      double fitMin = 100.0;
+      double fitMax = 180.0;
+      // background only gives:
+      // pol5 gives chi2/dif = 260/74
+      // pol7 gives chi2/dof = 93/72
+      TF1* fit_b = new TF1("fit_b","pol5", fitMin, fitMax);
+      h_data->Fit(fit_b, "IEMR", "same", fitMin, fitMax);
+      TF1* fit_sb = new TF1("fit_sb","gaus(0)+pol5(3)", fitMin, fitMax);
+      fit_sb->SetParameter(0, 0.0);
+      fit_sb->SetParameter(1, 125.0);
+      fit_sb->SetParameter(2, 2.0);
+      fit_sb->FixParameter(0, 0.0);
+      fit_sb->FixParameter(1, 125.0);
+      fit_sb->FixParameter(2, 2.0);
+      for(int p = 3; p <= 8; p++)
+        fit_sb->SetParameter(p, fit_b->GetParameter(p - 3));
+      //h->Fit(fit, "IEMR", "same");
+      h_data->Fit(fit_sb, "I0", "", fitMin, fitMax);
+      TF1* fit_sb_save = h_data->GetFunction("fit_sb");
+      //fit_sb_save->SetLineWidth(0.5);
+      fit_sb_save = new TF1(*fit_sb_save);
+
+      // create a TGraphErrors to hold the confidence intervals
+      const int ngr = 100;
+      TGraphErrors* gunc68 = new TGraphErrors(ngr);
+      TGraphErrors* gunc95 = new TGraphErrors(ngr);
+      //gunc->SetTitle("Fitted line with .95 conf. band");
+      for (int i = 0; i < ngr; i++)
       {
-        if(s > 0)
-          vecHMC.push_back(new TH1D(*vecHMC[s - 1]));
-        // open ROOT file, read needed histogram
-        TFile* f = TFile::Open(TString::Format("%s/mc%sReco-c%d.root", baseDir.Data(), vecMCName[s][0].Data(), ch));        
-        TH1D* h = (TH1D*)f->Get(TString::Format("h_%s", var.Data()));
-        // loop over subsamples
-        for(int ss = 1; ss < vecMCName[s].size(); ss++)
-        {
-          TFile* f = TFile::Open(TString::Format("%s/mc%sReco-c%d.root", baseDir.Data(), vecMCName[s][ss].Data(), ch));        
-          TH1D* hh = (TH1D*)f->Get(TString::Format("h_%s", var.Data()));
-          // plotted histograms are cumulative: each next one = previous one + current one
-          h->Add(hh);
-        }
-        // if this is the first sample, push the current histogram
-        if(s == 0)
-          vecHMC.push_back(h);
-        // otherwise add to the existing histogram
-        else
-          vecHMC[s]->Add(h);
+        double xmin = h_data->GetXaxis()->GetBinCenter(1);
+        double xmax = h_data->GetXaxis()->GetBinCenter(h_data->GetNbinsX());
+        double x = (i + 0.5) / ngr * (xmax - xmin) + xmin;
+        double y = fit_sb->Eval(x);
+        gunc68->SetPoint(i, x, y);
+        gunc95->SetPoint(i, x, y);
       }
-      // data
-      TFile* fData = TFile::Open(TString::Format("%s/data-c%d.root", baseDir.Data(), ch));
-      TH1D* hData = (TH1D*)fData->Get(TString::Format("h_%s", var.Data()));
-      hData->SetMarkerStyle(20);
-      hData->SetMarkerSize(1);
-      hData->SetLineColor(1);
-      hData->SetMarkerColor(1);
-      if(ch == 1)
-        leg->AddEntry(hData, "Data", "pe");
-      // draw MC
-      for(int mc = vecMCName.size() - 1; mc >= 0; mc--)
+      /*Compute the confidence intervals at the x points of the created graph*/
+      (TVirtualFitter::GetFitter())->GetConfidenceIntervals(gunc68, 0.68);
+      (TVirtualFitter::GetFitter())->GetConfidenceIntervals(gunc95);
+      gunc68->SetFillColor(kYellow);
+      //gunc68->SetLineStyle(2);
+      gunc68->SetLineColor(kYellow);
+      gunc95->SetFillColor(kGreen);
+      //gunc95->SetLineStyle(2);
+      gunc95->SetLineColor(kGreen);
+      gunc95->Draw("4");
+      gunc68->Draw("4");
+      //gunc68->Print("all");
+      fit_sb_save->SetLineColor(kRed);
+      fit_sb_save->SetLineWidth(0.75);
+      fit_sb_save->Draw("same");
+
+      h_data->Draw("same");
+
+      if(pad == 1)
       {
-        vecHMC[mc]->SetFillColor(vecMCColor[mc]);
-        vecHMC[mc]->SetLineColor(1);
-        vecHMC[mc]->Draw("hist same");
-        if(ch == 1)
-          leg->AddEntry(vecHMC[mc], vecMCtitle[mc], "f");
-        // prepare dilepton combined histograms:
-        // for the first channel copy to create a new one
-        if(ch == 1)
-          hcp[mc] = new TH1D(*vecHMC[mc]);
-        // for the rest add to the existing histogram
-        else
-          hcp[mc]->Add(vecHMC[mc]);
+        TLegend* leg = new TLegend(0.50, 0.45, 0.90, 0.80);
+        leg->SetFillStyle(0);
+        leg->SetBorderSize(0.0);
+        leg->AddEntry(h_data, "Data 2011", "pe");
+        leg->AddEntry(fit_sb, "Bkg Model", "l");
+        leg->AddEntry(gunc68, "#pm 1#sigma", "f");
+        leg->AddEntry(gunc95, "#pm 2#sigma", "f");
+        leg->Draw();
       }
-      // draw data
-      hData->Draw("e0 same");
-      leg->Draw();
-      cpHR[v]->Draw("axis same");
-      if(ch == 1)
-        hcp[hcp.size() - 1] = new TH1D(*hData);
-      else
-        hcp[hcp.size() - 1]->Add(hData);
-    } // end of loop over channels
-    // combined
-    c_cp[0]->cd(v + 1);
-    cpHR[v]->Draw();
-    for(int mc = vecMCName.size() - 1; mc >= 0; mc--)
-      hcp[mc]->Draw("hist same");
-    hcp[hcp.size() - 1]->Draw("e0 same");
+    }
+
+    TLegend* leg = new TLegend(0.06, 0.80, 0.90, 0.93);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0.0);
+    leg->AddEntry((TObject*)NULL, vTitle[pad - 1], "");
     leg->Draw();
-    cpHR[v]->Draw("axis same");
+
+    if(pad == 2)
+    {
+      TLegend* leg = new TLegend(0.10, 0.30, 0.90, 0.7);
+      leg->SetBorderSize(0.0);
+      leg->SetFillStyle(0);
+      leg->SetTextColor(kGray);
+      leg->AddEntry((TObject*)(NULL), "not attempted", "");
+      leg->Draw();
+    }
   }
-  // save plots
-  for(int ch = 1; ch < 4; ch++)
-  {
-    // (channel code is: c1 ee, c2 mumu, c3 emu) 
-    c_cp[ch]->SaveAs(TString::Format("%s/cp-c%d.eps", plotDir.Data(), ch));
-    c_cp[ch]->SaveAs(TString::Format("%s/cp-c%d.pdf", plotDir.Data(), ch));
-  }
-  c_cp[0]->SaveAs(TString::Format("%s/cp.eps", plotDir.Data()));
-  c_cp[0]->SaveAs(TString::Format("%s/cp.pdf", plotDir.Data()));
-  //
-  // be aware: there are certainly memory leaks (not removing 
-  // dynamically allocated objects), although it does not matter here, 
-  // all memory is free when execution finished
-  //
-  
 
-  // *** make cross sections ***
-  // helper object to prepare all input for cross section plotting 
-  // (see plots.h for description)
-  ZPlotCSInput csIn;
-  csIn.Norm = true;
-  csIn.Paper = true;
-  csIn.baseDir = baseDir;
-  csIn.plotDir = plotDir;
-  // channels
-  // combined
-  csIn.VecColor.push_back(1);
-  csIn.VecStyle.push_back(20);
-  csIn.VecTitle.push_back("Dilepton");
-  // ee
-  csIn.VecColor.push_back(kBlue);
-  csIn.VecStyle.push_back(26);
-  csIn.VecTitle.push_back("ee");
-  // mumu
-  csIn.VecColor.push_back(kGreen + 2);
-  csIn.VecStyle.push_back(32);
-  csIn.VecTitle.push_back("#mu#mu");
-  // emu
-  csIn.VecColor.push_back(kRed);
-  csIn.VecStyle.push_back(24);
-  csIn.VecTitle.push_back("e#mu");
-  // MC background
-  csIn.VecMCBackgr.push_back("SigOther");
-  csIn.VecMCBackgr.push_back("SingleTop");
-  csIn.VecMCBackgr.push_back("DYlm");
-  csIn.VecMCBackgr.push_back("DYhm");
-  csIn.VecMCBackgr.push_back("Wjets");
-  // variables
-  // pT(top)
-  TH2F* hr_cs_ptt = new TH2F("hr_cs_ptt", "", 1, 0, 400, 1, 0, 0.01);
-  hr_cs_ptt->GetXaxis()->SetTitle("p_{T}(t) [GeV]");
-  hr_cs_ptt->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dp_{T}(t)} [GeV^{-1}]");
-  SetCPHRange(hr_cs_ptt);
-  csIn.VecHR.push_back(hr_cs_ptt);
-  csIn.VecVar.push_back("ptt");
-  // rapidity(top)
-  TH2F* hr_cs_yt = new TH2F("hr_cs_yt", "", 1, -2.5, 2.5, 1, 0, 0.7);
-  hr_cs_yt->GetXaxis()->SetTitle("y(t)");
-  hr_cs_yt->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dt(t)}");
-  SetCPHRange(hr_cs_yt);
-  csIn.VecHR.push_back(hr_cs_yt);
-  csIn.VecVar.push_back("yt");
-  // pT(ttbar)
-  TH2F* hr_cs_pttt = new TH2F("hr_cs_pttt", "", 1, 0, 400, 1, 0, 0.025);
-  hr_cs_pttt->GetXaxis()->SetTitle("p_{T}(t#bar{t}) [GeV]");
-  hr_cs_pttt->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dp_{T}(t#bar{t})} [GeV^{-1}]");
-  SetCPHRange(hr_cs_pttt);
-  csIn.VecHR.push_back(hr_cs_pttt);
-  csIn.VecVar.push_back("pttt");
-  // rapidity(ttbar)
-  TH2F* hr_cs_ytt = new TH2F("hr_cs_ytt", "", 1, -2.5, 2.5, 1, 0, 0.8);
-  hr_cs_ytt->GetXaxis()->SetTitle("y(t#bar{t})");
-  hr_cs_ytt->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dy(t#bar{t})}");
-  SetCPHRange(hr_cs_ytt);
-  csIn.VecHR.push_back(hr_cs_ytt);
-  csIn.VecVar.push_back("ytt");
-  // M(ttbar)
-  TH2F* hr_cs_mtt = new TH2F("hr_cs_mtt", "", 1, 345, 1600, 1, 1e-6, 0.06);
-  hr_cs_mtt->GetXaxis()->SetTitle("M(t#bar{t}) [GeV]");
-  hr_cs_mtt->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dM(t#bar{t})} [GeV^{-1}]");
-  SetCPHRange(hr_cs_mtt);
-  csIn.VecHR.push_back(hr_cs_mtt);
-  csIn.VecVar.push_back("mtt");
+  c->SaveAs(plotDir + "/hgg-2011.pdf");
+  c->SaveAs(plotDir + "/hgg-2011.eps");
+}
 
-  // *** TOP-11-013, Fig. 10, and the total x-section from TOP-13-004 ***
-  // (see plots.h for description)
-  PlotCS(csIn);
+int Plot2012()
+{
+  // set user style
+  Style();
 
+  // directory with input histograms
+  TString baseDir = gHistDir;
+  // directory for output plots (must exist)
+  TString plotDir = gPlotsDir;
+
+  // 2012
+  TCanvas* c = new TCanvas("", "", 600, 600);
+  //c->SetMargin(0.0, 0.0, 0.0, 0.0);
+
+  TPad* pad1 = new TPad("", "", 0.00, 0.40, 1.00, 1.00);
+  pad1->SetMargin(0.11, 0.03, 0.005, 0.07);
+  TH2F* hr = new TH2F("", "", 1, 100.0, 180.0, 1, 0.01, 7500.0);
+  hr->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
+  hr->GetYaxis()->SetTitle("Events / GeV");
+  //hr->GetYaxis()->SetTitleOffset(0.0);
+  SetHistoAxisFonts(hr);
+  //ScaleHistoFonts(hr, 1.5);
+  pad1->cd();
+  hr->Draw();
+
+  TFile* f_data = TFile::Open(TString::Format("%s/data2012.root", baseDir.Data()));
+  TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg1"));
+
+  TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root", baseDir.Data()));
+  TH1D* h_mc = (TH1D*)f_mc->Get(TString::Format("h_mgg1"));
+
+  h_data->SetLineColor(1);
+  h_data->SetMarkerColor(1);
+  h_data->SetMarkerStyle(20);
+  h_data->SetMarkerSize(0.6);
+  h_data->SetTitle("");
+  h_data->GetXaxis()->SetTitle("");
+  h_data->GetYaxis()->SetTitle("");
+
+  // fit
+  double fitMin = 110.0;
+  double fitMax = 140.0;
+  // background only gives:
+  // pol5 gives chi2/dif = 260/74
+  // pol7 gives chi2/dof = 93/72
+  TF1* fit_b = new TF1("fit_b","pol2", fitMin, fitMax);
+  h_data->Fit(fit_b, "IEMR", "same", fitMin, fitMax);
+  TF1* fit_sb = new TF1("fit_sb","gaus(0)+pol2(3)", fitMin, fitMax);
+  fit_sb->SetParameter(0, 0.0);
+  fit_sb->SetParameter(1, 125.0);
+  fit_sb->SetParameter(2, 2.0);
+  //fit_sb->FixParameter(0, 0.0);
+  fit_sb->FixParameter(1, 125.0);
+  //fit_sb->FixParameter(2, 2.0);
+  for(int p = 3; p <= 5; p++)
+    fit_sb->SetParameter(p, fit_b->GetParameter(p - 3));
+  //h->Fit(fit, "IEMR", "same");
+  h_data->Fit(fit_sb, "I", "same", fitMin, fitMax);
+  TF1* fit_sb_save = h_data->GetFunction("fit_sb");
+  fit_sb_save = new TF1(*fit_sb_save);
+  h_data->Fit(fit_b, "I0", "", fitMin, fitMax);
+
+  TF1* fit_s = new TF1("fit_sb","gaus", fitMin, fitMax);
+  for(int p = 0; p <= 2; p++)
+    fit_s->SetParameter(p, fit_sb->GetParameter(p));
+
+  h_mc->SetLineColor(kBlue);
+  h_mc->Draw("h0 same");
+  //h_mc->Print("all");
+  fit_sb_save->SetLineColor(kRed);
+  fit_sb_save->Draw("same");
+  h_data->Draw("e0 same");
+
+  hr->Draw("axis same");
+
+  // ratio
+  TPad* pad2 = new TPad("", "", 0.00, 0.00, 1.00, 0.40);
+  pad2->SetMargin(0.11, 0.03, 0.20, 0.005);
+  TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -99.99, 99.99);
+  hrr->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
+  hrr->GetYaxis()->SetTitle("Events / GeV");
+  hrr->GetXaxis()->SetTitleOffset(2.5);
+  hrr->GetYaxis()->SetTitleOffset(1.5);
+  hrr->GetYaxis()->SetNdivisions(405);
+  SetHistoAxisFonts(hrr);
+  pad2->cd();
+  hrr->Draw();
+  TGraphErrors* gunc68 = NULL;
+  TGraphErrors* gunc95 = NULL;
+  TH1D* hsig = CalculateRatio(h_data, fit_b, gunc68, gunc95);
+  //gunc95->Print("all");
+  gunc68->SetFillColor(kGreen);
+  gunc68->SetLineStyle(2);
+  gunc68->SetLineColor(kRed);
+  gunc95->SetFillColor(kYellow);
+  gunc95->SetLineStyle(2);
+  gunc95->SetLineColor(kRed);
+  gunc95->Draw("4");
+  gunc68->Draw("4");
+  TF1* fit_b0 = new TF1("fit_b0","pol2", fitMin, fitMax);
+  for(int p = 3; p <= 5; p++)
+    fit_b0->SetParameter(p - 3, 0.0);
+  fit_b0->SetLineColor(kRed);
+  fit_b0->SetLineStyle(2);
+  fit_b0->Draw("same");
+  fit_s->SetLineColor(kRed);
+  fit_s->Draw("same");
+  h_mc->Draw("h0 same");
+  hsig->Draw("e0 same");
+  hrr->Draw("axis same");
+
+  pad1->cd();
+  TLegend* leg = new TLegend(0.50, 0.40, 0.88, 0.88);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0.0);
+  leg->AddEntry(h_data, "Data 2012", "pe");
+  leg->AddEntry(fit_sb_save, "S+B fits (sum)", "l");
+  leg->AddEntry(fit_b0, "B component", "l");
+  leg->AddEntry(gunc68, "#pm 1#sigma", "lf");
+  leg->AddEntry(gunc95, "#pm 2#sigma", "lf");
+  leg->AddEntry(h_mc, "SM prediction", "l");
+  leg->Draw();
+
+  c->cd();
+  pad1->Draw();
+  pad2->Draw();
+  TPaveText* pt = new TPaveText(0.55, 0.30, 0.92, 0.38);
+  pt->SetBorderSize(0.0);
+  pt->SetFillStyle(0);
+  pt->AddText("B component subtracted");
+  pt->Draw();
+  //hr->Draw();
+  c->SaveAs(plotDir + "/hgg-2012.pdf");
+  c->SaveAs(plotDir + "/hgg-2012.eps");
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>> Main function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+int main(int argc, char** argv)
+{
+  Plot2011();
+  Plot2012();
   return 0;
 }

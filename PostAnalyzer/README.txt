@@ -5,13 +5,13 @@ This is pure C++ and ROOT code: does not require CMSSW, works outside VM
 (although it can work on VM also, of course).
 
 General description of contents (find further description inside the files):
-   ttbarMakeHist.cxx: master file to produce histograms
+   hggMakeHist.cxx: master file to produce histograms
    eventReco.h: ttbar event reconstruction
    selection.h: ttbar event selection
    kinReco.h: kinematic reconstruction
    tree.h: tree structure of input ROOT ntuples
    settings.h: global settings (directory names)
-   ttbarMakePlots.cxx: master file to produce final plots and numbers
+   hggMakePlots.cxx: master file to produce final plots and numbers
    plots.h: helper file for plotting
 
 To run the analysis, make sure input ntuples are in place, for default 
@@ -21,8 +21,8 @@ mv Analyzer/ntuples-mc PostAnalyzer/ntuples-mc
 then compile the code:
 ./compile.sh
 and run two commands:
-./ttbarMakeHist
-./ttbarMakePlots
+./hggMakeHist
+./hggMakePlots
 
 Also you could do only the last step (plotting) by using "reference" 
 histograms produced with the full samples and available with the code 

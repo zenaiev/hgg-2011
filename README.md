@@ -1,15 +1,14 @@
-# CMS measurements of top quark pair production in dilepton channel at 7 TeV
+# CMS analysis of Higgs -> gamma gamma at 7 and 8 TeV
 
 Relevant CMS publications:
- * normalised cross sections: EPJ C73 (2013) 2339 [arXiv:1211.2220, TOP-11-013]
- * total cross section: JHEP 1608 (2016) 029 [arXiv:1603.02303,TOP-13-004]
+ * 7 TeV: PLB710 (2012) 403 [arXiv:1202.1487, HIG-11-033]
+ * 8 TeV: EPJ C74 (2014) 3076 [arXiv:1407.0558,HIG-13-001]
 
-Further relevant information can be found also in DESY-THESIS-2012-037
-For the general description of the analysis see also attached description-ttbar.pdf
+For the general description of the analysis see also attached description-hgg.pdf (to be added)
 
 There are two parts in this analysis:
  * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
- * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); takes about 5 minutes
+ * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); takes about 2 minutes
 
 ## Instructions how to run the analysis
 
@@ -36,9 +35,9 @@ cd PostAnalyzer
 
 ## Running the analysis
 Generally, the analysis steps are:
- * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~3GB), takes ~ 2 weeks, extensive network access
+ * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~...GB), takes ~ ... weeks, extensive network access
  * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
- * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (~5 mins)
+ * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (~2 mins)
  * run PostAnalyzer/ttbarMakePlots to produce final plots from created histograms (few seconds)
 
 Further description of these steps you can find Analyzer/README.txt and Postanalyzer/README.txt

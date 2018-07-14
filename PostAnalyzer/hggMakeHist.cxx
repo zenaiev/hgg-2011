@@ -24,9 +24,9 @@ int main(int argc, char** argv)
   TString mcDir = gMcDir;
   //
   // flags what to run
-  bool flagData    = 1; // if 1, data will be processed
-  bool flagMCsig   = 1; // if 1, signal MC will be processed
-  //bool flagMCstop  = 1; // if 1, MC single top (background) will be processed
+  bool flagData2011 = 1; // if 1, 2011 data will be processed
+  bool flagData2012 = 1; // if 1, 2012 data will be processed
+  bool flagMCsig    = 1; // if 1, signal MC will be processed (only 2012)
   //
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //
@@ -63,19 +63,36 @@ int main(int argc, char** argv)
   vecVH.back().EventClass() = 6;
   // (here you can add more reconstruction level histograms)
   
-  // *****************************************
-  // **************** DATA *******************
-  // *****************************************
-  if(flagData)
+  // **********************************************
+  // **************** DATA 2011 *******************
+  // **********************************************
+  if(flagData2011)
   {
     // ZEventRecoInput is a class for event reconstruction, see its description in eventReco.h
     ZEventRecoInput in;
     //in.MaxNEvents = 100; // if you need to limit the number of processed events
-    in.Name = "data"; // name pattern for output histograms
+    in.Name = "data2011"; // name pattern for output histograms
     in.Type = 1; // type = 1 for data
     in.VecVarHisto = vecVH; // need to copy it, because further will be changed
     // input ROOT ntuples
-    in.AddToChain(dataDir + "/Photon/*.root");
+    in.AddToChain(dataDir + "/Photon/*.root"); // 2011
+    // main part: event reconstruction call
+    eventreco(in);
+  }
+
+  // **********************************************
+  // **************** DATA 2012 *******************
+  // **********************************************
+  if(flagData2012)
+  {
+    // ZEventRecoInput is a class for event reconstruction, see its description in eventReco.h
+    ZEventRecoInput in;
+    //in.MaxNEvents = 100; // if you need to limit the number of processed events
+    in.Name = "data2012"; // name pattern for output histograms
+    in.Type = 1; // type = 1 for data
+    in.VecVarHisto = vecVH; // need to copy it, because further will be changed
+    // input ROOT ntuples
+    in.AddToChain(dataDir + "/DoublePhoton/*.root"); // 2012
     // main part: event reconstruction call
     eventreco(in);
   }
@@ -91,19 +108,26 @@ int main(int argc, char** argv)
   // Number of events can be obtained from webpage (see http://opendata.cern.ch/collection/CMS-Simulated-Datasets),
   // but it should be checked that all events have been processed at the Analyzer step (see end of log files)
   //
-  // number of events: 54990752
-  // MC cross section -> theory: 95.43 -> 165.6
-  // weight: 2500.0 / (54990752. / 95.43) * (165.6 / 95.43) = 0.007529
+  // MC cross section can be obtained from any ROOT file in the mC sample: open the ROOT file, create TBrowser, navigate to
+  // Runs -> GenRunInfoProduct_generator__SIM. -> GenRunInfoProduct_generator__SIM.obj -> InternalXSec -> value_
+  // (nevertheless sigma_MC cancels)
+  //
+  // sigma_theory accounts for H->gaga branching ratio (0.000229)
+  //
+  // number of events: 292178
+  // MC cross section -> theory: 12.93 -> 19.5
+  // weight: 9850.0 / (292178. / 12.93) * (19.5 * 0.00229 / 12.93) = 0.0015054
   if(flagMCsig)
   {
     // MC signal reco level
     ZEventRecoInput in;
     //in.MaxNEvents = 1000;
-    in.Weight = 1.0; // weight (see above)
+    in.Weight = 0.0015054; // weight (see above)
     in.Name = "mcSigReco";
     in.Type = 2;
     in.VecVarHisto = vecVH;
-    in.AddToChain(mcDir + "/VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola/*.root");
+    //in.AddToChain(mcDir + "/VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola/*.root");
+    in.AddToChain(mcDir + "/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/*.root");
     eventreco(in);
     /*// MC other (background): re-use existing ZEventRecoInput, just change type
     in.Name = "mcSigOtherReco";
@@ -116,25 +140,6 @@ int main(int argc, char** argv)
     in.Gen = true; // flag to notify that generator level should be processed
     eventreco(in);
   }
-  // *****************************************
-  // ************ MC single top **************
-  // *****************************************
-  // number of events: 744859 + 801626
-  // MC cross section -> theory: 7.475 -> 7.87
-  // weight: 2500.0 / ((744859. + 801626.) / (7.475 * 2.)) * (7.87 / 7.475) = 0.02544
-  /*if(flagMCstop)
-  {
-    ZEventRecoInput in;
-    //in.MaxNEvents = 1000;
-    in.Name = "mcSingleTopReco";
-    in.Type = 4;
-    in.Weight = 0.02544;
-    in.Class = ch;
-    in.VecVarHisto = vecVH;
-    in.AddToChain(mcDir + "/Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola/*.root");
-    in.AddToChain(mcDir + "/T_TuneZ2_tW-channel-DR_7TeV-powheg-tauola/*.root");
-    eventreco(in);
-  }*/
 
   return 0;
 }

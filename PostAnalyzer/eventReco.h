@@ -173,8 +173,8 @@ void eventreco(ZEventRecoInput in)
   printf("input sample: %s type: %d\n", in.Name.Data(), in.Type);
   
   // steering
-  const bool flagReqPV = 1;
-  const bool flagReqTrig = 1;
+  const bool flagReqPV = 0;
+  const bool flagReqTrig = 0;
   // directory for output ROOT files with histograms
   TString outDir = gHistDir; 
 
@@ -268,7 +268,7 @@ void eventreco(ZEventRecoInput in)
     else
       trig = true;
 
-    // call dileption selection routine (see selection.h for description)
+    // call selection routine (see selection.h for description)
     if(!trig)
       continue;
 

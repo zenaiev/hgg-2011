@@ -116,6 +116,7 @@ class Analyzer : public edm::EDAnalyzer {
     edm::InputTag _inputTagMet;
     edm::InputTag _inputTagTriggerResults;
     edm::InputTag _inputTagPrimaryVertex;
+    edm::InputTag _inputTagRho;
     edm::InputTag _inputTagMCgen;
 
     // jet correction label
@@ -213,6 +214,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   _inputTagMet = edm::InputTag("pfMet");
   _inputTagTriggerResults = edm::InputTag("TriggerResults", "", "HLT");
   _inputTagPrimaryVertex = edm::InputTag("offlinePrimaryVerticesWithBS");
+  _inputTagRho = edm::InputTag("fixedGridRhoAll");
   _inputTagMCgen = edm::InputTag("genParticles");
   
   // jet correction label
@@ -261,8 +263,6 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     //_tree->Branch("phHcalDepth2TowerSumEtConeDR03", _phHcalDepth2TowerSumEtConeDR03, "phHcalDepth2TowerSumEtConeDR03[Nph]/F"); // photon R9
     _tree->Branch("phHadronicOverEm", _phHadronicOverEm, "phHadronicOverEm[Nph]/F"); // photon R9
     _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
-    _tree->Branch("phMatch", _phMatch, "phMatch[Nph]/F"); // photon R9
-    _tree->Branch("phMatchDeltaE", _phMatchDeltaE, "phMatchDeltaE[Nph]/F"); // photon R9
 
     // jets
     _tree->Branch("Njet", &_Njet, "Njet/I"); // number of jets
@@ -294,6 +294,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   // MC generated info
   if(_flagGEN)
   {
+    // matching
+    _tree->Branch("phMatch", _phMatch, "phMatch[Nph]/F"); // photon R9
+    _tree->Branch("phMatchDeltaE", _phMatchDeltaE, "phMatchDeltaE[Nph]/F"); // photon R9
+    // true level info
     _mcNHgg = 0; // number of H->gg events
     // MC generated info to store
     _tree->Branch("mcEventType", &_mcEventType, "mcEventType/I"); // MC generator level event type: 1 signal, 0 anything else
@@ -351,7 +355,7 @@ int Analyzer::SelectEvent(const edm::Event& iEvent)
 
   // pileup
   edm::Handle<double> rho;
-  iEvent.getByLabel("fixedGridRhoAll", rho);
+  iEvent.getByLabel(_inputTagRho, rho);
   _rho = rho.failedToGet() ? -999. : *rho;
 
   return 0;

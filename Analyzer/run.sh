@@ -86,6 +86,8 @@ reco=1
 gen=0
 # For MC set to 1
 mc=0
+# For 2011 year = 0, for 2012 year = 1
+year=0
 ########################################################################
 
 ########################################################################
@@ -139,6 +141,29 @@ if [ 1 -eq 1 ]; then
     mc=1
     #NP=10
     NP=39
+  # 2012
+  elif [ ${runSample} -eq 3 ]; then
+    # 75207487 events
+    year=1
+    INPUTLIST='data/CMS_Run2012BC_DoublePhoton_AOD_22Jan2013-v1-all_file_index.txt'
+    OUTPUTDIR='ntuples-data/DoublePhoton'
+    jobName='hgg-dp-'
+    reco=1
+    gen=0
+    mc=0
+    NP=200
+    #NP=600
+  elif [ ${runSample} -eq 4 ]; then
+    # 496559 events
+    year=1
+    INPUTLIST='mc/CMS_MonteCarlo2012_Summer12_DR53X_GluGluToHToGG_M-125_8TeV-powheg15-pythia6_AODSIM_PU_RD1_START53_V7N-v1_all_file_index.txt'
+    OUTPUTDIR='ntuples-mc/GluGluToHToGG_M-125_8TeV-powheg15-pythia6'
+    jobName='hgg-mc2012-'
+    reco=1
+    gen=1
+    mc=1
+    #NP=10
+    NP=29
   fi
 fi
 
@@ -172,12 +197,15 @@ fi
 # call cmsRun analyzer_cfg.py for each parallel job
 for p in `seq 1 $NP`
 do
-  command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/hggSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc}"
+  command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/hggSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc} ${year}"
 #  nohup ${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
   #
   # optionally submit jobs to cluster (if running not on VM): modify for your environment
   #
-  submit -N ${jobName}${p} -q short.q -l h_vmem=1.99G "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
+  # SGE (obsolete)
+  #submit -N ${jobName}${p} -q short.q -l h_vmem=1.99G "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
+  # HTCondor
+  cs -n${jobName}${p} "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
 done
 ########################################################################
 

@@ -146,7 +146,6 @@ void ZTree::Init(TTree *tree)
    //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR03", phHcalDepth2TowerSumEtConeDR03, &b_phHcalDepth2TowerSumEtConeDR03);
    fChain->SetBranchAddress("phHadronicOverEm", phHadronicOverEm, &b_phHadronicOverEm);
    fChain->SetBranchAddress("phSigmaIetaIeta", phSigmaIetaIeta, &b_phSigmaIetaIeta);
-   fChain->SetBranchAddress("phMatch", phMatch, &b_phMatch);
    fChain->SetBranchAddress("Njet", &Njet, &b_Njet);
    fChain->SetBranchAddress("jetPt", jetPt, &b_jetPt);
    fChain->SetBranchAddress("jetEta", jetEta, &b_jetEta);
@@ -165,6 +164,7 @@ void ZTree::Init(TTree *tree)
      fChain->SetBranchAddress("mcEventType", &mcEventType, &b_mcEventType);
      fChain->SetBranchAddress("mcH", mcH, &b_mcH);
      fChain->SetBranchAddress("mcPh", mcPh, &b_mcPh);
+     fChain->SetBranchAddress("phMatch", phMatch, &b_phMatch);
    }
 }
 
