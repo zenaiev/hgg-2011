@@ -24,6 +24,11 @@ scram b
 cd 2011-doubleelectron-doublemu-mueg-ttbar/Analyzer
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT_53_LV5_AN1_RUNA FT_53_LV5_AN1
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1 START53_LV6A1
+ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT53_V21A_AN6_FULL FT53_V21A_AN6
+ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT53_V21A_AN6_FULL.db FT53_V21A_AN6_FULL.db
+ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT53_V21A_AN6_FULL FT53_V21A_AN6_FULL
+ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_V27.db START53_V27.db
+ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_V27 START53_V27
 ```
 (no need to download data/MC input file lists and JSON: provided with the code)
 
