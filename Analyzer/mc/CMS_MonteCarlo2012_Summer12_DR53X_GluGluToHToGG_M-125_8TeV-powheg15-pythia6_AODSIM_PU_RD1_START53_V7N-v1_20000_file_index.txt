@@ -1,0 +1,8 @@
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/165AACB8-2F02-E311-AFC4-180373FF94D6.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/324D1E8A-3202-E311-AA2C-848F69FD4EB9.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/3E6EA72C-2F02-E311-9114-848F69FD43A0.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/4022E016-3302-E311-9BCD-180373FF8DE0.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/66FEF198-2E02-E311-A392-7845C4FC378B.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/96E1F895-3002-E311-AEF3-00A0D1EE9424.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/AE440A56-7F02-E311-8FE8-848F69FD2940.root
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/E4A9BB70-3102-E311-AC76-00A0D1EE8D00.root
