@@ -25,8 +25,8 @@ int main(int argc, char** argv)
   //
   // flags what to run
   bool flagData2011 = 1; // if 1, 2011 data will be processed
-  bool flagData2012 = 0; // if 1, 2012 data will be processed
-  bool flagMCsig    = 0; // if 1, signal MC will be processed (only 2012)
+  bool flagData2012 = 1; // if 1, 2012 data will be processed
+  bool flagMCsig    = 1; // if 1, signal MC will be processed (only 2012)
   //
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //

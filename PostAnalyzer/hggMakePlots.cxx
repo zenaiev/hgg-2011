@@ -301,6 +301,6 @@ int Plot2012()
 int main(int argc, char** argv)
 {
   Plot2011();
-  //Plot2012();
+  Plot2012();
   return 0;
 }
