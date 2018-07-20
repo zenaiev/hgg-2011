@@ -131,6 +131,7 @@ if [ 1 -eq 1 ]; then
     mc=0
     #NP=300
     NP=600
+    #NP=1
   elif [ ${runSample} -eq 2 ]; then
     # 496559 events
     INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
