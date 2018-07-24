@@ -129,7 +129,7 @@ if flag_mc == 0:
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 #
 # all is ready: pass all arguments to Analyzer (C++ code in src/Analyzer.cc)
-process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = CfgTypes.int32(flag_mc), reco = CfgTypes.int32(flag_reco), gen = CfgTypes.int32(flag_gen))
+process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = CfgTypes.int32(flag_mc), reco = CfgTypes.int32(flag_reco), gen = CfgTypes.int32(flag_gen), year = CfgTypes.int32(flag_year))
 process.p = cms.Path(process.demo)
 #
 ########################################################################
