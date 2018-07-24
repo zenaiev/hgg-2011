@@ -101,10 +101,10 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow isolation\n");
-  if( (preselTree->phPhotonIsolation[ph] > 6 && eventClass == 3) ||
-      (preselTree->phPhotonIsolation[ph] > 4.7 && eventClass == 4) ||
-      (preselTree->phPhotonIsolation[ph] > 5.6 && eventClass == 5) ||
-      (preselTree->phPhotonIsolation[ph] > 3.6 && eventClass == 6) )
+  if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
+      (preselTree->phPhotonIso[ph] > 4.7 && eventClass == 4) ||
+      (preselTree->phPhotonIso[ph] > 5.6 && eventClass == 5) ||
+      (preselTree->phPhotonIso[ph] > 3.6 && eventClass == 6) )
     return 0;
   //PFlow charged hadron isolation
   if(gFlagDebug) printf("PFlow charged hadron iso\n");
