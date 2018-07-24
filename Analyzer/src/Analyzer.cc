@@ -390,7 +390,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
       continue;
     if(it->trkSumPtHollowConeDR03() > 3.5)
       continue;
-    if(it->hadronicOverEm() > 0.048)
+    if(it->hadronicOverEm() > 0.082)
       continue;
     // fill four momentum (pT, eta, phi, E)
     _phE[_Nph] = it->energy();
