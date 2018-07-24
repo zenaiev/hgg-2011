@@ -99,29 +99,20 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  // relative combined isolation using selected event vertex 5.4.1
-  if(gFlagDebug) printf("5.4.1\n");
-  const double aEff = 0.17;
-  double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR04[ph];
-  //double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR03[ph];
-  relCombIso -= aEff * preselTree->rho;
-  relCombIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
-  if( (relCombIso > 3.8 && eventClass == 3) ||
-      (relCombIso > 2.2 && eventClass == 4) ||
-      (relCombIso > 1.77 && eventClass == 5) ||
-      (relCombIso > 1.29 && eventClass == 6) )
+  //PFlow isolation 
+  if(gFlagDebug) printf("PFlow isolation\n");
+  if( (preselTree->phPhotonIsolation[ph] > 6 && eventClass == 3) ||
+      (preselTree->phPhotonIsolation[ph] > 4.7 && eventClass == 4) ||
+      (preselTree->phPhotonIsolation[ph] > 5.6 && eventClass == 5) ||
+      (preselTree->phPhotonIsolation[ph] > 3.6 && eventClass == 6) )
     return 0;
-
-  // relative track isolation using selected event vertex 5.4.3
-  if(gFlagDebug) printf("5.4.3\n");
-  double relTrackIso = preselTree->phTrkSumPtHollowConeDR03[ph];
-  relTrackIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
-  if( (relTrackIso > 3.5 && eventClass == 3) ||
-      (relTrackIso > 2.2 && eventClass == 4) ||
-      (relTrackIso > 2.3 && eventClass == 5) ||
-      (relTrackIso > 1.45 && eventClass == 6) )
+  //PFlow charged hadron isolation
+  if(gFlagDebug) printf("PFlow charged hadron iso\n");
+  if( (preselTree->phChargedHadronIso[ph] > 3.8 && eventClass == 3) ||
+      (preselTree->phChargedHadronIso[ph] > 2.5 && eventClass == 4) ||
+      (preselTree->phChargedHadronIso[ph] > 3.1 && eventClass == 5) ||
+      (preselTree->phChargedHadronIso[ph] > 2.2 && eventClass == 6) )
     return 0;
-
   // H/E 5.4.4
   if(gFlagDebug) printf("5.4.4\n");
   if( (preselTree->phHadronicOverEm[ph] > 0.124 && eventClass == 3) ||
