@@ -152,8 +152,8 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=0
     mc=0
-    NP=200
-    #NP=600
+    #NP=200
+    NP=600
   elif [ ${runSample} -eq 4 ]; then
     # 496559 events
     year=1
