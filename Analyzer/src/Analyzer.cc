@@ -224,6 +224,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   _flagMC = iConfig.getParameter<int>("mc"); // true for MC, false for data
   _flagRECO = iConfig.getParameter<int>("reco"); // if true, RECO level processed
   _flagGEN = iConfig.getParameter<int>("gen"); // if true, generator level processed (works only for MC)
+  _flagYEAR = iConfig.getParameter<int>("year"); // 0 for 2011, 1 for 2012
   _nevents = 0; // number of processed events
   _neventsSelected = 0; // number of selected events
   std::string fileout = iConfig.getParameter<std::string>("outFile"); // output file name
@@ -381,17 +382,32 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
       printf("Maximum number of photons %d reached, skipping the rest\n", _maxNph);
       return 0;
     }
-    // selection: pT > 25 GeV, |eta| < 1.44 or 1.57 < |eta| < 2.5
-    if(it->pt() < 25.0)
-      continue;
-    if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
-      continue;
-    if(it->r9() < 0.32)
-      continue;
-    if(it->trkSumPtHollowConeDR03() > 3.5)
-      continue;
-    if(it->hadronicOverEm() > 0.082)
-      continue;
+    // selection for 2011 data
+    if(_flagYEAR == 0)
+    {
+	  if(it->pt() < 25.0)
+	    continue;
+	  if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
+	    continue;
+	  if(it->r9() < 0.32)
+	    continue;
+	  if(it->trkSumPtHollowConeDR03() > 3.5)
+	    continue;
+	  if(it->hadronicOverEm() > 0.082)
+	    continue;
+    } 
+    // selection for 2012 data
+    if(_flagYEAR == 1)
+    {
+	  if(it->pt() < 25.0)
+	    continue;
+	  if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
+	    continue;
+	  if(it->r9() < 0.24)
+	    continue;
+	  if(it->hadronicOverEm() > 0.142)
+	    continue;
+    } 
     // fill four momentum (pT, eta, phi, E)
     _phE[_Nph] = it->energy();
     // enum P4type { undefined=-1, ecal_standard=0, ecal_photons=1, regression1=2, regression2= 3 } ;
