@@ -128,9 +128,18 @@ if flag_mc == 0:
 # Load jet correction services for all jet algoritms
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 #
+# 25.07.18 photons isolation based on https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#Computing_the_isolation_in_CMSSW
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFPhotonIso
+process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
+
+
 # all is ready: pass all arguments to Analyzer (C++ code in src/Analyzer.cc)
 process.demo = cms.EDAnalyzer('Analyzer', outFile = cms.string(outFile), mc = CfgTypes.int32(flag_mc), reco = CfgTypes.int32(flag_reco), gen = CfgTypes.int32(flag_gen))
-process.p = cms.Path(process.demo)
+#process.p = cms.Path(process.demo)
+process.p = cms.Path(
+    process.pfParticleSelectionSequence + 
+    process.phoIsoSequence+
+    process.demo)
 #
 ########################################################################
 #

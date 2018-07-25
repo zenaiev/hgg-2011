@@ -47,6 +47,10 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
+typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 
 // for jets
 #include <DataFormats/JetReco/interface/PFJet.h>
@@ -97,7 +101,7 @@ class Analyzer : public edm::EDAnalyzer {
 
     // user routines (detailed description given with the method implementations)
     int SelectEvent(const edm::Event& iEvent);
-    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv);
+    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const IsoDepositVals* photonIsoVals, const reco::VertexCollection::const_iterator& pv);
     int SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets);
     void FindTriggerBits(const HLTConfigProvider& trigConf);
@@ -111,6 +115,7 @@ class Analyzer : public edm::EDAnalyzer {
     void InitBranchVars();
 
     // input tags
+    std::vector<edm::InputTag> inputTagIsoValPhotonsPFId_;
     edm::InputTag _inputTagPhotons;
     edm::InputTag _inputTagJets;
     edm::InputTag _inputTagMet;
@@ -209,6 +214,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   setbuf(stdout, NULL);
   
   // input tags
+  inputTagIsoValPhotonsPFId_ = { edm::InputTag("phPFIsoValueCharged03PFIdPFIso"),
+                                 edm::InputTag("phPFIsoValueGamma03PFIdPFIso"),
+                                 edm::InputTag("phPFIsoValueNeutral03PFIdPFIso")
+                               };
   _inputTagPhotons = edm::InputTag("photons");
   _inputTagJets = edm::InputTag("ak5PFJets");
   _inputTagMet = edm::InputTag("pfMet");
@@ -370,7 +379,7 @@ int Analyzer::SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets)
 }
 
 // muon selection
-int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv)
+int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const IsoDepositVals * photonIsoVals, const reco::VertexCollection::const_iterator& pv)
 {
   _Nph = 0;
   // loop over muons
@@ -426,6 +435,23 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
     _phHcalTowerSumEtConeDR03[_Nph] = it->hcalTowerSumEtConeDR03();
     //_phHcalDepth1TowerSumEtConeDR03[_Nph] = it->hcalDepth1TowerSumEtConeDR03();
     //_phHcalDepth2TowerSumEtConeDR03[_Nph] = it->hcalDepth2TowerSumEtConeDR03();
+    double i1 = it->photonIso();
+    double i2 = it->chargedHadronIso();
+    double i3 = it->neutralHadronIso();
+    printf("iso: %e %e %e\n", i1, i2, i3);
+
+    // 25.07.18 PF isolation based on https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#Computing_the_isolation_in_CMSSW
+    const auto& ipho = it - photons->begin();
+    reco::PhotonRef myPhotonRef(photons, ipho);
+    double charged =  (*(*photonIsoVals)[0])[myPhotonRef];
+    double photon = (*(*photonIsoVals)[1])[myPhotonRef];
+    double neutral = (*(*photonIsoVals)[2])[myPhotonRef];
+    //std::cout << "Photon: " << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
+    //std::cout << " pt " <<  myPhotonRef->pt() << " eta " << myPhotonRef->eta() << " phi " << myPhotonRef->phi() << " charge " << myPhotonRef->charge()<< " : ";
+    //std::cout << " ChargedIso " << charged ;
+    //std::cout << " PhotonIso " <<  photon ;
+    //std::cout << " NeutralHadron Iso " << neutral << std::endl;
+    printf("iso: %e %e %e\n", charged, photon, neutral);
 
     // H/E
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();
@@ -734,7 +760,14 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::VertexCollection::const_iterator pv = primVertex->begin();
     // photons
     iEvent.getByLabel(_inputTagPhotons, photons);
-    SelectPhotons(photons, pv);
+    // 25.07.18 photon isolation based on https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#Computing_the_isolation_in_CMSSW
+    unsigned nTypes=3;
+    IsoDepositVals photonIsoValPFId(nTypes);
+    for (size_t j = 0; j<inputTagIsoValPhotonsPFId_.size(); ++j)
+    {
+      iEvent.getByLabel(inputTagIsoValPhotonsPFId_[j], photonIsoValPFId[j]);
+    }
+    SelectPhotons(photons, &photonIsoValPFId, pv);
     // require pair of opposite signed leptons
     if( _Nph >= 2 )
       selRECO = true;
