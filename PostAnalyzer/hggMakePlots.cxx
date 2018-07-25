@@ -41,7 +41,8 @@ int Plot2011()
 
   //hr->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
   //hr->GetYaxis()->SetTitle("Events / GeV");
-
+  
+  //Titles for all pads
   std::vector<TString> vTitle;
   vTitle.push_back("a) All classes combined");
   vTitle.push_back("b) Di-jet tagged class");
@@ -52,9 +53,11 @@ int Plot2011()
 
   for(int pad = 1; pad <= 6; pad++)
   {
+    //Load corresponding data
     c->cd(pad);
     TFile* f_data = TFile::Open(TString::Format("%s/data2011.root", baseDir.Data()));
     TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg%d", pad));
+    //set style of plot
     h_data->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
     h_data->GetXaxis()->SetTitleOffset(3.0);
     h_data->GetYaxis()->SetTitle("Events / (1 GeV)");
@@ -76,15 +79,19 @@ int Plot2011()
       // background only gives:
       // pol5 gives chi2/dif = 260/74
       // pol7 gives chi2/dof = 93/72
+      //pol5 fit of data (background only)
       TF1* fit_b = new TF1("fit_b","pol5", fitMin, fitMax);
       h_data->Fit(fit_b, "IEMR", "same", fitMin, fitMax);
+      //pol5 + gaus fit (signal + background)
       TF1* fit_sb = new TF1("fit_sb","gaus(0)+pol5(3)", fitMin, fitMax);
+      //Fixing parameters for Gaus fit
       fit_sb->SetParameter(0, 0.0);
       fit_sb->SetParameter(1, 125.0);
       fit_sb->SetParameter(2, 2.0);
       fit_sb->FixParameter(0, 0.0);
       fit_sb->FixParameter(1, 125.0);
       fit_sb->FixParameter(2, 2.0);
+      //Set parameters for pol5 fit from first fit
       for(int p = 3; p <= 8; p++)
         fit_sb->SetParameter(p, fit_b->GetParameter(p - 3));
       //h->Fit(fit, "IEMR", "same");
@@ -204,24 +211,28 @@ int Plot2012()
   // background only gives:
   // pol5 gives chi2/dif = 260/74
   // pol7 gives chi2/dof = 93/72
+  //pol2 fit (background only)
   TF1* fit_b = new TF1("fit_b","pol2", fitMin, fitMax);
   h_data->Fit(fit_b, "IEMR", "same", fitMin, fitMax);
+  //pol2 + gaus fit (signal + background)
   TF1* fit_sb = new TF1("fit_sb","gaus(0)+pol2(3)", fitMin, fitMax);
   fit_sb->SetParameter(0, 0.0);
   fit_sb->SetParameter(1, 125.0);
   fit_sb->SetParameter(2, 2.0);
+  //Fix only mass parameter
   //fit_sb->FixParameter(0, 0.0);
   fit_sb->FixParameter(1, 125.0);
   //fit_sb->FixParameter(2, 2.0);
+  //Set other parameters from background
   for(int p = 3; p <= 5; p++)
     fit_sb->SetParameter(p, fit_b->GetParameter(p - 3));
   //h->Fit(fit, "IEMR", "same");
   h_data->Fit(fit_sb, "I", "same", fitMin, fitMax);
   TF1* fit_sb_save = h_data->GetFunction("fit_sb");
   fit_sb_save = new TF1(*fit_sb_save);
-  h_data->Fit(fit_b, "I0", "", fitMin, fitMax);
+  h_data->Fit(fit_b, "I0", "", fitMin, fitMax); // Why again?
 
-  TF1* fit_s = new TF1("fit_sb","gaus", fitMin, fitMax);
+  TF1* fit_s = new TF1("fit_sb","gaus", fitMin, fitMax); //should be TF1("fit_s",..) ?
   for(int p = 0; p <= 2; p++)
     fit_s->SetParameter(p, fit_sb->GetParameter(p));
 
@@ -233,7 +244,7 @@ int Plot2012()
   h_data->Draw("e0 same");
 
   hr->Draw("axis same");
-
+  //Second pad
   // ratio
   TPad* pad2 = new TPad("", "", 0.00, 0.00, 1.00, 0.40);
   pad2->SetMargin(0.11, 0.03, 0.20, 0.005);
