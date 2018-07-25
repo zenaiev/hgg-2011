@@ -222,12 +222,12 @@ int SelectHgg(const ZTree* preselTree, int reqEventClass, TLorentzVector& momPh1
       //PhotonID selection
       if(name == "data2011")
       {
-        if(!SelectPh11(phClass[0], preselTree, ph1))
+        if(!SelectPh11(phClass[1], preselTree, ph2))
           continue;
       }
       if(name == "data2012")
       {
-        if(!SelectPh12(phClass[0], preselTree, ph1))
+        if(!SelectPh12(phClass[1], preselTree, ph2))
 		  continue;
       }
       ph[1].SetPtEtaPhiM(preselTree->phPt[ph2], preselTree->phEta[ph2], preselTree->phPhi[ph2], 0.0);

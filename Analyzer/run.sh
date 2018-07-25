@@ -196,17 +196,19 @@ else
   done
 fi
 # call cmsRun analyzer_cfg.py for each parallel job
-for p in `seq 1 $NP`
+#$NP
+for p in `seq 1 1`
 do
   command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/hggSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc} ${year}"
-  #nohup ${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
+  ${command}
+  # >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
   #
   # optionally submit jobs to cluster (if running not on VM): modify for your environment
   #
   # SGE (obsolete)
   #submit -N ${jobName}${p} -q short.q -l h_vmem=1.99G "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
   # HTCondor
-  cs -n${jobName}${p} "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
+  #cs -n${jobName}${p} "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
 done
 ########################################################################
 
