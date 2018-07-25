@@ -15,4 +15,5 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/EgammaReco"/>
+<use name="EgammaAnalysis/ElectronTools"/>
 <flags EDM_PLUGIN="1"/>
