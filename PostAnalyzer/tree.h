@@ -52,6 +52,7 @@ public :
    Float_t         phPhotonIsoWrongVtx[maxNph];
    Float_t         phNeutralHadronIso[maxNph];
    Float_t         phPhotonIso[maxNph];
+   Int_t           phNumElectronsSuperCluster[maxNph];
    Float_t         phSigmaIetaIeta[maxNph];   //[Nph]
    Float_t         phMatch[maxNph];   //[Nph]
    Int_t           Njet;
@@ -96,6 +97,7 @@ public :
    TBranch        *b_phPhotonIsoWrongVtx;
    TBranch        *b_phNeutralHadronIso;
    TBranch        *b_phPhotonIso;
+   TBranch        *b_phNumElectronsSuperCluster;
    TBranch        *b_phSigmaIetaIeta;
    TBranch        *b_phMatch;
    TBranch        *b_Njet;   //!
@@ -157,6 +159,7 @@ void ZTree::Init(TTree *tree)
    fChain->SetBranchAddress("phPhotonIsoWrongVtx", phPhotonIsoWrongVtx, &b_phPhotonIsoWrongVtx);
    fChain->SetBranchAddress("phNeutralHadronIso", phNeutralHadronIso, &b_phNeutralHadronIso);
    fChain->SetBranchAddress("phPhotonIso", phPhotonIso , &b_phPhotonIso);
+   fChain->SetBranchAddress("phNumElectronsSuperCluster", phNumElectronsSuperCluster, &b_phNumElectronsSuperCluster);
    fChain->SetBranchAddress("phSigmaIetaIeta", phSigmaIetaIeta, &b_phSigmaIetaIeta);
    fChain->SetBranchAddress("Njet", &Njet, &b_Njet);
    fChain->SetBranchAddress("jetPt", jetPt, &b_jetPt);

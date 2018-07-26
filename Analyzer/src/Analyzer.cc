@@ -49,6 +49,10 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
 
+// for electrons
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
 // for jets
 #include <DataFormats/JetReco/interface/PFJet.h>
 #include <DataFormats/BTauReco/interface/JetTag.h>
@@ -98,7 +102,7 @@ class Analyzer : public edm::EDAnalyzer {
 
     // user routines (detailed description given with the method implementations)
     int SelectEvent(const edm::Event& iEvent);
-    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF);
+    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,const edm::Handle<reco::GsfElectronCollection>& electrons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF);
     int SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets);
     void FindTriggerBits(const HLTConfigProvider& trigConf);
@@ -113,6 +117,7 @@ class Analyzer : public edm::EDAnalyzer {
 
     // input tags
     edm::InputTag _inputTagPhotons;
+    edm::InputTag _inputTagElectrons;
     edm::InputTag _inputTagJets;
     edm::InputTag _inputTagMet;
     edm::InputTag _inputTagPF;
@@ -174,6 +179,10 @@ class Analyzer : public edm::EDAnalyzer {
     float _phPhotonIsoWrongVtx[_maxNph];
     float _phNeutralHadronIso[_maxNph];
     float _phPhotonIso[_maxNph];
+    
+    //electrons in same SuperCluster
+    int _phNumElectronsSuperCluster[_maxNph];
+    
     // H/E
     float _phHadronicOverEm[_maxNph];
     // covietaieta
@@ -222,6 +231,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   
   // input tags
   _inputTagPhotons = edm::InputTag("photons");
+  _inputTagElectrons = edm::InputTag("gsfElectrons");
   _inputTagJets = edm::InputTag("ak5PFJets");
   _inputTagMet = edm::InputTag("pfMet");
   _inputTagPF = edm::InputTag("particleFlow");
@@ -286,6 +296,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
 	  _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
 	  _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
+    _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/F");
+    //electrons in same superCluster (sc)
+    
+    
     // jets
     _tree->Branch("Njet", &_Njet, "Njet/I"); // number of jets
     _tree->Branch("jetPt", _jetPt, "jetPt[Njet]/F"); // jet pT
@@ -392,7 +406,7 @@ int Analyzer::SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets)
 }
 
 // muon selection
-int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF)
+int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,const edm::Handle<reco::GsfElectronCollection>& electrons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF)
 {
   _Nph = 0;
   // loop over muons
@@ -403,6 +417,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
       printf("Maximum number of photons %d reached, skipping the rest\n", _maxNph);
       return 0;
     }
+    
     // selection for 2011 data
     if(_flagYEAR == 0)
     {
@@ -500,7 +515,39 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
         _phMatchDeltaE[_Nph] = _phE[_Nph] / (_mcPhLV[(delta1 < delta2) ? 0 : 1].E());
       else
         _phMatchDeltaE[_Nph] = 0.0;
+        
     }
+    
+    
+    //get the supercluster of the photon
+    float scEta = it->superCluster()->position().eta();
+    float scPhi = it->superCluster()->position().phi();
+    float scEtaWidth = it->superCluster()->etaWidth();
+    float scPhiWidth = it->superCluster()->phiWidth();
+    //printf("scEta = %f \n", scEta);
+    //printf("scPhi = %f \n", scPhi);
+    //printf("scEtaWidth = %f \n", scEtaWidth);
+    //printf("scPhiWidth = %f \n", scPhiWidth);
+    
+    _phNumElectronsSuperCluster[_Nph] = 0;
+    //check if there are any electrons within the supercluster 
+    //add PFlow methods for 2012 data
+    for (reco::GsfElectronCollection::const_iterator itEl = electrons->begin(); itEl != electrons->end(); itEl++)
+    {
+      float scEtaEl = itEl->superCluster()->position().eta();
+      float scPhiEl = itEl->superCluster()->position().phi();
+      if(scEtaEl > scEta + scEtaWidth / 2 || scEtaEl < scEta - scEtaWidth / 2)
+        continue;
+      if(scPhiEl > scPhi + scPhiWidth / 2 || scPhiEl < scPhi - scPhiWidth / 2)
+        continue;
+      //add other cuts on the electrons
+      if(itEl->pt() < 2.5)
+        continue;
+      //increase electron counter
+      _phNumElectronsSuperCluster[_Nph] += 1;
+      //store electron in a list? 
+    }
+    printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
 
     _Nph++;
   }
@@ -762,6 +809,7 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> primVertex;
   edm::Handle<reco::PFCandidateCollection> PF;
   edm::Handle<reco::PhotonCollection> photons;
+  edm::Handle<reco::GsfElectronCollection> electrons;
   edm::Handle<reco::PFJetCollection> jets;
   //edm::Handle<edm::View<reco::PFMET> > pfmets;
   Handle<TriggerResults> HLTR;
@@ -793,8 +841,11 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::VertexCollection::const_iterator pv = primVertex->begin();
     // photons
     iEvent.getByLabel(_inputTagPhotons, photons);
+    //electrons
+    iEvent.getByLabel(_inputTagElectrons, electrons);
+    //particle Flow
     iEvent.getByLabel(_inputTagPF, PF);
-    SelectPhotons(photons, pv, primVertex, PF);
+    SelectPhotons(photons,electrons, pv, primVertex, PF);
     // require pair of opposite signed leptons
     if( _Nph >= 2 )
       selRECO = true;
