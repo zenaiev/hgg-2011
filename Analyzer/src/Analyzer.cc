@@ -547,7 +547,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       _phNumElectronsSuperCluster[_Nph] += 1;
       //store electron in a list? 
     }
-    printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
+    //printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
 
     _Nph++;
   }
