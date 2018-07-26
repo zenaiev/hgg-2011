@@ -47,6 +47,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
 
 // for jets
 #include <DataFormats/JetReco/interface/PFJet.h>
@@ -97,7 +98,7 @@ class Analyzer : public edm::EDAnalyzer {
 
     // user routines (detailed description given with the method implementations)
     int SelectEvent(const edm::Event& iEvent);
-    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv);
+    int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF);
     int SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets);
     void FindTriggerBits(const HLTConfigProvider& trigConf);
@@ -114,6 +115,7 @@ class Analyzer : public edm::EDAnalyzer {
     edm::InputTag _inputTagPhotons;
     edm::InputTag _inputTagJets;
     edm::InputTag _inputTagMet;
+    edm::InputTag _inputTagPF;
     edm::InputTag _inputTagTriggerResults;
     edm::InputTag _inputTagPrimaryVertex;
     edm::InputTag _inputTagRho;
@@ -121,6 +123,9 @@ class Analyzer : public edm::EDAnalyzer {
 
     // jet correction label
     std::string mJetCorr;
+    
+    // photon isolation
+    PFIsolationEstimator mIsolator;
 
     // general flags and variables
     int _flagMC;
@@ -219,6 +224,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   _inputTagPhotons = edm::InputTag("photons");
   _inputTagJets = edm::InputTag("ak5PFJets");
   _inputTagMet = edm::InputTag("pfMet");
+  _inputTagPF = edm::InputTag("particleFlow");
   _inputTagTriggerResults = edm::InputTag("TriggerResults", "", "HLT");
   _inputTagPrimaryVertex = edm::InputTag("offlinePrimaryVerticesWithBS");
   _inputTagRho = edm::InputTag("fixedGridRhoAll");
@@ -226,6 +232,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   
   // jet correction label
   mJetCorr = "ak5PFL1FastL2L3Residual";
+  
+  //photon isolator 
+  mIsolator.initializePhotonIsolation(kTRUE);
+  mIsolator.setConeSize(0.3);
 
   // read configuration parameters
   _flagMC = iConfig.getParameter<int>("mc"); // true for MC, false for data
@@ -382,7 +392,7 @@ int Analyzer::SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets)
 }
 
 // muon selection
-int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv)
+int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF)
 {
   _Nph = 0;
   // loop over muons
@@ -453,11 +463,14 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
     _phHcalTowerSumEtConeDR03[_Nph] = it->hcalTowerSumEtConeDR03();
     //_phHcalDepth1TowerSumEtConeDR03[_Nph] = it->hcalDepth1TowerSumEtConeDR03();
     //_phHcalDepth2TowerSumEtConeDR03[_Nph] = it->hcalDepth2TowerSumEtConeDR03();
-	  //PFlow isolation
-	  _phChargedHadronIso[_Nph] = it->chargedHadronIso();
-    //_phChargedHadronIsoWrongVtx[_Nph] = it->chargedHadronIsoWrongVtx();
-    _phNeutralHadronIso[_Nph] = it->neutralHadronIso();
-    _phPhotonIso[_Nph] = it->photonIso();
+    
+	  //PFlow isolation (not in PhotonCollection)
+    reco::VertexRef myVtx(Vertices, 0);
+    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+	  _phChargedHadronIso[_Nph] = mIsolator.getIsolationCharged();
+    //_phChargedHadronIsoWrongVtx[_Nph] = // TODO
+    _phNeutralHadronIso[_Nph] = mIsolator.getIsolationNeutral();
+    _phPhotonIso[_Nph] = mIsolator.getIsolationPhoton();
     // H/E
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();
     _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();
@@ -732,7 +745,8 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // declare event contents
   edm::Handle<reco::GenParticleCollection> genParticles;
-  Handle<reco::VertexCollection> primVertex;
+  edm::Handle<reco::VertexCollection> primVertex;
+  edm::Handle<reco::PFCandidateCollection> PF;
   edm::Handle<reco::PhotonCollection> photons;
   edm::Handle<reco::PFJetCollection> jets;
   //edm::Handle<edm::View<reco::PFMET> > pfmets;
@@ -765,7 +779,8 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::VertexCollection::const_iterator pv = primVertex->begin();
     // photons
     iEvent.getByLabel(_inputTagPhotons, photons);
-    SelectPhotons(photons, pv);
+    iEvent.getByLabel(_inputTagPF, PF);
+    SelectPhotons(photons, pv, primVertex, PF);
     // require pair of opposite signed leptons
     if( _Nph >= 2 )
       selRECO = true;
