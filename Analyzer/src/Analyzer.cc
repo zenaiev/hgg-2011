@@ -296,7 +296,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
     _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
-    _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/F");
+    _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
     //electrons in same superCluster (sc)
     
     
