@@ -171,7 +171,7 @@ class Analyzer : public edm::EDAnalyzer {
     
     //PFlow isolation
     float _phChargedHadronIso[_maxNph];
-    //float _phChargedHadronIsoWrongVtx[_maxNph];
+    float _phPhotonIsoWrongVtx[_maxNph];
     float _phNeutralHadronIso[_maxNph];
     float _phPhotonIso[_maxNph];
     // H/E
@@ -283,7 +283,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
 	  //PFlow isolation
 	  _tree->Branch("phChargedHadronIso",_phChargedHadronIso , "phChargedHadronIso[Nph]/F");
-	  //_tree->Branch("phChargedHadronIsoWrongVtx",_phChargedHadronIsoWrongVtx , "phChargedHadronIsoWrongVtx[Nph]/F");
+	  _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
 	  _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
     // jets
@@ -465,12 +465,26 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons, 
     //_phHcalDepth2TowerSumEtConeDR03[_Nph] = it->hcalDepth2TowerSumEtConeDR03();
     
 	  //PFlow isolation (not in PhotonCollection)
+    //use selected vertex, which was first 
     reco::VertexRef myVtx(Vertices, 0);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
 	  _phChargedHadronIso[_Nph] = mIsolator.getIsolationCharged();
-    //_phChargedHadronIsoWrongVtx[_Nph] = // TODO
+    
     _phNeutralHadronIso[_Nph] = mIsolator.getIsolationNeutral();
     _phPhotonIso[_Nph] = mIsolator.getIsolationPhoton();
+    
+    //worst ChargedHadronIsolation
+    float max = _phPhotonIso[_Nph];
+    //loop over all possible vertices
+    for(int unsigned long i = 0; i < Vertices->size(); i++)
+    {
+      reco::VertexRef myVtx(Vertices, i);
+      mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+      if( max < mIsolator.getIsolationPhoton()) 
+        max = mIsolator.getIsolationPhoton();
+    }
+    _phPhotonIsoWrongVtx[_Nph] = max;
+    
     // H/E
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();
     _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();

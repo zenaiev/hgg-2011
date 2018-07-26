@@ -49,7 +49,7 @@ public :
    //Float_t         phHcalDepth2TowerSumEtConeDR03[maxNph];   //[Nph]
    Float_t         phHadronicOverEm[maxNph];   //[Nph]
    Float_t         phChargedHadronIso[maxNph];
-   //Float_t         phChargedHadronIsoWrongVtx[maxNph];
+   Float_t         phPhotonIsoWrongVtx[maxNph];
    Float_t         phNeutralHadronIso[maxNph];
    Float_t         phPhotonIso[maxNph];
    Float_t         phSigmaIetaIeta[maxNph];   //[Nph]
@@ -93,7 +93,7 @@ public :
    //TBranch        *b_phHcalDepth2TowerSumEtConeDR03;   //!
    TBranch        *b_phHadronicOverEm;
    TBranch        *b_phChargedHadronIso;
-   //TBranch        *b_phChargedHadronIsoWrongVtx;
+   TBranch        *b_phPhotonIsoWrongVtx;
    TBranch        *b_phNeutralHadronIso;
    TBranch        *b_phPhotonIso;
    TBranch        *b_phSigmaIetaIeta;
@@ -154,7 +154,7 @@ void ZTree::Init(TTree *tree)
    //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR03", phHcalDepth2TowerSumEtConeDR03, &b_phHcalDepth2TowerSumEtConeDR03);
    fChain->SetBranchAddress("phHadronicOverEm", phHadronicOverEm, &b_phHadronicOverEm);
    fChain->SetBranchAddress("phChargedHadronIso", phChargedHadronIso, &b_phChargedHadronIso);
-   //fChain->SetBranchAddress("phChargedHadronIsoWrongVtx", phChargedHadronIsoWrongVtx, &b_phChargedHadronIsoWrongVtx);
+   fChain->SetBranchAddress("phPhotonIsoWrongVtx", phPhotonIsoWrongVtx, &b_phPhotonIsoWrongVtx);
    fChain->SetBranchAddress("phNeutralHadronIso", phNeutralHadronIso, &b_phNeutralHadronIso);
    fChain->SetBranchAddress("phPhotonIso", phPhotonIso , &b_phPhotonIso);
    fChain->SetBranchAddress("phSigmaIetaIeta", phSigmaIetaIeta, &b_phSigmaIetaIeta);
