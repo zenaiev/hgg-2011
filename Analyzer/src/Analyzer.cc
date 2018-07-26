@@ -292,9 +292,9 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phHadronicOverEm", _phHadronicOverEm, "phHadronicOverEm[Nph]/F"); // photon R9
     _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
 	  //PFlow isolation
-	  _tree->Branch("phChargedHadronIso",_phChargedHadronIso , "phChargedHadronIso[Nph]/F");
-	  _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
-	  _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
+    _tree->Branch("phChargedHadronIso",_phChargedHadronIso , "phChargedHadronIso[Nph]/F");
+    _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
+    _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
     _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/F");
     //electrons in same superCluster (sc)
