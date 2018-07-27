@@ -408,11 +408,11 @@ int Analyzer::SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets)
   return 0;
 }
 
-// muon selection
+// photon selection
 int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,const edm::Handle<reco::GsfElectronCollection>& electrons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF)
 {
   _Nph = 0;
-  // loop over muons
+  // loop over photons
   for (reco::PhotonCollection::const_iterator it = photons->begin(); it != photons->end(); it++)
   {
     if(_Nph == _maxNph)
@@ -420,6 +420,35 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       printf("Maximum number of photons %d reached, skipping the rest\n", _maxNph);
       return 0;
     }
+    
+    //get the supercluster of the photon
+    float scEta = it->superCluster()->position().eta();
+    float scPhi = it->superCluster()->position().phi();
+    float scEtaWidth = it->superCluster()->etaWidth();
+    float scPhiWidth = it->superCluster()->phiWidth();
+   
+    _phNumElectronsSuperCluster[_Nph] = 0;
+    //check if there are any electrons within the supercluster 
+    //maybe there are other methods for PFlow in 2012 to find supercluster
+    for (reco::GsfElectronCollection::const_iterator itEl = electrons->begin(); itEl != electrons->end(); itEl++)
+    {
+      float scEtaEl = itEl->superCluster()->position().eta();
+      float scPhiEl = itEl->superCluster()->position().phi();
+      if(scEtaEl > scEta + scEtaWidth / 2 || scEtaEl < scEta - scEtaWidth / 2)
+        continue;
+      if(scPhiEl > scPhi + scPhiWidth / 2 || scPhiEl < scPhi - scPhiWidth / 2)
+        continue;
+      //add other cuts on the electrons
+      if(itEl->pt() < 2.5)
+        continue;
+      //increase electron counter
+      //get the supercluster of the photon
+      _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
+      //store number of (missing) hits 
+      _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+    }
+    if(_phNumElectronsSuperCluster[_Nph] > 0)
+      continue;
     
     // selection for 2011 data
     if(_flagYEAR == 0)
@@ -528,38 +557,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
         
     }
     
-    
-    //get the supercluster of the photon
-    float scEta = it->superCluster()->position().eta();
-    float scPhi = it->superCluster()->position().phi();
-    float scEtaWidth = it->superCluster()->etaWidth();
-    float scPhiWidth = it->superCluster()->phiWidth();
-    //printf("scEta = %f \n", scEta);
-    //printf("scPhi = %f \n", scPhi);
-    //printf("scEtaWidth = %f \n", scEtaWidth);
-    //printf("scPhiWidth = %f \n", scPhiWidth);
-    
-    _phNumElectronsSuperCluster[_Nph] = 0;
-    //check if there are any electrons within the supercluster 
-    //add PFlow methods for 2012 data
-    for (reco::GsfElectronCollection::const_iterator itEl = electrons->begin(); itEl != electrons->end(); itEl++)
-    {
-      float scEtaEl = itEl->superCluster()->position().eta();
-      float scPhiEl = itEl->superCluster()->position().phi();
-      if(scEtaEl > scEta + scEtaWidth / 2 || scEtaEl < scEta - scEtaWidth / 2)
-        continue;
-      if(scPhiEl > scPhi + scPhiWidth / 2 || scPhiEl < scPhi - scPhiWidth / 2)
-        continue;
-      //add other cuts on the electrons
-      if(itEl->pt() < 2.5)
-        continue;
-      //increase electron counter
-      _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
-      //store number of (missing) hits 
-      _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-    }
-    //printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
-
     _Nph++;
   }
   return _Nph;
