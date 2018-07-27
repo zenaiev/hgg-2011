@@ -55,6 +55,7 @@ public :
    Int_t           phNumElectronsSuperCluster[maxNph];
    Int_t           elMissingHits[maxNph];
    Float_t         phElectronDR[maxNph];
+   Int_t           phHasConversionTracks[maxNph];
    Float_t         phSigmaIetaIeta[maxNph];   //[Nph]
    Float_t         phMatch[maxNph];   //[Nph]
    Int_t           Njet;
@@ -102,6 +103,7 @@ public :
    TBranch        *b_phNumElectronsSuperCluster;
    TBranch        *b_elMissingHits;
    TBranch        *b_phElectronDR;
+   TBranch        *b_phHasConversionTracks;
    TBranch        *b_phSigmaIetaIeta;
    TBranch        *b_phMatch;
    TBranch        *b_Njet;   //!
@@ -166,6 +168,7 @@ void ZTree::Init(TTree *tree)
    fChain->SetBranchAddress("phNumElectronsSuperCluster", phNumElectronsSuperCluster, &b_phNumElectronsSuperCluster);
    fChain->SetBranchAddress("elMissingHits", elMissingHits, &b_elMissingHits);
    fChain->SetBranchAddress("phElectronDR", phElectronDR , &b_phElectronDR);
+   fChain->SetBranchAddress("phHasConversionTracks",phHasConversionTracks, &b_phHasConversionTracks);
    fChain->SetBranchAddress("phSigmaIetaIeta", phSigmaIetaIeta, &b_phSigmaIetaIeta);
    fChain->SetBranchAddress("Njet", &Njet, &b_Njet);
    fChain->SetBranchAddress("jetPt", jetPt, &b_jetPt);
