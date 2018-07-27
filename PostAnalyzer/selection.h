@@ -40,10 +40,12 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  
   //Electron veto
   if(gFlagDebug) printf("Electron Veto");
   if(preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
+  
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
@@ -103,36 +105,13 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  
   //Electron veto
   if(gFlagDebug) printf("Electron Veto");
   if(preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
-  /*
-  //use 2011 isolation variables since Pflow is currently not working
-  if(gFlagDebug) printf("5.4.1\n");
-  const double aEff = 0.17;
-  double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR04[ph];
-  //double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR03[ph];
-  relCombIso -= aEff * preselTree->rho;
-  relCombIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
-  if( (relCombIso > 3.8 && eventClass == 3) ||
-      (relCombIso > 2.2 && eventClass == 4) ||
-      (relCombIso > 1.77 && eventClass == 5) ||
-      (relCombIso > 1.29 && eventClass == 6) )
-    return 0;
-
-  // relative track isolation using selected event vertex 5.4.3
-  if(gFlagDebug) printf("5.4.3\n");
-  double relTrackIso = preselTree->phTrkSumPtHollowConeDR03[ph];
-  relTrackIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
-  if( (relTrackIso > 3.5 && eventClass == 3) ||
-      (relTrackIso > 2.2 && eventClass == 4) ||
-      (relTrackIso > 2.3 && eventClass == 5) ||
-      (relTrackIso > 1.45 && eventClass == 6) )
-    return 0;
-  */
   //PFlow isolation 
-  if(gFlagDebug) printf("PFlow isolation\n");
+  if(gFlagDebug) printf("PFlow photon isolation\n");
   if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
       (preselTree->phPhotonIso[ph] > 4.7 && eventClass == 4) ||
       (preselTree->phPhotonIso[ph] > 5.6 && eventClass == 5) ||
@@ -146,7 +125,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       (preselTree->phChargedHadronIso[ph] > 2.2 && eventClass == 6) )
     return 0;
   //PFlow isolation worst vertex
-  if(gFlagDebug) printf("Pflow charged hadron iso wrong vertex\n");
+  if(gFlagDebug) printf("Pflow photon iso wrong vertex\n");
   if( (preselTree->phPhotonIsoWrongVtx[ph] > 10 && eventClass == 3) ||
       (preselTree->phPhotonIsoWrongVtx[ph] > 6.5 && eventClass == 4) ||
       (preselTree->phPhotonIsoWrongVtx[ph] > 5.6 && eventClass == 5) ||
