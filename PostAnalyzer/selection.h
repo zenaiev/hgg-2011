@@ -94,6 +94,11 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
       (preselTree->phR9[ph] < 0.32 && eventClass == 6) )
     return 0;
   if(gFlagDebug) printf("PASSED\n");
+  
+  //deltaR
+  if(gFlagDebug) printf("5.4.7\n");
+  if(preselTree->phElectronDR[ph] > 0.062 && eventClass == 4)
+    return 0;
 
   // matching
   if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
@@ -105,11 +110,12 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  
+  /*
   //Electron veto
   if(gFlagDebug) printf("Electron Veto");
   if(preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
+  */
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow photon isolation\n");
   if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
