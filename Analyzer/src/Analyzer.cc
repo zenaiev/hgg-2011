@@ -182,6 +182,7 @@ class Analyzer : public edm::EDAnalyzer {
     
     //electrons in same SuperCluster
     int _phNumElectronsSuperCluster[_maxNph];
+    int _elMissingHits[_maxNph];
     
     // H/E
     float _phHadronicOverEm[_maxNph];
@@ -296,8 +297,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
     _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
-    _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
+    
     //electrons in same superCluster (sc)
+    _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
+    _tree->Branch("elMissingHits", _elMissingHits, "elMissingHits[Nph]/I");
     
     
     // jets
@@ -551,9 +554,9 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       if(itEl->pt() < 2.5)
         continue;
       //increase electron counter
-      _phNumElectronsSuperCluster[_Nph] += 1;
-      //store electron in a list? 
-      //at least try to store properties of electron like missingHits in tree
+      _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
+      //store number of (missing) hits 
+      _elMissingHits[_Nph] = itEl->gsfTrack())->trackerExpectedHitsInner()).numberOfHits();
     }
     //printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
 
