@@ -146,7 +146,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       (preselTree->phChargedHadronIso[ph] > 2.2 && eventClass == 6) )
     return 0;
   //PFlow isolation worst vertex
-  if(gFlagDebug) printf("Pflow charged hadron iso wrong vertex\n")
+  if(gFlagDebug) printf("Pflow charged hadron iso wrong vertex\n");
   if( (preselTree->phPhotonIsoWrongVtx[ph] > 10 && eventClass == 3) ||
       (preselTree->phPhotonIsoWrongVtx[ph] > 6.5 && eventClass == 4) ||
       (preselTree->phPhotonIsoWrongVtx[ph] > 5.6 && eventClass == 5) ||
