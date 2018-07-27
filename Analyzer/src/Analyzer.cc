@@ -443,6 +443,13 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
 	    continue;
 	  if(it->hadronicOverEm() > 0.142)
 	    continue;
+    //cut on PFlow
+    reco::VertexRef myVtx(Vertices, 0); //chosen vertex is first
+    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+	  if(mIsolator.getIsolationCharged() > 3.8)
+      continue;
+    if(mIsolator.getIsolationPhoton() > 6)
+      continue;
     } 
     // fill four momentum (pT, eta, phi, E)
     _phE[_Nph] = it->energy();
@@ -546,6 +553,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       //increase electron counter
       _phNumElectronsSuperCluster[_Nph] += 1;
       //store electron in a list? 
+      //at least try to store properties of electron like missingHits in tree
     }
     //printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
 
