@@ -40,12 +40,12 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  
+  /*
   //Electron veto
   if(gFlagDebug) printf("Electron Veto");
   if(preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
-  
+  */
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
