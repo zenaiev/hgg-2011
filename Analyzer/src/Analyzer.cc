@@ -184,6 +184,7 @@ class Analyzer : public edm::EDAnalyzer {
     int _phNumElectronsSuperCluster[_maxNph];
     int _elMissingHits[_maxNph];
     float _phElectronDR[_maxNph];
+    int _phHasConversionTracks[_maxNph];
     
     // H/E
     float _phHadronicOverEm[_maxNph];
@@ -303,6 +304,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
     _tree->Branch("elMissingHits", _elMissingHits, "elMissingHits[Nph]/I");
     _tree->Branch("phElectronDR", _phElectronDR, "phElectronDR[Nph]/F");
+    _tree->Branch("phHasConversionTracks" , _phHasConversionTracks, "phHasConversionTracks[Nph]/I");
     
     
     // jets
@@ -457,43 +459,46 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     // selection for 2011 data
     if(_flagYEAR == 0)
     {
-	  if(it->pt() < 25.0)
-	    continue;
-	  if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
-	    continue;
-	  if(it->r9() < 0.32)
-	    continue;
-	  if(it->trkSumPtHollowConeDR03() > 3.5)
-	    continue;
-	  if(it->hadronicOverEm() > 0.082)
-	    continue;
-    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
-    {
-      if(TMath::Abs(it->eta()) > 1.44 || it->r9() > 0.94)
+      if(it->pt() < 25.0)
         continue;
-    }
+      if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
+        continue;
+      if(it->r9() < 0.32)
+        continue;
+      if(it->trkSumPtHollowConeDR03() > 3.5)
+        continue;
+      if(it->hadronicOverEm() > 0.082)
+        continue;
+      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
+      {
+        //not rejected if it is in class two
+        if(TMath::Abs(it->eta()) > 1.44 || it->r9() > 0.94)
+          continue;
+      }
     } 
     // selection for 2012 data
     if(_flagYEAR == 1)
     {
-	  if(it->pt() < 25.0)
-	    continue;
-	  if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
-	    continue;
-	  if(it->r9() < 0.24)
-	    continue;
-	  if(it->hadronicOverEm() > 0.142)
-	    continue;
-    //preselection on PFlow
-    reco::VertexRef myVtx(Vertices, 0); //chosen vertex is first
-    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-	  if(mIsolator.getIsolationCharged() > 3.8)
-      continue;
-    if(mIsolator.getIsolationPhoton() > 6)
-      continue;
-    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
-      continue;
+      if(it->pt() < 25.0)
+        continue;
+      if(TMath::Abs(it->eta()) > 2.5 || (TMath::Abs(it->eta()) > 1.44 && TMath::Abs(it->eta()) < 1.57))
+        continue;
+      if(it->r9() < 0.24)
+        continue;
+      if(it->hadronicOverEm() > 0.142)
+        continue;
+      //preselection on PFlow
+      reco::VertexRef myVtx(Vertices, 0); //chosen vertex is first
+      mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+      if(mIsolator.getIsolationCharged() > 3.8)
+        continue;
+      if(mIsolator.getIsolationPhoton() > 6)
+        continue;
+      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == false)
+        continue;
     } 
+    //conversion track
+    _phHasConversionTracks[_Nph] = it->hasConversionTracks();
     // fill four momentum (pT, eta, phi, E)
     _phE[_Nph] = it->energy();
     // enum P4type { undefined=-1, ecal_standard=0, ecal_photons=1, regression1=2, regression2= 3 } ;
