@@ -556,7 +556,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       //increase electron counter
       _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
       //store number of (missing) hits 
-      _elMissingHits[_Nph] = itEl->gsfTrack())->trackerExpectedHitsInner()).numberOfHits();
+      _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
     }
     //printf("electrons in sc: %d \n", _phNumElectronsSuperCluster[_Nph]);
 
