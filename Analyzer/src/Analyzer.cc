@@ -445,7 +445,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       if(itEl->pt() < 2.5)
         continue;
       //increase electron counter
-      //get the supercluster of the photon
       _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
       //store number of (missing) hits 
       _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
@@ -453,8 +452,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       _phElectronDR[_Nph] = TMath::Sqrt(TMath::Power(it->eta()-itEl->eta(),2.0)+TMath::Power(it->phi()-itEl->phi(),2.0));
       
     }
-    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
-      continue;
+    
     
     // selection for 2011 data
     if(_flagYEAR == 0)
@@ -469,6 +467,11 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
 	    continue;
 	  if(it->hadronicOverEm() > 0.082)
 	    continue;
+    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
+    {
+      if(TMath::Abs(it->eta()) > 1.44 || it->r9() > 0.94)
+        continue;
+    }
     } 
     // selection for 2012 data
     if(_flagYEAR == 1)
@@ -481,12 +484,14 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
 	    continue;
 	  if(it->hadronicOverEm() > 0.142)
 	    continue;
-    //cut on PFlow
+    //preselection on PFlow
     reco::VertexRef myVtx(Vertices, 0); //chosen vertex is first
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
 	  if(mIsolator.getIsolationCharged() > 3.8)
       continue;
     if(mIsolator.getIsolationPhoton() > 6)
+      continue;
+    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
       continue;
     } 
     // fill four momentum (pT, eta, phi, E)
