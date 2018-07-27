@@ -40,6 +40,10 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  //Electron veto
+  if(gFlagDebug) printf("Electron Veto");
+  if(preselTree->phNumElectronsSuperCluster[ph] > 0)
+    return 0;
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
@@ -99,6 +103,11 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  //Electron veto
+  if(gFlagDebug) printf("Electron Veto");
+  if(preselTree->phNumElectronsSuperCluster[ph] > 0)
+    return 0;
+  /*
   //use 2011 isolation variables since Pflow is currently not working
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
@@ -121,7 +130,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       (relTrackIso > 2.3 && eventClass == 5) ||
       (relTrackIso > 1.45 && eventClass == 6) )
     return 0;
-  /* 
+  */
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow isolation\n");
   if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
@@ -143,7 +152,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       (preselTree->phPhotonIsoWrongVtx[ph] > 5.6 && eventClass == 5) ||
       (preselTree->phPhotonIsoWrongVtx[ph] > 4.4 && eventClass == 6) )
     return 0;
-  */
+  
   // H/E 5.4.4
   if(gFlagDebug) printf("5.4.4\n");
   if( (preselTree->phHadronicOverEm[ph] > 0.124 && eventClass == 3) ||
