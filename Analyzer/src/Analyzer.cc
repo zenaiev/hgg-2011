@@ -183,6 +183,7 @@ class Analyzer : public edm::EDAnalyzer {
     //electrons in same SuperCluster
     int _phNumElectronsSuperCluster[_maxNph];
     int _elMissingHits[_maxNph];
+    float _phElectronDR[_maxNph];
     
     // H/E
     float _phHadronicOverEm[_maxNph];
@@ -301,6 +302,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     //electrons in same superCluster (sc)
     _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
     _tree->Branch("elMissingHits", _elMissingHits, "elMissingHits[Nph]/I");
+    _tree->Branch("phElectronDR", _phElectronDR, "phElectronDR[Nph]/F");
     
     
     // jets
@@ -428,6 +430,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     float scPhiWidth = it->superCluster()->phiWidth();
    
     _phNumElectronsSuperCluster[_Nph] = 0;
+    _elMissingHits[_Nph] = -1;
     //check if there are any electrons within the supercluster 
     //maybe there are other methods for PFlow in 2012 to find supercluster
     for (reco::GsfElectronCollection::const_iterator itEl = electrons->begin(); itEl != electrons->end(); itEl++)
@@ -438,7 +441,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
         continue;
       if(scPhiEl > scPhi + scPhiWidth / 2 || scPhiEl < scPhi - scPhiWidth / 2)
         continue;
-      //add other cuts on the electrons
+      //energy cut on electron
       if(itEl->pt() < 2.5)
         continue;
       //increase electron counter
@@ -446,8 +449,11 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
       //store number of (missing) hits 
       _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+      //deltaR for 2011 cut
+      _phElectronDR[_Nph] = TMath::Sqrt(TMath::Power(it->eta()-itEl->eta(),2.0)+TMath::Power(it->phi()-itEl->phi(),2.0));
+      
     }
-    if(_phNumElectronsSuperCluster[_Nph] > 0)
+    if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
       continue;
     
     // selection for 2011 data
