@@ -494,7 +494,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
         continue;
       if(mIsolator.getIsolationPhoton() > 6)
         continue;
-      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == false)
+      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == true)
         continue;
     } 
     //conversion track
