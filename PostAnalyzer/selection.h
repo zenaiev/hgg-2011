@@ -157,7 +157,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   
   //electron veto
   if(gFlagDebug) printf("electron veto \n");
-  if( preselTree->phNumElectronsSuperCluster[ph] > 0 && preselTree->elMissingHits[ph] > 0)
+  if( preselTree->phNumElectronsSuperCluster[ph] > 0 && preselTree->elMissingHits[ph] == 0 && preselTree->phHasConversionTracks[ph] == true)
     return 0;
   
   //matching
