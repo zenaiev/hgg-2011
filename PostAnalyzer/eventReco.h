@@ -272,7 +272,7 @@ void eventreco(ZEventRecoInput in)
     if(!trig)
       continue;
 
-    int eventClass = SelectHgg(preselTree, 1, ph[0], ph[1]);
+    int eventClass = SelectHgg(preselTree, 1, ph[0], ph[1],in.Name);
     if(eventClass == 0)
       continue;
 
