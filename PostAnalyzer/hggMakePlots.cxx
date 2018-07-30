@@ -221,7 +221,7 @@ int Plot2012()
   fit_sb->SetParameter(2, 2.0);
   //Fix only mass parameter
   //fit_sb->FixParameter(0, 0.0);
-  //fit_sb->FixParameter(1, 125.0);
+  fit_sb->FixParameter(1, 125.0);
   //fit_sb->FixParameter(2, 2.0);
   //Set other parameters from background
   for(int p = 3; p <= 5; p++)
