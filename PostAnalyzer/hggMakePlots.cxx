@@ -182,7 +182,7 @@ int Plot2012()
 
   TPad* pad1 = new TPad("", "", 0.00, 0.40, 1.00, 1.00);
   pad1->SetMargin(0.11, 0.03, 0.005, 0.07);
-  TH2F* hr = new TH2F("", "", 1, 100.0, 180.0, 1, 0.01, 7500.0);
+  TH2F* hr = new TH2F("", "", 1, 100.0, 180.0, 1, 0.01, 20000.0);
   hr->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
   hr->GetYaxis()->SetTitle("Events / GeV");
   //hr->GetYaxis()->SetTitleOffset(0.0);
@@ -221,7 +221,7 @@ int Plot2012()
   fit_sb->SetParameter(2, 2.0);
   //Fix only mass parameter
   //fit_sb->FixParameter(0, 0.0);
-  fit_sb->FixParameter(1, 125.0);
+  //fit_sb->FixParameter(1, 125.0);
   //fit_sb->FixParameter(2, 2.0);
   //Set other parameters from background
   for(int p = 3; p <= 5; p++)
@@ -248,7 +248,7 @@ int Plot2012()
   // ratio
   TPad* pad2 = new TPad("", "", 0.00, 0.00, 1.00, 0.40);
   pad2->SetMargin(0.11, 0.03, 0.20, 0.005);
-  TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -99.99, 99.99);
+  TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -199.99, 199.99);
   hrr->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
   hrr->GetYaxis()->SetTitle("Events / GeV");
   hrr->GetXaxis()->SetTitleOffset(2.5);

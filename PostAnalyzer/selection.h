@@ -40,12 +40,7 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  /*
-  //Electron veto
-  if(gFlagDebug) printf("Electron Veto");
-  if(preselTree->phNumElectronsSuperCluster[ph] > 0)
-    return 0;
-  */
+  
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
@@ -95,27 +90,23 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
     return 0;
   if(gFlagDebug) printf("PASSED\n");
   
-  //deltaR
-  if(gFlagDebug) printf("5.4.7\n");
-  if(preselTree->phElectronDR[ph] > 0.062 && eventClass == 4)
+  //electron veto (if eventclass 4 is not rejected, number increases because deltaR is too small)
+  if( preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
-
+  if( preselTree->phElectronDR[ph] > 0.062 && eventClass == 4)
+    return 0;
+    
+  
   // matching
   if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
     return 0;
-
+  
   // all cuts passed: return true
   return 1;
 }
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  /*
-  //Electron veto
-  if(gFlagDebug) printf("Electron Veto");
-  if(preselTree->phNumElectronsSuperCluster[ph] > 0)
-    return 0;
-  */
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow photon isolation\n");
   if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
@@ -163,11 +154,16 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       (preselTree->phR9[ph] < 0.24 && eventClass == 6) )
     return 0;
   if(gFlagDebug) printf("PASSED\n");
-
-  // matching
+  
+  //electron veto
+  if(gFlagDebug) printf("electron veto \n");
+  if( preselTree->phNumElectronsSuperCluster[ph] > 0 && preselTree->elMissingHits[ph] > 0)
+    return 0;
+  
+  //matching
   if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
     return 0;
-
+  
   // all cuts passed: return true
   return 1;
 }
