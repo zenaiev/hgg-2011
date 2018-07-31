@@ -93,8 +93,6 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
   //electron veto (if eventclass 4 is not rejected, number increases because deltaR is too small)
   if( preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
-  if( preselTree->phElectronDR[ph] > 0.062 && eventClass == 4)
-    return 0;
     
   
   // matching
@@ -157,9 +155,8 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   
   //electron veto
   if(gFlagDebug) printf("electron veto \n");
-  if( preselTree->phNumElectronsSuperCluster[ph] > 0 && preselTree->elMissingHits[ph] == 0 && preselTree->phHasConversionTracks[ph] == true)
+  if( preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
-  
   //matching
   if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
     return 0;
