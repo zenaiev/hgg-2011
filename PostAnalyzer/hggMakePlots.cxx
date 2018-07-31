@@ -182,7 +182,7 @@ int Plot2012()
 
   TPad* pad1 = new TPad("", "", 0.00, 0.40, 1.00, 1.00);
   pad1->SetMargin(0.11, 0.03, 0.005, 0.07);
-  TH2F* hr = new TH2F("", "", 1, 100.0, 180.0, 1, 0.01, 20000.0);
+  TH2F* hr = new TH2F("", "", 1, 100.0, 180.0, 1, 0.01, 10000.0);
   hr->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
   hr->GetYaxis()->SetTitle("Events / GeV");
   //hr->GetYaxis()->SetTitleOffset(0.0);
