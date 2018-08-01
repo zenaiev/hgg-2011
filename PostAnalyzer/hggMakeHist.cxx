@@ -40,7 +40,7 @@ int main(int argc, char** argv)
   // for control plots and cross sections (as in TOP-11-013)
   std::vector<ZVarHisto> vecVH, vecVHGen; // vecVH for reconstruction level, vecVHGen for generator level
   // histograms and variables for control plots
-  vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
+  vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
   // histograms and variables for cross sections
   /*{
     double bins[] = {0.,80.,130.,200.,300.,400.};
