@@ -105,6 +105,38 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  //event preselection on the photon
+  //track iso
+  const double aEff = 0.17;
+  double relCombIso = preselTree->phTrkSumPtHollowConeDR03[ph] + preselTree->phEcalRecHitSumEtConeDR03[ph] + preselTree->phHcalTowerSumEtConeDR04[ph];
+  relCombIso -= aEff * preselTree->rho;
+  relCombIso /= (TMath::Abs(preselTree->phPt[ph]) / 50.0);
+  //R9 <= 0.9
+  if(preselTree->phR9[ph] <= 0.9)
+  {
+    //for both barrel and endcap
+    if(preselTree->phChargedHadronIso[ph] > 4 || relCombIso > 4 || preselTree->phHcalTowerSumEtConeDR04[ph] > 4)
+      return 0;
+    //for barrel
+    if((eventClass == 3 || eventClass == 4)  && (preselTree->phHadronicOverEm[ph] > 0.075 || (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph])  > 0.014) )
+      return 0;
+    //for endcap
+    if((eventClass == 5 || eventClass == 6) && (preselTree->phHadronicOverEm[ph] > 0.075 || (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph])  > 0.034))
+      return 0;
+  }
+  //R9 > 0.9
+  if(preselTree->phR9[ph] > 0.9)
+  {
+    //for both barrel and endcap
+    if(preselTree->phChargedHadronIso[ph] > 4 || relCombIso > 50 || preselTree->phHcalTowerSumEtConeDR04[ph] > 50)
+      return 0;
+    //for barrel
+    if((eventClass == 3 || eventClass == 4)  && (preselTree->phHadronicOverEm[ph] > 0.082 || (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph]) > 0.014) )
+      return 0;
+    //for endcap
+    if((eventClass == 5 || eventClass == 6) && (preselTree->phHadronicOverEm[ph] > 0.075 ||  (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph]) > 0.034))
+      return 0;
+  }
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow photon isolation\n");
   if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
