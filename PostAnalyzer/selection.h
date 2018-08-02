@@ -105,11 +105,13 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  //effective area for pile up
+  const double aEff = 0.17;
   //event preselection on the photon
-  double EtCorrEcalIso = preselTree->phEcalRecHitSumEtConeDR03[ph] - 0.012 * preselTree->phPt[ph];
-  double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR03[ph] - 0.005 * preselTree->phPt[ph];
-  double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR03[ph] - 0.002 * preselTree->phPt[ph];
-  double ChargedPFIso = preselTree->phChargedHadronIso[ph];
+  double EtCorrEcalIso = preselTree->phEcalRecHitSumEtConeDR03[ph] - 0.012 * preselTree->phPt[ph] - aEff * preselTree->rho;
+  double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR03[ph] - 0.005 * preselTree->phPt[ph] - aEff * preselTree->rho;
+  double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR03[ph] - 0.002 * preselTree->phPt[ph] - aEff * preselTree->rho;
+  double ChargedPFIso = preselTree->phChargedHadronIso[ph] - aEff * preselTree->rho;
   //R9 <= 0.9
   if(preselTree->phR9[ph] <= 0.9)
   {
