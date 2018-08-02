@@ -176,11 +176,13 @@ class Analyzer : public edm::EDAnalyzer {
     //float _phHcalDepth2TowerSumEtConeDR03[_maxNph];
     
     //PFlow isolation
-    float _phChargedHadronIso[_maxNph];
-    float _phNeutralHadronIso[_maxNph];
-    float _phPhotonIso[_maxNph];
-    float _phIsolationSum[_maxNph];
-    float _phIsolationSumWrongVtx[_maxNph];
+    float _phChargedHadronIsoDR02[_maxNph];
+    float _phChargedHadronIsoDR03[_maxNph];
+    float _phChargedHadronIsoDR04[_maxNph];
+    float _phIsolationSumDR04[_maxNph];
+    float _phIsolationSumDR03[_maxNph];
+    float _phIsolationSumWrongVtxDR04[_maxNph];
+    float _phIsolationSumWrongVtxDR03[_maxNph];
     
     //electrons in same SuperCluster
     int _phNumElectronsSuperCluster[_maxNph];
@@ -250,7 +252,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   
   //photon isolator 
   mIsolator.initializePhotonIsolation(kTRUE);
-  mIsolator.setConeSize(0.3);
+  mIsolator.setRingSize(0.3);
 
   // read configuration parameters
   _flagMC = iConfig.getParameter<int>("mc"); // true for MC, false for data
@@ -297,11 +299,13 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phHadronicOverEm", _phHadronicOverEm, "phHadronicOverEm[Nph]/F"); // photon R9
     _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
 	  //PFlow isolation
-    _tree->Branch("phChargedHadronIso",_phChargedHadronIso , "phChargedHadronIso[Nph]/F");
-    _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
-	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
-    _tree->Branch("phIsolationSum", _phIsolationSum, "phIsolationSum[Nph]/F");
-    _tree->Branch("phIsolationSumWrongVtx",_phIsolationSumWrongVtx, "phIsolationSumWrongVtx[Nph]/F");
+    _tree->Branch("phChargedHadronIsoDR04",_phChargedHadronIsoDR04 , "phChargedHadronIsoDR04[Nph]/F");
+    _tree->Branch("phChargedHadronIsoDR02", _phChargedHadronIsoDR02, "phChargedHadronIsoDR02[Nph]/F");
+    _tree->Branch("phChargedHadronIsoDR03", _phChargedHadronIsoDR03, "phChargedHadronIsoDR03[Nph]/F");
+    _tree->Branch("phIsolationSumDR04", _phIsolationSumDR04, "phIsolationSumDR04[Nph]/F");
+    _tree->Branch("phIsolationSumDR03", _phIsolationSumDR03, "phIsolationSumDR03[Nph]/F");
+    _tree->Branch("phIsolationSumWrongVtxDR04",_phIsolationSumWrongVtxDR04, "phIsolationSumWrongVtxDR04[Nph]/F");
+    _tree->Branch("phIsolationSumWrongVtxDR03", _phIsolationSumWrongVtxDR03, "phIsolationSumWrongVtxDR03[Nph]/F");
     
     //electrons in same superCluster (sc)
     _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
@@ -490,11 +494,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
         continue;
       if(it->hadronicOverEm() > 0.142)
         continue;
-      //preselection on PFlow
-      reco::VertexRef myVtx(Vertices, 0); //chosen vertex is first
-      mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-      if(mIsolator.getIsolationCharged() > 3.8)
-        continue;
+      //matching electron
       if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == true)
         continue;
     } 
@@ -539,21 +539,45 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     //use selected vertex, which was first 
     reco::VertexRef myVtx(Vertices, 0);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-	  _phChargedHadronIso[_Nph] = mIsolator.getIsolationCharged();
-    _phNeutralHadronIso[_Nph] = mIsolator.getIsolationNeutral();
-    _phPhotonIso[_Nph] = mIsolator.getIsolationPhoton();
-    _phIsolationSum[_Nph] = _phChargedHadronIso[_Nph] + _phNeutralHadronIso[_Nph] + _phPhotonIso[_Nph];
+    //isolation for different cone sizes
+    mIsolator.setRingSize(0.4);
+    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+    //printf("Ring size (0.4) : %f \n", mIsolator.getRingSize());
     
+	  _phChargedHadronIsoDR04[_Nph] = mIsolator.getIsolationCharged();
+    double neutralIsoDR04 = mIsolator.getIsolationNeutral();
+    double photonIsoDR04 = mIsolator.getIsolationPhoton();
+    _phIsolationSumDR04[_Nph] = _phChargedHadronIsoDR04[_Nph] + neutralIsoDR04 + photonIsoDR04;
+    
+    mIsolator.setRingSize(0.3);
+    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+    //printf("Ring size (0.3) : %f \n", mIsolator.getRingSize());
+    double neutralIsoDR03 = mIsolator.getIsolationNeutral();
+    double photonIsoDR03 = mIsolator.getIsolationPhoton();
+    _phChargedHadronIsoDR03[_Nph] = mIsolator.getIsolationCharged();
+    _phIsolationSumDR03[_Nph] = _phChargedHadronIsoDR03[_Nph] + neutralIsoDR03 + photonIsoDR03;
+    
+    mIsolator.setRingSize(0.2);
+    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+    _phChargedHadronIsoDR02[_Nph] = mIsolator.getIsolationCharged();
+        
     //worst ChargedHadronIsolation
-    _phIsolationSumWrongVtx[_Nph] = _phIsolationSum[_Nph];
+    _phIsolationSumWrongVtxDR04[_Nph] = _phIsolationSumDR04[_Nph];
+    _phIsolationSumWrongVtxDR03[_Nph] = _phIsolationSumDR03[_Nph];
     //loop over all possible vertices
     for(int unsigned long i = 0; i < Vertices->size(); i++)
     {
       reco::VertexRef myVtx(Vertices, i);
+      mIsolator.setRingSize(0.3);
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-      float curVal = mIsolator.getIsolationCharged() + mIsolator.getIsolationPhoton() + mIsolator.getIsolationNeutral();
-      if( _phIsolationSumWrongVtx[_Nph] < curVal) 
-        _phIsolationSumWrongVtx[_Nph] = curVal;
+      float curVal = mIsolator.getIsolationCharged() + neutralIsoDR03 + photonIsoDR03;
+      if( _phIsolationSumWrongVtxDR03[_Nph] < curVal) 
+        _phIsolationSumWrongVtxDR03[_Nph] = curVal;
+      mIsolator.setRingSize(0.4);
+      mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+      curVal = mIsolator.getIsolationCharged() + neutralIsoDR04 + photonIsoDR04;
+      if (_phIsolationSumWrongVtxDR04[_Nph] < curVal)
+        _phIsolationSumWrongVtxDR04[_Nph] = curVal;
     }
     
     // H/E

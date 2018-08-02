@@ -105,13 +105,13 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
-  //effective area for pile up
-  const double aEff = 0.17;
+  //effective area for pile up (could not find exact determined A_eff in analysis note/paper) 
+  const double aEff = 0.17; //from 2011 -> 2012 should be higher
   //event preselection on the photon
   double EtCorrEcalIso = preselTree->phEcalRecHitSumEtConeDR03[ph] - 0.012 * preselTree->phPt[ph] - aEff * preselTree->rho;
   double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR03[ph] - 0.005 * preselTree->phPt[ph] - aEff * preselTree->rho;
   double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR03[ph] - 0.002 * preselTree->phPt[ph] - aEff * preselTree->rho;
-  double ChargedPFIso = preselTree->phChargedHadronIso[ph] - aEff * preselTree->rho;
+  double ChargedPFIso = preselTree->phChargedHadronIsoDR02[ph] - aEff * preselTree->rho;
   //R9 <= 0.9
   if(preselTree->phR9[ph] <= 0.9)
   {
@@ -140,7 +140,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   }
   //PFlow isolation 
   if(gFlagDebug) printf("PFlow isolation sum\n");
-  double isoSum = preselTree->phIsolationSum[ph]; //add pile-up correction
+  double isoSum = preselTree->phIsolationSumDR04[ph] - aEff * preselTree->rho; 
   if( (isoSum > 6 && eventClass == 3) ||
       (isoSum > 4.7 && eventClass == 4) ||
       (isoSum > 5.6 && eventClass == 5) ||
@@ -148,14 +148,14 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
     return 0;
   //PFlow charged hadron isolation
   if(gFlagDebug) printf("PFlow charged hadron iso\n");
-  double isoCharged = preselTree->phChargedHadronIso[ph]; //add pile-up correction
+  double isoCharged = preselTree->phChargedHadronIsoDR04[ph] - aEff * preselTree->rho;
   if( (isoCharged > 3.8 && eventClass == 3) ||
       (isoCharged > 2.5 && eventClass == 4) ||
       (isoCharged > 3.1 && eventClass == 5) ||
       (isoCharged > 2.2 && eventClass == 6) )
     return 0;
   //PFlow isolation worst vertex
-  double isoSumWrongVtx = preselTree->phIsolationSumWrongVtx[ph]; //add pile-up correction
+  double isoSumWrongVtx = preselTree->phIsolationSumWrongVtxDR04[ph] - aEff * preselTree->rho;
   if(gFlagDebug) printf("Pflow photon iso wrong vertex\n");
   if( (isoSumWrongVtx > 10 && eventClass == 3) ||
       (isoSumWrongVtx > 6.5 && eventClass == 4) ||

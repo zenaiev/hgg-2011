@@ -48,11 +48,13 @@ public :
    //Float_t         phHcalDepth1TowerSumEtConeDR03[maxNph];   //[Nph]
    //Float_t         phHcalDepth2TowerSumEtConeDR03[maxNph];   //[Nph]
    Float_t         phHadronicOverEm[maxNph];   //[Nph]
-   Float_t         phChargedHadronIso[maxNph];
-   Float_t         phNeutralHadronIso[maxNph];
-   Float_t         phPhotonIso[maxNph];
-   Float_t         phIsolationSum[maxNph];
-   Float_t         phIsolationSumWrongVtx[maxNph];
+   Float_t         phChargedHadronIsoDR04[maxNph];
+   Float_t         phChargedHadronIsoDR02[maxNph];
+   Float_t         phChargedHadronIsoDR03[maxNph];
+   Float_t         phIsolationSumDR04[maxNph];
+   Float_t         phIsolationSumDR03[maxNph];
+   Float_t         phIsolationSumWrongVtxDR04[maxNph];
+   Float_t         phIsolationSumWrongVtxDR03[maxNph];
    Int_t           phNumElectronsSuperCluster[maxNph];
    Int_t           elMissingHits[maxNph];
    Float_t         phElectronDR[maxNph];
@@ -97,11 +99,13 @@ public :
    //TBranch        *b_phHcalDepth1TowerSumEtConeDR03;   //!
    //TBranch        *b_phHcalDepth2TowerSumEtConeDR03;   //!
    TBranch        *b_phHadronicOverEm;
-   TBranch        *b_phChargedHadronIso;
-   TBranch        *b_phNeutralHadronIso;
-   TBranch        *b_phPhotonIso;
-   TBranch        *b_phIsolationSum;
-   TBranch        *b_phIsolationSumWrongVtx;
+   TBranch        *b_phChargedHadronIsoDR04;
+   TBranch        *b_phChargedHadronIsoDR02;
+   TBranch        *b_phChargedHadronIsoDR03;
+   TBranch        *b_phIsolationSumDR04;
+   TBranch        *b_phIsolationSumDR03;
+   TBranch        *b_phIsolationSumWrongVtxDR04;
+   TBranch        *b_phIsolationSumWrongVtxDR03;
    TBranch        *b_phNumElectronsSuperCluster;
    TBranch        *b_elMissingHits;
    TBranch        *b_phElectronDR;
@@ -163,11 +167,13 @@ void ZTree::Init(TTree *tree)
    //fChain->SetBranchAddress("phHcalDepth1TowerSumEtConeDR03", phHcalDepth1TowerSumEtConeDR03, &b_phHcalDepth1TowerSumEtConeDR03);
    //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR03", phHcalDepth2TowerSumEtConeDR03, &b_phHcalDepth2TowerSumEtConeDR03);
    fChain->SetBranchAddress("phHadronicOverEm", phHadronicOverEm, &b_phHadronicOverEm);
-   fChain->SetBranchAddress("phChargedHadronIso", phChargedHadronIso, &b_phChargedHadronIso);
-   fChain->SetBranchAddress("phNeutralHadronIso", phNeutralHadronIso, &b_phNeutralHadronIso);
-   fChain->SetBranchAddress("phPhotonIso", phPhotonIso , &b_phPhotonIso);
-   fChain->SetBranchAddress("phIsolationSum", phIsolationSum, &b_phIsolationSum);
-   fChain->SetBranchAddress("phIsolationSumWrongVtx",phIsolationSumWrongVtx, &b_phIsolationSumWrongVtx);
+   fChain->SetBranchAddress("phChargedHadronIsoDR04", phChargedHadronIsoDR04, &b_phChargedHadronIsoDR04);
+   fChain->SetBranchAddress("phChargedHadronIsoDR02", phChargedHadronIsoDR02, &b_phChargedHadronIsoDR02);
+   fChain->SetBranchAddress("phChargedHadronIsoDR03", phChargedHadronIsoDR03, &b_phChargedHadronIsoDR03);
+   fChain->SetBranchAddress("phIsolationSumDR04", phIsolationSumDR04, &b_phIsolationSumDR04);
+   fChain->SetBranchAddress("phIsolationSumDR03", phIsolationSumDR03, &b_phIsolationSumDR03);
+   fChain->SetBranchAddress("phIsolationSumWrongVtxDR04",phIsolationSumWrongVtxDR04, &b_phIsolationSumWrongVtxDR04);
+   fChain->SetBranchAddress("phIsolationSumWrongVtxDR03", phIsolationSumWrongVtxDR03, &b_phIsolationSumWrongVtxDR03);
    fChain->SetBranchAddress("phNumElectronsSuperCluster", phNumElectronsSuperCluster, &b_phNumElectronsSuperCluster);
    fChain->SetBranchAddress("elMissingHits", elMissingHits, &b_elMissingHits);
    fChain->SetBranchAddress("phElectronDR", phElectronDR , &b_phElectronDR);
