@@ -177,9 +177,10 @@ class Analyzer : public edm::EDAnalyzer {
     
     //PFlow isolation
     float _phChargedHadronIso[_maxNph];
-    float _phPhotonIsoWrongVtx[_maxNph];
     float _phNeutralHadronIso[_maxNph];
     float _phPhotonIso[_maxNph];
+    float _phIsolationSum[_maxNph];
+    float _phIsolationSumWrongVtx[_maxNph];
     
     //electrons in same SuperCluster
     int _phNumElectronsSuperCluster[_maxNph];
@@ -297,9 +298,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
 	  //PFlow isolation
     _tree->Branch("phChargedHadronIso",_phChargedHadronIso , "phChargedHadronIso[Nph]/F");
-    _tree->Branch("phPhotonIsoWrongVtx",_phPhotonIsoWrongVtx , "phPhotonIsoWrongVtx[Nph]/F");
     _tree->Branch("phNeutralHadronIso", _phNeutralHadronIso , "phNeutralHadronIso[Nph]/F");
 	  _tree->Branch("phPhotonIso",_phPhotonIso,"phPhotonIso[Nph]/F");
+    _tree->Branch("phIsolationSum", _phIsolationSum, "phIsolationSum[Nph]/F");
+    _tree->Branch("phIsolationSumWrongVtx",_phIsolationSumWrongVtx, "phIsolationSumWrongVtx[Nph]/F");
     
     //electrons in same superCluster (sc)
     _tree->Branch("phNumElectronsSuperCluster",_phNumElectronsSuperCluster,"phNumElectronsSuperCluster[Nph]/I");
@@ -493,8 +495,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
       if(mIsolator.getIsolationCharged() > 3.8)
         continue;
-      if(mIsolator.getIsolationPhoton() > 6)
-        continue;
       if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == true)
         continue;
     } 
@@ -540,21 +540,21 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     reco::VertexRef myVtx(Vertices, 0);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
 	  _phChargedHadronIso[_Nph] = mIsolator.getIsolationCharged();
-    
     _phNeutralHadronIso[_Nph] = mIsolator.getIsolationNeutral();
     _phPhotonIso[_Nph] = mIsolator.getIsolationPhoton();
+    _phIsolationSum[_Nph] = _phChargedHadronIso[_Nph] + _phNeutralHadronIso[_Nph] + _phPhotonIso[_Nph];
     
     //worst ChargedHadronIsolation
-    float max = _phPhotonIso[_Nph];
+    _phIsolationSumWrongVtx[_Nph] = _phIsolationSum[_Nph];
     //loop over all possible vertices
     for(int unsigned long i = 0; i < Vertices->size(); i++)
     {
       reco::VertexRef myVtx(Vertices, i);
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-      if( max < mIsolator.getIsolationPhoton()) 
-        max = mIsolator.getIsolationPhoton();
+      float curVal = mIsolator.getIsolationCharged() + mIsolator.getIsolationPhoton() + mIsolator.getIsolationNeutral();
+      if( _phIsolationSumWrongVtx[_Nph] < curVal) 
+        _phIsolationSumWrongVtx[_Nph] = curVal;
     }
-    _phPhotonIsoWrongVtx[_Nph] = max;
     
     // H/E
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();

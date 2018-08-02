@@ -138,25 +138,28 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
       return 0;
   }
   //PFlow isolation 
-  if(gFlagDebug) printf("PFlow photon isolation\n");
-  if( (preselTree->phPhotonIso[ph] > 6 && eventClass == 3) ||
-      (preselTree->phPhotonIso[ph] > 4.7 && eventClass == 4) ||
-      (preselTree->phPhotonIso[ph] > 5.6 && eventClass == 5) ||
-      (preselTree->phPhotonIso[ph] > 3.6 && eventClass == 6) )
+  if(gFlagDebug) printf("PFlow isolation sum\n");
+  double isoSum = preselTree->phIsolationSum[ph]; //add pile-up correction
+  if( (isoSum > 6 && eventClass == 3) ||
+      (isoSum > 4.7 && eventClass == 4) ||
+      (isoSum > 5.6 && eventClass == 5) ||
+      (isoSum > 3.6 && eventClass == 6) )
     return 0;
   //PFlow charged hadron isolation
   if(gFlagDebug) printf("PFlow charged hadron iso\n");
-  if( (preselTree->phChargedHadronIso[ph] > 3.8 && eventClass == 3) ||
-      (preselTree->phChargedHadronIso[ph] > 2.5 && eventClass == 4) ||
-      (preselTree->phChargedHadronIso[ph] > 3.1 && eventClass == 5) ||
-      (preselTree->phChargedHadronIso[ph] > 2.2 && eventClass == 6) )
+  double isoCharged = preselTree->phChargedHadronIso[ph]; //add pile-up correction
+  if( (isoCharged > 3.8 && eventClass == 3) ||
+      (isoCharged > 2.5 && eventClass == 4) ||
+      (isoCharged > 3.1 && eventClass == 5) ||
+      (isoCharged > 2.2 && eventClass == 6) )
     return 0;
   //PFlow isolation worst vertex
+  double isoSumWrongVtx = preselTree->phIsolationSumWrongVtx[ph]; //add pile-up correction
   if(gFlagDebug) printf("Pflow photon iso wrong vertex\n");
-  if( (preselTree->phPhotonIsoWrongVtx[ph] > 10 && eventClass == 3) ||
-      (preselTree->phPhotonIsoWrongVtx[ph] > 6.5 && eventClass == 4) ||
-      (preselTree->phPhotonIsoWrongVtx[ph] > 5.6 && eventClass == 5) ||
-      (preselTree->phPhotonIsoWrongVtx[ph] > 4.4 && eventClass == 6) )
+  if( (isoSumWrongVtx > 10 && eventClass == 3) ||
+      (isoSumWrongVtx > 6.5 && eventClass == 4) ||
+      (isoSumWrongVtx > 5.6 && eventClass == 5) ||
+      (isoSumWrongVtx > 4.4 && eventClass == 6) )
     return 0;
   
   // H/E 5.4.4

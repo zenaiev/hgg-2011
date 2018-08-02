@@ -49,9 +49,10 @@ public :
    //Float_t         phHcalDepth2TowerSumEtConeDR03[maxNph];   //[Nph]
    Float_t         phHadronicOverEm[maxNph];   //[Nph]
    Float_t         phChargedHadronIso[maxNph];
-   Float_t         phPhotonIsoWrongVtx[maxNph];
    Float_t         phNeutralHadronIso[maxNph];
    Float_t         phPhotonIso[maxNph];
+   Float_t         phIsolationSum[maxNph];
+   Float_t         phIsolationSumWrongVtx[maxNph];
    Int_t           phNumElectronsSuperCluster[maxNph];
    Int_t           elMissingHits[maxNph];
    Float_t         phElectronDR[maxNph];
@@ -97,9 +98,10 @@ public :
    //TBranch        *b_phHcalDepth2TowerSumEtConeDR03;   //!
    TBranch        *b_phHadronicOverEm;
    TBranch        *b_phChargedHadronIso;
-   TBranch        *b_phPhotonIsoWrongVtx;
    TBranch        *b_phNeutralHadronIso;
    TBranch        *b_phPhotonIso;
+   TBranch        *b_phIsolationSum;
+   TBranch        *b_phIsolationSumWrongVtx;
    TBranch        *b_phNumElectronsSuperCluster;
    TBranch        *b_elMissingHits;
    TBranch        *b_phElectronDR;
@@ -162,9 +164,10 @@ void ZTree::Init(TTree *tree)
    //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR03", phHcalDepth2TowerSumEtConeDR03, &b_phHcalDepth2TowerSumEtConeDR03);
    fChain->SetBranchAddress("phHadronicOverEm", phHadronicOverEm, &b_phHadronicOverEm);
    fChain->SetBranchAddress("phChargedHadronIso", phChargedHadronIso, &b_phChargedHadronIso);
-   fChain->SetBranchAddress("phPhotonIsoWrongVtx", phPhotonIsoWrongVtx, &b_phPhotonIsoWrongVtx);
    fChain->SetBranchAddress("phNeutralHadronIso", phNeutralHadronIso, &b_phNeutralHadronIso);
    fChain->SetBranchAddress("phPhotonIso", phPhotonIso , &b_phPhotonIso);
+   fChain->SetBranchAddress("phIsolationSum", phIsolationSum, &b_phIsolationSum);
+   fChain->SetBranchAddress("phIsolationSumWrongVtx",phIsolationSumWrongVtx, &b_phIsolationSumWrongVtx);
    fChain->SetBranchAddress("phNumElectronsSuperCluster", phNumElectronsSuperCluster, &b_phNumElectronsSuperCluster);
    fChain->SetBranchAddress("elMissingHits", elMissingHits, &b_elMissingHits);
    fChain->SetBranchAddress("phElectronDR", phElectronDR , &b_phElectronDR);
