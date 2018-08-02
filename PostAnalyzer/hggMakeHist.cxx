@@ -25,8 +25,8 @@ int main(int argc, char** argv)
   //
   // flags what to run
   bool flagData2011 = 1; // if 1, 2011 data will be processed
-  bool flagData2012 = 1; // if 1, 2012 data will be processed
-  bool flagMCsig    = 1; // if 1, signal MC will be processed (only 2012)
+  bool flagData2012 = 0; // if 1, 2012 data will be processed
+  bool flagMCsig    = 0; // if 1, signal MC will be processed (only 2012)
   //
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //
@@ -40,7 +40,17 @@ int main(int argc, char** argv)
   // for control plots and cross sections (as in TOP-11-013)
   std::vector<ZVarHisto> vecVH, vecVHGen; // vecVH for reconstruction level, vecVHGen for generator level
   // histograms and variables for control plots
-  vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+  //different binning for 2011 and 2012 data
+  if(flagData2011)
+  {
+    // 1 GeV bins for 2011 data
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
+  }
+  if(flagData2012)
+  {
+    //1.5 GeV bins for 2012 data
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+  }
   // histograms and variables for cross sections
   /*{
     double bins[] = {0.,80.,130.,200.,300.,400.};
