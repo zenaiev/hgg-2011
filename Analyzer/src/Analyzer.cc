@@ -584,6 +584,10 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();
     _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();
 
+    //some preselection 
+    if((_phChargedHadronIsoDR02[_Nph] - 0.017 * _rho) > 4)
+      continue;
+    
     // matching
     if(_flagMC && _mcEventType == 1)
     {
