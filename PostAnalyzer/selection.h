@@ -116,7 +116,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   if(preselTree->phR9[ph] <= 0.9)
   {
     //for both barrel and endcap
-    if(EtCorrEcalIso > 4 || EtCorrHcalIso > 4 || EtCorrTrkIso > 4  || ChargedPFIso > 4)
+    if(EtCorrHcalIso > 4 || EtCorrTrkIso > 4  || ChargedPFIso > 4)
       return 0;
     //for barrel
     if((eventClass == 3 || eventClass == 4)  && (preselTree->phHadronicOverEm[ph] > 0.075 || (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph])  > 0.014) )
@@ -129,7 +129,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   if(preselTree->phR9[ph] > 0.9)
   {
     //for both barrel and endcap
-    if(EtCorrEcalIso > 50 ||  EtCorrHcalIso > 50 || EtCorrTrkIso > 50 || ChargedPFIso > 4)
+    if(EtCorrHcalIso > 50 || EtCorrTrkIso > 50 || ChargedPFIso > 4)
       return 0;
     //for barrel
     if((eventClass == 3 || eventClass == 4)  && (preselTree->phHadronicOverEm[ph] > 0.082 || (preselTree->phSigmaIetaIeta[ph]*preselTree->phSigmaIetaIeta[ph]) > 0.014) )
