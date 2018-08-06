@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   //
   // flags what to run
   bool flagData2011 = 1; // if 1, 2011 data will be processed
-  bool flagData2012 = 0; // if 1, 2012 data will be processed
+  bool flagData2012 = 1; // if 1, 2012 data will be processed
   bool flagMCsig    = 0; // if 1, signal MC will be processed (only 2012)
   //
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -38,6 +38,7 @@ int main(int argc, char** argv)
   // ZVarHisto is a simple class which incorporates a histogram and a variable name. 
   // This class is used to store needed input settings (variable names, binning) 
   // for control plots and cross sections (as in TOP-11-013)
+  /*
   std::vector<ZVarHisto> vecVH, vecVHGen; // vecVH for reconstruction level, vecVHGen for generator level
   // histograms and variables for control plots
   //different binning for 2011 and 2012 data
@@ -52,12 +53,12 @@ int main(int argc, char** argv)
     vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
   }
   // histograms and variables for cross sections
-  /*{
+  {
     double bins[] = {0.,80.,130.,200.,300.,400.};
     vecVHGen.push_back(ZVarHisto("ptt", new TH1D("h_ptt_cs", "pT top", 5, bins)));
     vecVHGen.push_back(ZVarHisto("ptat", new TH1D("h_ptat_cs", "pT atop", 5, bins)));
     vecVHGen.push_back(ZVarHisto("pttat", new TH1D("h_pttat_cs", "pT tatop", 5, bins)));
-  }*/
+  }
 
   // for reconstruction level the same binning is needed, but more event classes
   vecVH = vecVHGen;
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
   vecVH.back().EventClass() = 5;
   vecVH.push_back(vecVHGen[0]); // m(gammagamma)
   vecVH.back().EventClass() = 6;
+  */
   // (here you can add more reconstruction level histograms)
   
   // **********************************************
@@ -78,6 +80,20 @@ int main(int argc, char** argv)
   // **********************************************
   if(flagData2011)
   {
+    //setup histograms
+    std::vector<ZVarHisto> vecVH, vecVHGen;
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
+    vecVH = vecVHGen;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 2;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 3;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 4;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 5;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 6;
     // ZEventRecoInput is a class for event reconstruction, see its description in eventReco.h
     ZEventRecoInput in;
     //in.MaxNEvents = 100; // if you need to limit the number of processed events
@@ -95,6 +111,20 @@ int main(int argc, char** argv)
   // **********************************************
   if(flagData2012)
   {
+    //setup histograms
+    std::vector<ZVarHisto> vecVH, vecVHGen;
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+    vecVH = vecVHGen;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 2;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 3;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 4;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 5;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 6;
     // ZEventRecoInput is a class for event reconstruction, see its description in eventReco.h
     ZEventRecoInput in;
     //in.MaxNEvents = 100; // if you need to limit the number of processed events
@@ -129,6 +159,20 @@ int main(int argc, char** argv)
   // weight: 9850.0 / (292178. / 12.93) * (19.5 * 0.00229 / 12.93) = 0.0015054
   if(flagMCsig)
   {
+    //setup histograms
+    std::vector<ZVarHisto> vecVH, vecVHGen;
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+    vecVH = vecVHGen;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 2;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 3;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 4;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 5;
+    vecVH.push_back(vecVHGen[0]); // m(gammagamma)
+    vecVH.back().EventClass() = 6;
     // MC signal reco level
     ZEventRecoInput in;
     //in.MaxNEvents = 1000;

@@ -75,7 +75,7 @@ TH1D* CalculateRatio(const TH1D* hsum, const TF1* fb, TGraphErrors*& gunc68, TGr
   // subtracted background function (0 +- unc.)
   //fb0 = new TF1(*fb);
   // create a TGraphErrors to hold the confidence intervals
-  const int ngr = 60;
+  const int ngr =100;
   gunc68 = new TGraphErrors(ngr);
   gunc95 = new TGraphErrors(ngr);
   //gunc->SetTitle("Fitted line with .95 conf. band");
