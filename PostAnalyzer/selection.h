@@ -166,7 +166,7 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   // H/E 5.4.4
   if(gFlagDebug) printf("5.4.4\n");
   if( (preselTree->phHadronicOverEm[ph] > 0.124 && eventClass == 3) ||
-      (preselTree->phHadronicOverEm[ph] > 0.092 && eventClass == 4) ||
+      (preselTree->phHadronicOverEm[ph] > 0.094 && eventClass == 4) ||
       (preselTree->phHadronicOverEm[ph] > 0.142 && eventClass == 5) ||
       (preselTree->phHadronicOverEm[ph] > 0.063 && eventClass == 6) )
     return 0;
