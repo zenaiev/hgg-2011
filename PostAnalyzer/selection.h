@@ -108,10 +108,10 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   //effective area for pile up (could not find exact determined A_eff in analysis note/paper) 
   const double aEff = 0.17; //from 2011 -> 2012 should be higher
   //event preselection on the photon
-  double EtCorrEcalIso = preselTree->phEcalRecHitSumEtConeDR03[ph] - 0.012 * preselTree->phPt[ph] - aEff * preselTree->rho;
-  double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR03[ph] - 0.005 * preselTree->phPt[ph] - aEff * preselTree->rho;
-  double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR03[ph] - 0.002 * preselTree->phPt[ph] - aEff * preselTree->rho;
-  double ChargedPFIso = preselTree->phChargedHadronIsoDR02[ph] - aEff * preselTree->rho;
+  double EtCorrEcalIso = preselTree->phEcalRecHitSumEtConeDR03[ph] - 0.012 * preselTree->phPt[ph];
+  double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR03[ph] - 0.005 * preselTree->phPt[ph];
+  double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR03[ph] - 0.002 * preselTree->phPt[ph];
+  double ChargedPFIso = preselTree->phChargedHadronIsoDR02[ph];
   //R9 <= 0.9
   if(preselTree->phR9[ph] <= 0.9)
   {
@@ -194,9 +194,10 @@ double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
   if( preselTree->phNumElectronsSuperCluster[ph] > 0)
     return 0;
   //matching
+  /*
   if(preselTree->_flagMC && preselTree->phMatch[ph] > 0.1)
     return 0;
-  
+  */
   // all cuts passed: return true
   return 1;
 }

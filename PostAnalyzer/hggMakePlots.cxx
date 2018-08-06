@@ -198,9 +198,9 @@ int Plot2012()
     //set maximum value yLabel
     double yMax = 2000;
     if(pad == 1) yMax = 1000;
-    if(pad == 2) yMax = 2200;
+    if(pad == 2) yMax = 3500;
     if(pad == 3) yMax = 1000;
-    if(pad == 4) yMax = 2600;
+    if(pad == 4) yMax = 4500;
     
     
     TH2F* hr = new TH2F("", "", 1.0, 100.0, 180.0,1,0.01,yMax);
