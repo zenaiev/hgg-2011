@@ -504,8 +504,17 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       if(it->hadronicOverEm() > 0.142)
         continue;
       //matching electron
-      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0 && it->hasConversionTracks() == true)
+      if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
         continue;
+      //charged hadron
+      reco::VertexRef myVtx(Vertices, 0);
+      mIsolator.setRingSize(0.2);
+      mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
+      _phChargedHadronIsoDR02[_Nph] = mIsolator.getIsolationCharged();
+      //remove pile-up here (not sure if you have to in PostAnalyzer)
+      if((_phChargedHadronIsoDR02[_Nph] - 0.017 * _rho) > 4)
+        continue;  
+      
     } 
     //conversion track
     _phHasConversionTracks[_Nph] = it->hasConversionTracks();
@@ -547,7 +556,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
 	  //PFlow isolation (not in PhotonCollection)
     //use selected vertex, which was first 
     reco::VertexRef myVtx(Vertices, 0);
-    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
     //isolation for different cone sizes
     mIsolator.setRingSize(0.4);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
@@ -566,9 +574,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     _phChargedHadronIsoDR03[_Nph] = mIsolator.getIsolationCharged();
     _phIsolationSumDR03[_Nph] = _phChargedHadronIsoDR03[_Nph] + neutralIsoDR03 + photonIsoDR03;
     
-    mIsolator.setRingSize(0.2);
-    mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-    _phChargedHadronIsoDR02[_Nph] = mIsolator.getIsolationCharged();
+    
         
     //worst ChargedHadronIsolation
     _phIsolationSumWrongVtxDR04[_Nph] = _phIsolationSumDR04[_Nph];
@@ -592,10 +598,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     // H/E
     _phHadronicOverEm[_Nph] = it->hadronicOverEm();
     _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();
-
-    //some preselection 
-    if((_phChargedHadronIsoDR02[_Nph] - 0.017 * _rho) > 4)
-      continue;
     
     // matching
     if(_flagMC && _mcEventType == 1)
