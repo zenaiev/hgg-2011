@@ -656,6 +656,9 @@ int Analyzer::SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const ed
 }
 
 // returns vector of integers which are trigger bits needed in the analysis
+//The construction is a bit unecessary here:
+//Each trigger is specified explicitly in the beginning but the code also works,
+//if you just push_back the beginnings of trigger names you want to use.
 // (called in the beginning of each run)
 void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
 {
@@ -713,6 +716,7 @@ void Analyzer::SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR)
     int status = 0;
     for(unsigned int j = 0; j < _vecTriggerBits[i].size(); j++)
     {
+      //check if one of the triggers is accepted (fired?)
       status = status || HLTR->accept(_vecTriggerBits[i][j]);
     }
     //printf("TRIGGER:  %d %s\n", status, _vecTriggerNames[i].c_str());

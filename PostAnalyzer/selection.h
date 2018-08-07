@@ -105,6 +105,12 @@ double SelectPh11(const int eventClass, const ZTree* preselTree, const int ph)
 
 double SelectPh12(const int eventClass, const ZTree* preselTree, const int ph)
 {
+  //trigger check
+  if(preselTree->Triggers == 0)
+  {
+    printf("*******No Trigger fired!!!*******");
+    return 0;
+  }
   //effective area for pile up (could not find exact determined A_eff in analysis note/paper) 
   const double aEff = 0.17; //from 2011 -> 2012 should be higher
   //event preselection on the photon
