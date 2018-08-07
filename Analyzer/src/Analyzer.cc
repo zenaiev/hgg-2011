@@ -327,13 +327,22 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     //_tree->Branch("metPy", &_metPy, "metPy/F"); // missing transverse energy y component
     // triggers
     _tree->Branch("Triggers", &_triggers, "Triggers/I"); // trigger bits (see trigger names below)
-    //_vecTriggerNames.push_back("HLT_Photon26_CaloID_Iso_Photon18_CaloID_Iso");
-    //_vecTriggerNames.push_back("HLT_Photon26_R9ID_Photon18_R9ID");
-    //_vecTriggerNames.push_back("HLT_Photon26_R9ID_Photon18_CaloID_Iso");
-    //_vecTriggerNames.push_back("HLT_Photon26_CaloID_Iso_Photon18_R9ID");
-    _vecTriggerNames.push_back("HLT_Photon20");
-    _vecTriggerNames.push_back("HLT_Photon26");
-    _vecTriggerNames.push_back("HLT_Photon36");
+    //define interesting trigger bits
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70");
+    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60");
+    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60");
+    _vecTriggerNames.push_back("HLT_Photon26_Photon18");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18");
+    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50");
+    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_R9Id85");
+    _vecTriggerNames.push_back("HLT_Photon36_Photon22");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22");
     // primary vertex
     _tree->Branch("Npv", &_Npv, "Npv/I"); // total number of primary vertices
     _tree->Branch("pvNDOF", &_pvNDOF, "pvNDOF/I"); // number of degrees of freedom of the primary vertex
@@ -658,19 +667,23 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
   std::vector<std::string> trigNames;
   trigNames = trigConf.triggerNames();
   // for interesting trigger names find corresponding trigger bits
+  //printf("*****All available triggers*****");
   for(unsigned int i = 0; i < trigNames.size(); i++)
   {
     std::string currentName = trigConf.triggerNames()[i];
-    //printf("%5d  %s\n", i, currentName.c_str());
+    //printf("%5d  %s \n", i, currentName.c_str());
     for(unsigned int n = 0; n < _vecTriggerNames.size(); n++)
     {
+      //if trigger is found in _vecTriggerNames
       if(currentName.find(_vecTriggerNames[n]) != std::string::npos)
       {
+        //store position of trigger and name
         _vecTriggerBits[n].push_back(i);
         _vecTriggerNamesFull[n].push_back(currentName);
       }
     }
   }
+  //printf("*********************");
   PrintTriggerBits();
 }
 
@@ -685,10 +698,11 @@ void Analyzer::PrintTriggerBits()
     for(unsigned int i = 0; i < _vecTriggerBits[n].size(); i++)
     {
       printf(" %s ", _vecTriggerNamesFull[n][i].c_str());
-      printf(" %d ", _vecTriggerBits[n][i]);
+      printf(" :  %d \n", _vecTriggerBits[n][i]);
     }
     printf("\n");
   }
+  printf("****************\n");
 }
 
 // fill trigger bits
