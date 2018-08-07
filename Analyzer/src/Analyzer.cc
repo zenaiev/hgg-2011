@@ -328,21 +328,21 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     // triggers
     _tree->Branch("Triggers", &_triggers, "Triggers/I"); // trigger bits (see trigger names below)
     //define interesting trigger bits
-    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60");
-    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70");
-    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60");
-    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60");
-    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60");
-    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60");
-    _vecTriggerNames.push_back("HLT_Photon26_Photon18");
-    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18");
-    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50");
-    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85");
-    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50");
-    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50");
-    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_R9Id85");
-    _vecTriggerNames.push_back("HLT_Photon36_Photon22");
-    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
+    _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
+    _vecTriggerNames.push_back("HLT_Photon26_Photon18_v");
+    _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+    _vecTriggerNames.push_back("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+    _vecTriggerNames.push_back("HLT_Photon36_Photon22_v");
+    _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
     // primary vertex
     _tree->Branch("Npv", &_Npv, "Npv/I"); // total number of primary vertices
     _tree->Branch("pvNDOF", &_pvNDOF, "pvNDOF/I"); // number of degrees of freedom of the primary vertex
