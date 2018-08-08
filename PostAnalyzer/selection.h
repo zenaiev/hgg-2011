@@ -234,12 +234,12 @@ int SelectHgg(const ZTree* preselTree, int reqEventClass, TLorentzVector& momPh1
     //get Photon class
     phClass[0] = PhotonClass(preselTree->phEta[ph1], preselTree->phR9[ph1]);
     //PhotonID selection
-    if(name == "data2011")
+    if(name == "data2011_10GeV" || name == "data2011_15GeV")
     {
       if(!SelectPh11(phClass[0], preselTree, ph1))
         continue;
     }
-    if(name == "data2012")
+    if(name == "data2012_10GeV" || name == "data2012_15GeV")
     {
       if(!SelectPh12(phClass[0], preselTree, ph1))
         continue;
@@ -256,12 +256,12 @@ int SelectHgg(const ZTree* preselTree, int reqEventClass, TLorentzVector& momPh1
       //get photon class
       phClass[1] = PhotonClass(preselTree->phEta[ph2], preselTree->phR9[ph2]);
       //PhotonID selection
-      if(name == "data2011")
+      if(name == "data2011_10GeV" || name == "data2011_15GeV")
       {
         if(!SelectPh11(phClass[1], preselTree, ph2))
           continue;
       }
-      if(name == "data2012")
+      if(name == "data2012_10GeV" || name == "data2012_15GeV")
       {
         if(!SelectPh12(phClass[1], preselTree, ph2))
           continue;
