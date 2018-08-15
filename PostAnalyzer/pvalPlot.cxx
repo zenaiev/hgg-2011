@@ -331,6 +331,70 @@ int pvalClasses12(TString plotName)
   	c->SaveAs("plots/" + plotName);
 }
 
+int pval12(TString plotName)
+{
+	TString baseDir = gHistDir; //from settings.h
+	TFile* f_data = TFile::Open(TString::Format("%s/data2012_10GeV.root",baseDir.Data()));
+	TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root",baseDir.Data()));
+	TCanvas* c = new TCanvas("","",600,600);
+
+	//read corresponding class from argument TFile
+	TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",1));
+	TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg%d",1));
+
+	//fit the background
+	TF1* fit_b = new TF1("fit_b","pol5",100.0,180.0);
+	TFitResultPtr fitRes_b = h_data->Fit(fit_b,"IEMR","same",100.0,180.0);
+
+	//calculate p-values
+	double xmin = h_data->GetXaxis()->GetBinCenter(1)-0.5;
+	int r_max = 15;
+	double r_list[r_max], pvalData_list[r_max],pvalMC_list[r_max];
+	for(int r = 1; r <= r_max;r++)
+	{
+		r_list[r-1] = r;
+		double chi2 = ChiSquared(125-r,125+r,fit_b,h_data);
+		double chi2_mc = ChiSquaredMC(125-r,125+r,fit_b,h_mc);
+		pvalData_list[r-1] = pValue(1,chi2);
+		pvalMC_list[r-1] = pValue(1,chi2_mc);
+	}
+
+	//create TGraph for plotting
+	TMultiGraph *mg = new TMultiGraph();
+	TGraph *gr = new TGraph(r_max,r_list,pvalData_list);
+	TGraph *gr_mc = new TGraph(r_max,r_list,pvalMC_list);
+
+	//set the plot style
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(kRed);
+	mg->Add(gr);
+	gr_mc->SetMarkerStyle(20);
+	gr_mc->SetMarkerSize(0.6);
+	gr_mc->SetMarkerColor(kBlue);
+	mg->Add(gr_mc);
+
+	//draw the multigraph
+	mg->Draw("ap");
+	mg->SetTitle("2012 Open data - combined classes");
+	mg->GetYaxis()->SetTitle("p-value");
+	mg->GetYaxis()->SetTitle("p-value");
+	mg->GetXaxis()->SetTitle("Width of range (around 125 GeV)");
+	mg->GetXaxis()->SetTitleSize(0.04);
+	mg->GetYaxis()->SetTitleSize(0.04);
+	mg->GetYaxis()->SetRangeUser(0,1);
+	//add a legend for data and mc
+	TLegend* leg = new TLegend(0.6, 0.15, 0.9, 0.25);
+	leg->SetFillStyle(0);
+	leg->SetBorderSize(0.0);
+	leg->AddEntry(gr, "Data 2012","pe");
+	leg->AddEntry(gr_mc, "MC 2012","pe");
+	leg->Draw();
+
+
+
+  	c->SaveAs("plots/" + plotName);
+}
 //***********Main Function*************
 int main(int argc, char** argv)
 {
@@ -347,38 +411,11 @@ int main(int argc, char** argv)
 	TH1D* h_data = (TH1D*) h_data11->Clone();
 	h_data->Add(h_data12);
 	printf("Entries combined: %f \n", h_data->GetEntries());
-	/*
-	//2011 plots
-	TF1* fit11_b = new TF1("fit11_b","pol5",100.0,180.0);
-	TFitResultPtr fitRes11_b = h_data11->Fit(fit11_b,"IEMR","same",100.0,180.0);
-	chi2EvolData(h_data11,fit11_b,"chi2_2011.pdf");
-	pvalEvolData(h_data11,fit11_b,"pval_2011.pdf");	
 
-	//2012 plots
-	TF1* fit12_b = new TF1("fit12_b","pol5",100.0,180.0);
-	TFitResultPtr fitRes12_b = h_data12->Fit(fit12_b,"IEMR","same",100.0,180.0);
-	chi2EvolData(h_data12,fit12_b,"chi2_2012.pdf");
-	pvalEvolData(h_data12,fit12_b,"pval_2012.pdf");
-
-	//Combined Plots
-	TF1* fit_b = new TF1("fit_b","pol5",100.0,180.0);
-	TFitResultPtr fitRes_b = h_data->Fit(fit_b,"IEMR","same",100.0,180.0);
-	//calculate evolutions for background data
-	chi2EvolData(h_data,fit_b, "chi2_comb.pdf");
-	pvalEvolData(h_data,fit_b, "pval_comb.pdf");
-
-	//MonteCarlo expectation (only 2012 available)
-	TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root",baseDir.Data()));
-	TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg1"));
-	//plot montecarlo using 2012 data as bkg
-	TF1* fitMC_b = new TF1("fitMC_b","pol5",100.0,180.0);
-	TFitResultPtr fitResmc_b = h_data12->Fit(fitMC_b,"IEMR","same",100.0,180.0);
-	chi2EvolMC(h_mc,fitMC_b, "chi2_mc.pdf");
-	pvalEvolMC(h_mc,fitMC_b, "pval_mc.pdf");
-	*/
 	//Classes plots
 	pvalClasses11("pval_2011_classes.pdf");
 	pvalClasses12("pval_2012_classes.pdf");
+	pval12("pval_2012.eps");
 
 
 }
