@@ -364,6 +364,10 @@ int pval12(TString plotName)
 	TGraph *gr = new TGraph(r_max,r_list,pvalData_list);
 	TGraph *gr_mc = new TGraph(r_max,r_list,pvalMC_list);
 
+	printf("width : %f \n", r_list[1]);
+	printf("pvalMC : %f \n", pvalMC_list[1]);
+	printf("pvalData : %f \n", pvalData_list[1]);
+
 	//set the plot style
 	gr->SetMarkerStyle(20);
 	gr->SetMarkerSize(0.6);
