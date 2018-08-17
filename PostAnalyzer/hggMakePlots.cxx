@@ -601,7 +601,7 @@ int PlotCombFit()
   // ratio
   TPad* pad2 = new TPad("", "", 0.00, 0.00, 1.00, 0.40);
   pad2->SetMargin(0.11, 0.03, 0.20, 0.005);
-  TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -299.99, 299.99);
+  TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -199.99, 199.99);
   hrr->GetXaxis()->SetTitle("m_{#gamma#gamma} [GeV]");
   hrr->GetYaxis()->SetTitle("Events / GeV");
   hrr->GetXaxis()->SetTitleOffset(2.5);
