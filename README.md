@@ -21,7 +21,7 @@ cd ./CMSSW_5_3_32/src
 cmsenv
 git clone https://github.com/christian512/hgg-2011.git
 scram b
-cd 2011-doubleelectron-doublemu-mueg-ttbar/Analyzer
+cd hgg-2011/Analyzer
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT_53_LV5_AN1_RUNA FT_53_LV5_AN1
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1 START53_LV6A1
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT53_V21A_AN6_FULL FT53_V21A_AN6
