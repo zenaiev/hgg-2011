@@ -1,5 +1,5 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// This class contains all needed variables to read ROOT ntuples for ttbar analysis
+// This class contains all needed variables to read ROOT ntuples for hgg analysis
 // (automaticlly produced by ROOT, then slightly tuned manually)
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -23,7 +23,7 @@ public :
    bool _flagMC;
 
    // variable array max sizes
-   static const int maxNph = 50; // electrons
+   static const int maxNph = 50; // photons
    static const int maxNjet = 59; // jets
 
    // Ntuple variables (their description can be found also in Analyzer/src/Analyzer.cc)
@@ -40,13 +40,9 @@ public :
    Float_t         phTrkSumPtHollowConeDR04[maxNph];   //[Nph]
    Float_t         phEcalRecHitSumEtConeDR04[maxNph];   //[Nph]
    Float_t         phHcalTowerSumEtConeDR04[maxNph];   //[Nph]
-   //Float_t         phHcalDepth1TowerSumEtConeDR04[maxNph];   //[Nph]
-   //Float_t         phHcalDepth2TowerSumEtConeDR04[maxNph];   //[Nph]
    Float_t         phTrkSumPtHollowConeDR03[maxNph];   //[Nph]
    Float_t         phEcalRecHitSumEtConeDR03[maxNph];   //[Nph]
    Float_t         phHcalTowerSumEtConeDR03[maxNph];   //[Nph]
-   //Float_t         phHcalDepth1TowerSumEtConeDR03[maxNph];   //[Nph]
-   //Float_t         phHcalDepth2TowerSumEtConeDR03[maxNph];   //[Nph]
    Float_t         phHadronicOverEm[maxNph];   //[Nph]
    Float_t         phChargedHadronIsoDR04[maxNph];
    Float_t         phChargedHadronIsoDR02[maxNph];
@@ -75,9 +71,9 @@ public :
    Float_t         pvRho;
    
    // variables for MC only
-   Int_t           mcEventType; // type of event: 1 ttbar decay into ee, 2 ttbar decay into mumu, 3 ttbar decay into emu, 0 anything else
-   float mcH[4];    // top quark four momentum
-   float mcPh[2][4]; // antitop quark four momentum
+   Int_t           mcEventType; //
+   float mcH[4];    // higgs four momentum
+   float mcPh[2][4]; // ph1, ph2 four momentum
 
    // List of branches (their names follow variable names with prefix b_)
    TBranch        *b_evRunNumber;   //!
@@ -91,13 +87,9 @@ public :
    TBranch        *b_phTrkSumPtHollowConeDR04;   //!
    TBranch        *b_phEcalRecHitSumEtConeDR04;   //!
    TBranch        *b_phHcalTowerSumEtConeDR04;   //!
-   //TBranch        *b_phHcalDepth1TowerSumEtConeDR04;   //!
-   //TBranch        *b_phHcalDepth2TowerSumEtConeDR04;   //!
    TBranch        *b_phTrkSumPtHollowConeDR03;   //!
    TBranch        *b_phEcalRecHitSumEtConeDR03;   //!
    TBranch        *b_phHcalTowerSumEtConeDR03;   //!
-   //TBranch        *b_phHcalDepth1TowerSumEtConeDR03;   //!
-   //TBranch        *b_phHcalDepth2TowerSumEtConeDR03;   //!
    TBranch        *b_phHadronicOverEm;
    TBranch        *b_phChargedHadronIsoDR04;
    TBranch        *b_phChargedHadronIsoDR02;
@@ -159,13 +151,9 @@ void ZTree::Init(TTree *tree)
    fChain->SetBranchAddress("phTrkSumPtHollowConeDR04", phTrkSumPtHollowConeDR04, &b_phTrkSumPtHollowConeDR04);
    fChain->SetBranchAddress("phEcalRecHitSumEtConeDR04", phEcalRecHitSumEtConeDR04, &b_phEcalRecHitSumEtConeDR04);
    fChain->SetBranchAddress("phHcalTowerSumEtConeDR04", phHcalTowerSumEtConeDR04, &b_phHcalTowerSumEtConeDR04);
-   //fChain->SetBranchAddress("phHcalDepth1TowerSumEtConeDR04", phHcalDepth1TowerSumEtConeDR04, &b_phHcalDepth1TowerSumEtConeDR04);
-   //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR04", phHcalDepth2TowerSumEtConeDR04, &b_phHcalDepth2TowerSumEtConeDR04);
    fChain->SetBranchAddress("phTrkSumPtHollowConeDR03", phTrkSumPtHollowConeDR03, &b_phTrkSumPtHollowConeDR03);
    fChain->SetBranchAddress("phEcalRecHitSumEtConeDR03", phEcalRecHitSumEtConeDR03, &b_phEcalRecHitSumEtConeDR03);
    fChain->SetBranchAddress("phHcalTowerSumEtConeDR03", phHcalTowerSumEtConeDR03, &b_phHcalTowerSumEtConeDR03);
-   //fChain->SetBranchAddress("phHcalDepth1TowerSumEtConeDR03", phHcalDepth1TowerSumEtConeDR03, &b_phHcalDepth1TowerSumEtConeDR03);
-   //fChain->SetBranchAddress("phHcalDepth2TowerSumEtConeDR03", phHcalDepth2TowerSumEtConeDR03, &b_phHcalDepth2TowerSumEtConeDR03);
    fChain->SetBranchAddress("phHadronicOverEm", phHadronicOverEm, &b_phHadronicOverEm);
    fChain->SetBranchAddress("phChargedHadronIsoDR04", phChargedHadronIsoDR04, &b_phChargedHadronIsoDR04);
    fChain->SetBranchAddress("phChargedHadronIsoDR02", phChargedHadronIsoDR02, &b_phChargedHadronIsoDR02);
