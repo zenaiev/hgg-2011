@@ -42,7 +42,20 @@ cd PostAnalyzer
 Generally, the analysis steps are:
  * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~...GB), takes ~ ... weeks, extensive network access
  * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
- * run PostAnalyzer/ttbarMakeHist to process ROOT ntuples to create histograms (~2 mins)
- * run PostAnalyzer/ttbarMakePlots to produce final plots from created histograms (few seconds)
+ * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~2 mins)
+ * run PostAnalyzer/hggMakePlots to produce final plots from created histograms (few seconds)
+ * run PostAnalyzer/pvalPlot to create a simplified significance plot (few seconds) 
+ 
+ ```
+ cd hgg-2011/Analyzer
+ ./run.sh 
+ cd ..
+ mv Analyzer/ntuples-data PostAnalyzer
+ mv Analyzer/ntuples-mc PostAnalyzer
+ cd PostAnalyzer
+ ./hggMakeHist
+ ./hggMakePlots
+ ./pvalPlot
+ ```
 
-Further description of these steps you can find Analyzer/README.txt and Postanalyzer/README.txt
+Further description of these steps you can find in the desription-hgg.pdf , Analyzer/README.txt and Postanalyzer/README.txt
