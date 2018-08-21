@@ -1,5 +1,5 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// This code processes ROOT ntuples for gammagamma analysis (see
+// This code processes ROOT ntuples for hgg analysis (see
 // Analyzer/src/Analyzer.cc) and produces histograms, which are 
 // further used to make final plots (see hggMakePlots.cxx).
 // Run: ./hggMakeHist

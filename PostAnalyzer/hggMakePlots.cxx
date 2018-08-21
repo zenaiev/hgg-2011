@@ -1,10 +1,7 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// This code processes ROOT histograms for ttbar analysis,
-// (produced by ttbarMakeHist.cxx), and makes final plots and numbers
-// (more precisely, control plots to be compared to TOP-11-013 Fig. 4, 
-// normalised cross sections to be compared to TOP-11-013 Fig. 10 
-// and the total cross section to be compared to TOP-13-004).
-// Run: ./ttbarMakePlots
+// This code processes ROOT histograms for hgg analysis,
+// (produced by hggMakeHist.cxx), and makes final plots and numbers
+// Run: ./hggMakePlots
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // additional files from this analysis 
@@ -266,8 +263,8 @@ int Plot2012()
     h_data->Draw("e0 same");
 
     hr->Draw("axis same");
+
     //Second pad
-    // ratio
     TPad* pad2 = new TPad("", "", 0.00, 0.00, 1.00, 0.40);
     pad2->SetMargin(0.11, 0.03, 0.20, 0.005);
     TH2F* hrr = new TH2F("", "", 1, 100.0, 180.0, 1, -49.99, 49.99);
@@ -276,15 +273,16 @@ int Plot2012()
     hrr->GetYaxis()->SetTitle("Events / 1.5 GeV");
     hrr->GetYaxis()->SetTitleOffset(3.0);
     hrr->GetYaxis()->SetNdivisions(405);
-    
     SetHistoAxisFonts(hrr);
     ScaleHistoFonts(hrr, 0.5);
+
     pad2->cd();
     hrr->Draw();
+
+    //errors
     TGraphErrors* gunc68 = NULL;
     TGraphErrors* gunc95 = NULL;
     TH1D* hsig = CalculateRatio(h_data, fit_b, gunc68, gunc95);
-    //gunc95->Print("all");
     gunc68->SetFillColor(kGreen);
     gunc68->SetLineStyle(2);
     gunc68->SetLineColor(kRed);
@@ -293,6 +291,7 @@ int Plot2012()
     gunc95->SetLineColor(kRed);
     gunc95->Draw("4");
     gunc68->Draw("4");
+    //set zero bkg fit for second pad
     TF1* fit_b0 = new TF1("fit_b0","pol5", fitMin, fitMax);
     for(int p = 3; p <= 9; p++)
       fit_b0->SetParameter(p - 3, 0.0);
@@ -306,8 +305,6 @@ int Plot2012()
     hrr->Draw("axis same");
 
     pad1->cd();
-    
-    //add errors 
     
     //legend 
     TLegend* leg = new TLegend(0.65, 0.50, 0.88, 0.88);
@@ -331,7 +328,7 @@ int Plot2012()
     pad1->Draw();
     pad2->Draw();
     
-    //Add text for bg component deletion
+    //Text for bg component deletion
     TPaveText* pt = new TPaveText(0.55, 0.30, 0.92, 0.38);
     pt->SetBorderSize(0.0);
     pt->SetFillStyle(0);
@@ -847,8 +844,7 @@ int main(int argc, char** argv)
 {
   Plot2011();
   Plot2012();
-  //Plot2012_1GeV();
-  //PlotComb();
+  Plot2012_1GeV();
   PlotCombFit();
   PlotCombFitClasses();
   return 0;
