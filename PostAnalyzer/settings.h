@@ -1,8 +1,8 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // >>>>>>>>>>>>>> General settings (directories) >>>>>>>>>>>>>>>>>>>>>>>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#ifndef TTBAR_SETTINGS_H
-#define TTBAR_SETTINGS_H
+#ifndef HGG_SETTINGS_H
+#define HGG_SETTINGS_H
 
 #include <TString.h>
 

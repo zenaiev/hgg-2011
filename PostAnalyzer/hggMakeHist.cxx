@@ -45,6 +45,7 @@ int main(int argc, char** argv)
   if(flagData2011_10bins)
   {
     //setup histograms
+	//ZVarHisto is a class that stores histogram and variable name, see its definition in eventReco.h
     std::vector<ZVarHisto> vecVH, vecVHGen;
     vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0)));
     vecVH = vecVHGen;
@@ -195,12 +196,10 @@ int main(int argc, char** argv)
     vecVH.back().EventClass() = 6;
     // MC signal reco level
     ZEventRecoInput in;
-    //in.MaxNEvents = 1000;
     in.Weight = 0.0015054; // weight (see above)
     in.Name = "mcSigReco";
     in.Type = 2;
     in.VecVarHisto = vecVH;
-    //in.AddToChain(mcDir + "/VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola/*.root");
     in.AddToChain(mcDir + "/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/*.root");
     eventreco(in);
     // MC signal, generator level: again re-use existing ZEventRecoInput, change type and set proper flag (see below)

@@ -2,12 +2,12 @@
 // >>>>>>>>>>>>>> Helper for hgg event reconstruction >>>>>>>>>>>>>>>>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-#ifndef TTBAR_EVENTRECO_H
-#define TTBAR_EVENTRECO_H
+#ifndef HGG_EVENTRECO_H
+#define HGG_EVENTRECO_H
 
 // additional files from this analysis 
 #include "tree.h"
-#include "kinReco.h"
+//#include "kinReco.h"
 #include "selection.h"
 #include "settings.h"
 // C++ library or ROOT header files
@@ -70,7 +70,7 @@ class ZVarHisto
 //   double w: weight
 //   TLorentzVector* ph1: first photon momentum
 //   TLorentzVector* ph2: second photon momentum
-//   int eventClass = 1 :
+//   int eventClass = 1 : for debugging purposes
 //
 void FillHistos(std::vector<ZVarHisto>& VecVarHisto, double w, TLorentzVector* ph1, TLorentzVector* ph2, int eventClass = 1)
 {
@@ -228,6 +228,8 @@ void eventreco(ZEventRecoInput in)
     // *****************************************
     // ***************** all *******************
     // *****************************************
+    //Select Photon pair
+    TLorentzVector ph[2];
     int eventClass = SelectHgg(preselTree, 1, ph[0], ph[1],in.Name);
     if(eventClass == 0)
       continue;

@@ -558,9 +558,9 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
 }
 
 // returns vector of integers which are trigger bits needed in the analysis
-//The construction is a bit unecessary here:
-//Each trigger is specified explicitly in the beginning but the code also works,
-//if you just push_back the beginnings of trigger names you want to use.
+// Implementation:
+// Interesting triggers are added in the beginning of this file
+//, all triggers with the same starting string are then stored and printed
 // (called in the beginning of each run)
 void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
 {
@@ -572,11 +572,9 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
   std::vector<std::string> trigNames;
   trigNames = trigConf.triggerNames();
   // for interesting trigger names find corresponding trigger bits
-  //printf("*****All available triggers*****");
   for(unsigned int i = 0; i < trigNames.size(); i++)
   {
     std::string currentName = trigConf.triggerNames()[i];
-    //printf("%5d  %s \n", i, currentName.c_str());
     for(unsigned int n = 0; n < _vecTriggerNames.size(); n++)
     {
       //if trigger is found in _vecTriggerNames
@@ -588,7 +586,6 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
       }
     }
   }
-  //printf("*********************");
   PrintTriggerBits();
 }
 
@@ -610,7 +607,7 @@ void Analyzer::PrintTriggerBits()
   printf("****************\n");
 }
 
-// fill trigger bits
+// fill trigger bits and store them in _triggers variable
 void Analyzer::SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR)
 {
   for(unsigned int i = 0; i < _vecTriggerBits.size(); i++)
@@ -618,14 +615,12 @@ void Analyzer::SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR)
     int status = 0;
     for(unsigned int j = 0; j < _vecTriggerBits[i].size(); j++)
     {
-      //check if one of the triggers is accepted (fired?)
+      //check if one of the triggers is accepted
       status = status || HLTR->accept(_vecTriggerBits[i][j]);
     }
-    //printf("TRIGGER:  %d %s\n", status, _vecTriggerNames[i].c_str());
     // set ith bit of _triggers integer to the current trigger bit status
     _triggers ^= (-status ^ _triggers) & (1 << i);
   }
-  //printf("*************\n");
 }
 
 // select primary vertex
@@ -684,10 +679,10 @@ void Analyzer::SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genPa
   FillFourMomentum(NULL, _mcPh[0]);
   FillFourMomentum(NULL, _mcPh[1]);
 
-  // initialise all particle pointers with NULL
+  // Initialize all particle pointers with NULL
   const reco::Candidate* genH = NULL;
   const reco::Candidate* genPh[2] = { NULL, NULL };
-  // loop over generated particeles
+  // loop over generated particles
   for(unsigned int p = 0; p < genParticles->size(); p++)
   {
     const reco::Candidate* particle = &genParticles->at(p);
@@ -737,6 +732,7 @@ void Analyzer::SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genPa
   }
 }
 
+
 // ------------ method called for each event  ------------
 void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -746,14 +742,10 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // event counting, printout after each 1K processed events
   _nevents++;
-  //printf("*** EVENT %6d ***\n", _nevents);
   if( (_nevents % 1000) == 0)
   {
-    //printf("*****************************************************************\n");
     printf("************* NEVENTS = %d K, selected = %d *************\n", _nevents / 1000, _neventsSelected);
-    //printf("*****************************************************************\n");
   }
-  //return;
   
   // declare event contents
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -794,6 +786,7 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(_inputTagElectrons, electrons);
     //particle Flow
     iEvent.getByLabel(_inputTagPF, PF);
+    //Select Photons by applying soft Cuts
     SelectPhotons(photons,electrons, pv, primVertex, PF);
     // require at least two photons
     if( _Nph >= 2 )
