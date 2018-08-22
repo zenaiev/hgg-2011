@@ -1,5 +1,5 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// >>>>>>>>>>>> Helper for gamma gamma event selection >>>>>>>>>>>>>>>>>>>>>>>
+// >>>>>>>>>>>> Helper for hgg event selection >>>>>>>>>>>>>>>>>>>>>>>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Consult analysis documentation (papers, description-gammagamma.pdf) for
 // better description of applied cuts etc.
@@ -36,6 +36,12 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int phClass, const ZTree* preselTree, const int ph)
 {
+  //trigger check
+  if(preselTree->Triggers == 0)
+  {
+	printf("*******No Trigger fired!!!*******");
+	return 0;
+  }
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
