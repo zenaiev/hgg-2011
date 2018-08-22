@@ -8,6 +8,12 @@
 #include "tree.h"
 // C++ library or ROOT header files
 #include <TLorentzVector.h>
+#include <TMath.h>
+#include <Math/Polynomial.h>
+#include <TLorentzVector.h>
+#include <TH1D.h>
+#include <vector>
+#include <complex>
 
 bool gFlagDebug = 0;
 
@@ -36,12 +42,6 @@ int PhotonClass(const double eta, const double r9)
 // See tree.h for ZTree variables description.
 double SelectPh11(const int phClass, const ZTree* preselTree, const int ph)
 {
-  //trigger check
-  if(preselTree->Triggers == 0)
-  {
-	printf("*******No Trigger fired!!!*******");
-	return 0;
-  }
   // relative combined isolation using selected event vertex 5.4.1
   if(gFlagDebug) printf("5.4.1\n");
   const double aEff = 0.17;
@@ -112,14 +112,16 @@ double SelectPh11(const int phClass, const ZTree* preselTree, const int ph)
 // See tree.h for ZTree variables description.
 double SelectPh12(const int phClass, const ZTree* preselTree, const int ph)
 {
+  //effective area for pile up (could not find exact determined A_eff in analysis note/paper)
+  const double aEff = 0.17; //from 2011 -> 2012 should be higher
+
   //trigger check
   if(preselTree->Triggers == 0)
   {
     printf("*******No Trigger fired!!!*******");
     return 0;
   }
-  //effective area for pile up (could not find exact determined A_eff in analysis note/paper) 
-  const double aEff = 0.17; //from 2011 -> 2012 should be higher
+
   //event preselection on the photon
   double EtCorrHcalIso = preselTree->phHcalTowerSumEtConeDR04[ph] - 0.005 * preselTree->phPt[ph];
   double EtCorrTrkIso = preselTree->phTrkSumPtHollowConeDR04[ph] - 0.002 * preselTree->phPt[ph];
