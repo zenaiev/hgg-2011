@@ -24,7 +24,6 @@ public :
 
    // variable array max sizes
    static const int maxNph = 50; // photons
-   static const int maxNjet = 59; // jets
 
    // Ntuple variables (their description can be found also in Analyzer/src/Analyzer.cc)
    //[N] means that this is fixed size array with N elements
@@ -57,13 +56,6 @@ public :
    Int_t           phHasConversionTracks[maxNph];
    Float_t         phSigmaIetaIeta[maxNph];   //[Nph]
    Float_t         phMatch[maxNph];   //[Nph]
-   Int_t           Njet;
-   Float_t         jetPt[maxNjet];   //[Njet]
-   Float_t         jetEta[maxNjet];   //[Njet]
-   Float_t         jetPhi[maxNjet];   //[Njet]
-   Float_t         jetMass[maxNjet];   //[Njet]
-   Float_t         jetMuEn[maxNjet];   //[Njet]
-   Float_t         jetElEn[maxNjet];   //[Njet]
    Int_t           Triggers;
    Int_t           Npv;
    Int_t           pvNDOF;
@@ -104,13 +96,6 @@ public :
    TBranch        *b_phHasConversionTracks;
    TBranch        *b_phSigmaIetaIeta;
    TBranch        *b_phMatch;
-   TBranch        *b_Njet;   //!
-   TBranch        *b_jetPt;   //!
-   TBranch        *b_jetEta;   //!
-   TBranch        *b_jetPhi;   //!
-   TBranch        *b_jetMass;   //!
-   TBranch        *b_jetMuEn;   //!
-   TBranch        *b_jetElEn;   //!
    TBranch        *b_Triggers;   //!
    TBranch        *b_Npv;   //!
    TBranch        *b_pvNDOF;   //!
@@ -167,13 +152,6 @@ void ZTree::Init(TTree *tree)
    fChain->SetBranchAddress("phElectronDR", phElectronDR , &b_phElectronDR);
    fChain->SetBranchAddress("phHasConversionTracks",phHasConversionTracks, &b_phHasConversionTracks);
    fChain->SetBranchAddress("phSigmaIetaIeta", phSigmaIetaIeta, &b_phSigmaIetaIeta);
-   fChain->SetBranchAddress("Njet", &Njet, &b_Njet);
-   fChain->SetBranchAddress("jetPt", jetPt, &b_jetPt);
-   fChain->SetBranchAddress("jetEta", jetEta, &b_jetEta);
-   fChain->SetBranchAddress("jetPhi", jetPhi, &b_jetPhi);
-   fChain->SetBranchAddress("jetMass", jetMass, &b_jetMass);
-   fChain->SetBranchAddress("jetMuEn", jetMuEn, &b_jetMuEn);
-   fChain->SetBranchAddress("jetElEn", jetElEn, &b_jetElEn);
    fChain->SetBranchAddress("Triggers", &Triggers, &b_Triggers);
    fChain->SetBranchAddress("Npv", &Npv, &b_Npv);
    fChain->SetBranchAddress("pvNDOF", &pvNDOF, &b_pvNDOF);
