@@ -310,6 +310,4 @@ int main(int argc, char** argv)
 	pvalClasses12("pval_2012_classes.pdf");
 	//combined plots for 2012
 	pval12("pval_2012.eps");
-
-
 }
