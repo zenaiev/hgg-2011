@@ -53,7 +53,7 @@ int Plot2011()
     //Load corresponding data
     c->cd(pad);
     TFile* f_data = TFile::Open(TString::Format("%s/data2011_10GeV.root", baseDir.Data()));
-    TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg%d", pad));
+    TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg2011_1_%d", pad));
     //set style of plot
     h_data->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
     h_data->GetXaxis()->SetTitleOffset(3.0);
@@ -207,7 +207,7 @@ int Plot2012()
     hr->Draw();
 
     TFile* f_data = TFile::Open(TString::Format("%s/data2012_15GeV.root", baseDir.Data()));
-    TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg%d",pad+2));
+    TH1D* h_data = (TH1D*)f_data->Get(TString::Format("h_mgg2012_2_%d",pad+2));
 
     TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root", baseDir.Data()));
     TH1D* h_mc = (TH1D*)f_mc->Get(TString::Format("h_mgg%d",pad+2));
@@ -366,8 +366,8 @@ int PlotCombFit()
   TFile* f_data12 = TFile::Open(TString::Format("%s/data2012_10GeV.root", baseDir.Data()));
   TFile* f_data11 = TFile::Open(TString::Format("%s/data2011_10GeV.root", baseDir.Data()));
   
-  TH1D* h_data12 = (TH1D*)f_data12->Get(TString::Format("h_mgg1"));
-  TH1D* h_data = (TH1D*)f_data11->Get(TString::Format("h_mgg1"));
+  TH1D* h_data12 = (TH1D*)f_data12->Get(TString::Format("h_mgg2012_1_1"));
+  TH1D* h_data = (TH1D*)f_data11->Get(TString::Format("h_mgg2011_1_1"));
   h_data->Add(h_data12);
   TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root", baseDir.Data()));
   TH1D* h_mc = (TH1D*)f_mc->Get(TString::Format("h_mgg1"));
@@ -528,8 +528,8 @@ int PlotCombFitClasses()
 
     TFile* f_data12 = TFile::Open(TString::Format("%s/data2012_10GeV.root", baseDir.Data()));
     TFile* f_data11 = TFile::Open(TString::Format("%s/data2011_10GeV.root", baseDir.Data()));
-    TH1D* h_data12 = (TH1D*)f_data12->Get(TString::Format("h_mgg%d",pad+2));
-    TH1D* h_data = (TH1D*) f_data11->Get(TString::Format("h_mgg%d", pad+2));
+    TH1D* h_data12 = (TH1D*)f_data12->Get(TString::Format("h_mgg2012_1_%d",pad+2));
+    TH1D* h_data = (TH1D*) f_data11->Get(TString::Format("h_mgg2011_1_%d", pad+2));
     h_data->Add(h_data12);
 
     TFile* f_mc = TFile::Open(TString::Format("%s/mcSigReco.root", baseDir.Data()));

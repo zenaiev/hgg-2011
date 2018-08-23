@@ -103,7 +103,7 @@ int pvalClasses11(TString plotName)
   	{
   		c->cd(pad);
   		//read corresponding class from argument TFile
-  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",pad));
+  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2011_1_%d",pad));
 
   		if(pad != 2)
   		{
@@ -171,7 +171,7 @@ int pvalClasses12(TString plotName)
   	{
   		c->cd(pad);
   		//read corresponding class from argument TFile
-  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",pad));
+  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2012_1_%d",pad));
   		TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg%d",pad));
 
   		if(pad != 2)
@@ -242,7 +242,7 @@ int pval12(TString plotName)
 	TCanvas* c = new TCanvas("","",600,600);
 
 	//read corresponding class from argument TFile
-	TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",1));
+	TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2012_1_%d",1));
 	TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg%d",1));
 
 	//fit the background
