@@ -586,7 +586,8 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
       }
     }
   }
-  PrintTriggerBits();
+  // Only for debugging
+  //PrintTriggerBits();
 }
 
 // print found trigger indices
