@@ -472,13 +472,17 @@ int PlotCombFit()
   pt->SetFillStyle(0);
   pt->AddText("B component subtracted");
   pt->Draw();
-  //hr->Draw();
+  TPaveText* ptlum = new TPaveText(0.15,0.8,0.5,1);
+  ptlum->SetBorderSize(0.0);
+  ptlum->SetFillStyle(0);
+  ptlum->AddText("11.58 fb^{-1} (8 TeV) + 2.33 fb^{-1} (7 TeV)");
+  ptlum->Draw();
   c->SaveAs(plotDir + "/hgg-comb.pdf");
   c->SaveAs(plotDir + "/hgg-comb.eps");
 }
 
 //plot 2011 + 2012 data for each class
-// no comparison plot existent
+// no comparison plot existing
 int PlotCombFitClasses()
 {
   // set user style
