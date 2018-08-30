@@ -56,9 +56,28 @@ Generally, the analysis steps are:
  mv Analyzer/ntuples-data PostAnalyzer
  mv Analyzer/ntuples-mc PostAnalyzer
  cd PostAnalyzer
+ ./compile.sh
  ./hggMakeHist
  ./hggMakePlots
  ./pvalPlot
  ```
+Further description of these steps can be found in the desription-hgg.pdf.
 
-Further description of these steps you can find in the desription-hgg.pdf.
+## Git Pushing
+If you connect your local git repository to a remote repository you need to push your changes. Due to several problems, the used version of the CMS-Software (CMSSW_5_3_32) and the included version of git are not able to push repositories. Therefore you can change to a newer version of CMSSW for pushing only. Steps are described below:
+
+```
+cd WorkingArea/ 
+cmsrel CMSSW_10_1_9
+cd CMSSW_10_1_9/src/
+cmsenv
+cd ../../CMSSW_5_3_32/src/hgg-2011
+#perform your git actions here, e.g.:
+git push
+```
+After you executed your git commands you can switch to the old version of CMSSW_5_3_32 (to execute code) by
+```
+#somewhere in CMSSW_5_3_32/src/
+cmsenv 
+```
+If you have to push any new changes, it is sufficient to switch to the new `CMSSW_10_1_9/src` folder and execute `cmsenv`
