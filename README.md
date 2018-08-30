@@ -7,7 +7,7 @@ Relevant CMS publications:
 For the general description of the analysis see also attached description-hgg.pdf (to be added)
 
 There are two parts in this analysis:
- * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
+ * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 4.5 month to process the full data + MC samples and ~ 3 GB free space for the produced ntuples
  * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); takes about 2 minutes
 
 ## Instructions how to run the analysis
@@ -40,7 +40,7 @@ cd PostAnalyzer
 
 ## Running the analysis
 Generally, the analysis steps are:
- * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~...GB), takes ~ ... weeks, extensive network access
+ * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, ~ 25 TB) and produces plain ROOT ntuple files (~ 3 GB), takes ~ 4.5 month, extensive network access
  * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
  * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~2 mins)
  * run PostAnalyzer/hggMakePlots to produce final plots from created histograms (few seconds)
