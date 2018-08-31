@@ -14,67 +14,9 @@
 # jobs you could use './running.sh <dir>' and './processed.sh <dir>', 
 # where <dir> is the output directory.
 #
-########################################################################
-########################## Input lists #################################
-########################################################################
-#
-# Uncomment one 'INPUTLIST' and the corresponding 'OUTPUTDIR'
-# (by default data emu sample is uncommented). 
-# For Monte Carlo (MC) set mc = 1 below, for signal MC also set gen = 1
-#
-# Data
-INPUTLIST='data/CMS_Run2012BC_MuEG_AOD_22Jan2013-v1-all_file_index.txt'
-#INPUTLIST='data/CMS_Run2012BC_DoubleMuParked_AOD_22Jan2013-v1-all_file_index.txt'
-#INPUTLIST='data/CMS_Run2012BC_DoubleElectron_AOD_22Jan2013-v1-all_file_index.txt'
-#
-# MC ttbar (signal and 'ttbar other' background) - most time consuming!
-#INPUTLIST='TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/CMS_MonteCarlo2012_Summer12_DR53X_TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S10_START53_V19-v1-all_file_index.txt'
-#
-# MC single t (background)
-#
-# MC Drell-Yan (background)
-#INPUTLIST='mc/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/CMS_MonteCarlo2012_Summer12_DR53X_DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_AODSIM_PU_RD1_START53_V7N-v1-all_file_index.txt'
-#
-########################################################################
 
 ########################################################################
-########################## Output directory ############################
-########################################################################
-#
-# Uncomment one 'OUTPUTDIR' based on the the corresponding 'INPUTLIST'
-# (this is just a name: it could be any, but makes sence to use consistent one)
-# (by default the directory for data emu sample is uncommented). 
-# The produced output ROOT files in this directory have to be 
-# processed by PostAnalyzer after all (see PostAnalyzer/README.txt).
-#
-# Data
-OUTPUTDIR='ntuples-data/MuEG'
-#OUTPUTDIR='ntuples-data/DoubleMuParked'
-#OUTPUTDIR='ntuples-data/DoubleElectron'
-#
-# MC ttbar (signal and 'ttbar other' background)
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/00000'
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/00001'
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/010000'
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/010001'
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/010002'
-#OUTPUTDIR='ntuples-mc/TTJets_TuneZ2_7TeV-madgraph-tauola/010003'
-#
-# MC single t (background)
-#OUTPUTDIR='ntuples-mc/T_TuneZ2_tW-channel-DR_7TeV-powheg-tauola'
-#OUTPUTDIR='ntuples-mc/Tbar_TuneZ2_tW-channel-DR_7TeV-powheg-tauola'
-#
-# MC Wjets (background)
-#OUTPUTDIR='ntuples-mc/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola'
-#
-# MC Drell-Yan (background)
-#OUTPUTDIR='ntuples-mc/DYJetsToLL_M-10To50_TuneZ2_7TeV-pythia6'
-#OUTPUTDIR='ntuples-mc/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola'
-#
-########################################################################
-
-########################################################################
-########################## Flags #######################################
+########################## Constants####################################
 ########################################################################
 #
 # Process reconstruction level (normally always should be done, 
@@ -88,6 +30,9 @@ gen=0
 mc=0
 # For 2011 year = 0, for 2012 year = 1
 year=0
+# File inputlist
+INPUTLIST=''
+OUTPUTLIST=''
 ########################################################################
 
 ########################################################################
@@ -129,9 +74,7 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=0
     mc=0
-    #NP=300
     NP=600
-    #NP=1
   elif [ ${runSample} -eq 2 ]; then
     # 496559 events
     INPUTLIST='mc/CMS_MonteCarlo2011_Summer11LegDR_VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola_AODSIM_PU_S13_START53_LV6-v1_00000_file_index.txt'
@@ -140,7 +83,6 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=1
     mc=1
-    #NP=10
     NP=39
   # 2012
   elif [ ${runSample} -eq 3 ]; then
@@ -152,7 +94,6 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=0
     mc=0
-    #NP=200
     NP=1300
   elif [ ${runSample} -eq 4 ]; then
     # 496559 events
@@ -163,7 +104,6 @@ if [ 1 -eq 1 ]; then
     reco=1
     gen=1
     mc=1
-    #NP=10
     NP=29
   fi
 fi
@@ -199,13 +139,9 @@ fi
 for p in `seq 1 $NP`
 do
   command="time cmsRun analyzer_cfg.py ${OUTPUTDIR}/inputList${outrootsuffix}_${p}.txt ${OUTPUTDIR}/hggSel${outrootsuffix}_${p}.root ${reco} ${gen} ${mc} ${year}"
-  #${command}
-  # >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt&
+  #nohup ${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt &
   #
   # optionally submit jobs to cluster (if running not on VM): modify for your environment
-  #
-  # SGE (obsolete)
-  #submit -N ${jobName}${p} -q short.q -l h_vmem=1.99G "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
   # HTCondor
   cs -n${jobName}${p} "${command} >& ${OUTPUTDIR}/log${outrootsuffix}_${p}.txt"
 done
