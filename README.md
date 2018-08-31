@@ -7,7 +7,7 @@ Relevant CMS publications:
 For the general description of the analysis see also attached description-hgg.pdf (to be added)
 
 There are two parts in this analysis:
- * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 2 weeks to process the full data + MC samples and ~ 3GB free space for the produced ntuples
+ * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 4.5 month to process the full data + MC samples and ~ 3 GB free space for the produced ntuples
  * PostAnalyzer: ntuple processing, produces final numbers and plots, standalone code (requires only gcc and ROOT); takes about 2 minutes
 
 ## Instructions how to run the analysis
@@ -40,11 +40,12 @@ cd PostAnalyzer
 
 ## Running the analysis
 Generally, the analysis steps are:
- * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, several TB) and produces plain ROOT ntuple files (~...GB), takes ~ ... weeks, extensive network access
+ * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, ~ 25 TB) and produces plain ROOT ntuple files (~ 3 GB), takes ~ 4.5 month, extensive network access
  * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
- * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~2 mins)
+ * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~5 mins)
  * run PostAnalyzer/hggMakePlots to produce final plots from created histograms (few seconds)
  * run PostAnalyzer/pvalPlot to create a simplified significance plot (few seconds) 
+ * run PostAnalyzer/lumicalc.py to calculate the integrated luminosity (~5 mins)
  
  ```
  cd hgg-2011/Analyzer
@@ -56,9 +57,29 @@ Generally, the analysis steps are:
  mv Analyzer/ntuples-data PostAnalyzer
  mv Analyzer/ntuples-mc PostAnalyzer
  cd PostAnalyzer
+ ./compile.sh
  ./hggMakeHist
  ./hggMakePlots
  ./pvalPlot
+ python lumicalc.py
  ```
+Further description of these steps can be found in the desription-hgg.pdf.
 
-Further description of these steps you can find in the desription-hgg.pdf.
+## Git Pushing
+If you connect your local git repository to a remote repository you need to push your changes. Due to several problems, the used version of the CMS-Software (CMSSW_5_3_32) and the included version of git are not able to push repositories. Therefore you can change to a newer version of CMSSW for pushing only. Steps are described below:
+
+```
+cd WorkingArea/ 
+cmsrel CMSSW_10_1_9
+cd CMSSW_10_1_9/src/
+cmsenv
+cd ../../CMSSW_5_3_32/src/hgg-2011
+#perform your git actions here, e.g.:
+git push
+```
+After you executed your git commands you can switch to the old version of CMSSW_5_3_32 (to execute code) by
+```
+#somewhere in CMSSW_5_3_32/src/
+cmsenv 
+```
+If you have to push any new changes, it is sufficient to switch to the new `CMSSW_10_1_9/src` folder and execute `cmsenv`
