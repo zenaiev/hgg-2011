@@ -4,7 +4,7 @@ Relevant CMS publications:
  * 7 TeV: PLB710 (2012) 403 [arXiv:1202.1487, HIG-11-033]
  * 8 TeV: EPJ C74 (2014) 3076 [arXiv:1407.0558,HIG-13-001]
 
-For the general description of the analysis see also attached description-hgg.pdf (to be added)
+For the general description of the analysis see also attached description-hgg.pdf
 
 There are two parts in this analysis:
  * Analyzer: ntuple production, requires CMSSW (the instructions assume that you will work on a VM properly contextualized for CMS, available from http://opendata.cern.ch/VM/CMS) and network connection; takes ~ 4.5 month to process the full data + MC samples and ~ 3 GB free space for the produced ntuples
