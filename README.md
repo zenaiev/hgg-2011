@@ -42,9 +42,10 @@ cd PostAnalyzer
 Generally, the analysis steps are:
  * run Analyzer/run.sh (look inside first), this processes AOD files (CMS data stored at CERN server, ~ 25 TB) and produces plain ROOT ntuple files (~ 3 GB), takes ~ 4.5 month, extensive network access
  * move produced ntuples to PostAnalyzer directories (this step is manual on purpose, in order not to overwrite accidentally ntuples produced taking long time etc.)
- * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~2 mins)
+ * run PostAnalyzer/hggMakeHist to process ROOT ntuples to create histograms (~5 mins)
  * run PostAnalyzer/hggMakePlots to produce final plots from created histograms (few seconds)
  * run PostAnalyzer/pvalPlot to create a simplified significance plot (few seconds) 
+ * run PostAnalyzer/lumicalc.py to calculate the integrated luminosity (~5 mins)
  
  ```
  cd hgg-2011/Analyzer
@@ -60,6 +61,7 @@ Generally, the analysis steps are:
  ./hggMakeHist
  ./hggMakePlots
  ./pvalPlot
+ python lumicalc.py
  ```
 Further description of these steps can be found in the desription-hgg.pdf.
 
