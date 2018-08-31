@@ -3,9 +3,9 @@
 // Package:    Analyzer
 // Class:      Analyzer
 // 
-/**\class Analyzer Analyzer.cc ttbar/Analyzer/src/Analyzer.cc
+/**\class Analyzer Analyzer.cc hgg-2011/Analyzer/src/Analyzer.cc
 
- Description: ttbar ntuple production
+ Description: hgg ntuple production
 
  Implementation:
      for Open Data 2011
@@ -54,10 +54,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-// for jets
-#include <DataFormats/JetReco/interface/PFJet.h>
-#include <DataFormats/BTauReco/interface/JetTag.h>
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 // for MET
 #include "DataFormats/METReco/interface/PFMET.h"
@@ -104,13 +100,10 @@ class Analyzer : public edm::EDAnalyzer {
     // user routines (detailed description given with the method implementations)
     int SelectEvent(const edm::Event& iEvent);
     int SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,const edm::Handle<reco::GsfElectronCollection>& electrons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF);
-    int SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const edm::Event& iEvent, const edm::EventSetup& iSetup);
-    int SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets);
     void FindTriggerBits(const HLTConfigProvider& trigConf);
     void SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR);
     void PrintTriggerBits();
     int SelectPrimaryVertex(const edm::Handle<reco::VertexCollection>& primVertex);
-    //const reco::Candidate* GetFinalState(const reco::Candidate* particle, const int id);
     void FillFourMomentum(const reco::Candidate* particle, float* p);
     double MatchPhoton(const double etaGen, const double phiGen, const double etaRec, const double phiRec, const float max = 0.1);
     void SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genParticles);
@@ -119,16 +112,12 @@ class Analyzer : public edm::EDAnalyzer {
     // input tags
     edm::InputTag _inputTagPhotons;
     edm::InputTag _inputTagElectrons;
-    edm::InputTag _inputTagJets;
     edm::InputTag _inputTagMet;
     edm::InputTag _inputTagPF;
     edm::InputTag _inputTagTriggerResults;
     edm::InputTag _inputTagPrimaryVertex;
     edm::InputTag _inputTagRho;
     edm::InputTag _inputTagMCgen;
-
-    // jet correction label
-    std::string mJetCorr;
     
     // photon isolation
     PFIsolationEstimator mIsolator;
@@ -149,10 +138,12 @@ class Analyzer : public edm::EDAnalyzer {
     // >>>>>>>>>>>>>>>> event variables >>>>>>>>>>>>>>>>>>>>>>>
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // (their description given when tree branches are created)
+
     // event
     int _evRunNumber;
     int _evEventNumber;
     double _rho;
+
     // photons
     static const int _maxNph = 50;
     int _Nph;
@@ -167,14 +158,10 @@ class Analyzer : public edm::EDAnalyzer {
     float _phTrkSumPtHollowConeDR04[_maxNph];
     float _phEcalRecHitSumEtConeDR04[_maxNph];
     float _phHcalTowerSumEtConeDR04[_maxNph];
-    //float _phHcalDepth1TowerSumEtConeDR04[_maxNph];
-    //float _phHcalDepth2TowerSumEtConeDR04[_maxNph];
     float _phTrkSumPtHollowConeDR03[_maxNph];
     float _phEcalRecHitSumEtConeDR03[_maxNph];
     float _phHcalTowerSumEtConeDR03[_maxNph];
-    //float _phHcalDepth1TowerSumEtConeDR03[_maxNph];
-    //float _phHcalDepth2TowerSumEtConeDR03[_maxNph];
-    
+
     //PFlow isolation
     float _phChargedHadronIsoDR02[_maxNph];
     float _phChargedHadronIsoDR03[_maxNph];
@@ -192,23 +179,18 @@ class Analyzer : public edm::EDAnalyzer {
     
     // H/E
     float _phHadronicOverEm[_maxNph];
+
     // covietaieta
     float _phSigmaIetaIeta[_maxNph];
+
     // matching
     float _phMatch[_maxNph];
     float _phMatchDeltaE[_maxNph];
-    // jets
-    static const int _maxNjet = 50;
-    int _Njet;
-    float _jetPt[_maxNjet];
-    float _jetEta[_maxNjet];
-    float _jetPhi[_maxNjet];
-    float _jetMass[_maxNjet];
-    float _jetMuEn[_maxNjet];
-    float _jetElEn[_maxNjet];
+
     // MET
     float _metPx;
     float _metPy;
+
     // triggers
     int _triggers;
     std::vector<std::vector<int> > _vecTriggerBits;
@@ -239,17 +221,13 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   // input tags
   _inputTagPhotons = edm::InputTag("photons");
   _inputTagElectrons = edm::InputTag("gsfElectrons");
-  _inputTagJets = edm::InputTag("ak5PFJets");
   _inputTagMet = edm::InputTag("pfMet");
   _inputTagPF = edm::InputTag("particleFlow");
   _inputTagTriggerResults = edm::InputTag("TriggerResults", "", "HLT");
   _inputTagPrimaryVertex = edm::InputTag("offlinePrimaryVerticesWithBS");
   _inputTagRho = edm::InputTag("fixedGridRhoAll");
   _inputTagMCgen = edm::InputTag("genParticles");
-  
-  // jet correction label
-  mJetCorr = "ak5PFL1FastL2L3Residual";
-  
+
   //photon isolator 
   mIsolator.initializePhotonIsolation(kTRUE);
   mIsolator.setRingSize(0.3);
@@ -276,7 +254,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
 
   if(_flagRECO)
   {
-    // muons
+    // photons
     _tree->Branch("Nph", &_Nph, "Nph/I"); // number of photons
     _tree->Branch("phE", _phE, "phE[Nph]/F"); // photon E
     _tree->Branch("phPt", _phPt, "phPt[Nph]/F"); // photon pT
@@ -286,19 +264,16 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("phPt", _phSCy, "phSCy[Nph]/F"); // photon supercluster y
     _tree->Branch("phEta", _phSCz, "phSCz[Nph]/F"); // photon supercluster z
     _tree->Branch("phR9", _phR9, "phR9[Nph]/F"); // photon R9
-    _tree->Branch("phTrkSumPtHollowConeDR04", _phTrkSumPtHollowConeDR04, "phTrkSumPtHollowConeDR04[Nph]/F"); // photon R9
-    _tree->Branch("phEcalRecHitSumEtConeDR04", _phR9, "phEcalRecHitSumEtConeDR04[Nph]/F"); // photon R9
-    _tree->Branch("phHcalTowerSumEtConeDR04", _phHcalTowerSumEtConeDR04, "phHcalTowerSumEtConeDR04[Nph]/F"); // photon R9
-    //_tree->Branch("phHcalDepth1TowerSumEtConeDR04", _phHcalDepth1TowerSumEtConeDR04, "phHcalDepth1TowerSumEtConeDR04[Nph]/F"); // photon R9
-    //_tree->Branch("phHcalDepth2TowerSumEtConeDR04", _phHcalDepth2TowerSumEtConeDR04, "phHcalDepth2TowerSumEtConeDR04[Nph]/F"); // photon R9
-    _tree->Branch("phTrkSumPtHollowConeDR03", _phTrkSumPtHollowConeDR03, "phTrkSumPtHollowConeDR03[Nph]/F"); // photon R9
-    _tree->Branch("phEcalRecHitSumEtConeDR03", _phEcalRecHitSumEtConeDR03, "phEcalRecHitSumEtConeDR03[Nph]/F"); // photon R9
-    _tree->Branch("phHcalTowerSumEtConeDR03", _phHcalTowerSumEtConeDR03, "phHcalTowerSumEtConeDR03[Nph]/F"); // photon R9
-    //_tree->Branch("phHcalDepth1TowerSumEtConeDR03", _phHcalDepth1TowerSumEtConeDR03, "phHcalDepth1TowerSumEtConeDR03[Nph]/F"); // photon R9
-    //_tree->Branch("phHcalDepth2TowerSumEtConeDR03", _phHcalDepth2TowerSumEtConeDR03, "phHcalDepth2TowerSumEtConeDR03[Nph]/F"); // photon R9
-    _tree->Branch("phHadronicOverEm", _phHadronicOverEm, "phHadronicOverEm[Nph]/F"); // photon R9
-    _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F"); // photon R9
-	  //PFlow isolation
+    _tree->Branch("phTrkSumPtHollowConeDR04", _phTrkSumPtHollowConeDR04, "phTrkSumPtHollowConeDR04[Nph]/F");
+    _tree->Branch("phEcalRecHitSumEtConeDR04", _phR9, "phEcalRecHitSumEtConeDR04[Nph]/F");
+    _tree->Branch("phHcalTowerSumEtConeDR04", _phHcalTowerSumEtConeDR04, "phHcalTowerSumEtConeDR04[Nph]/F");
+    _tree->Branch("phTrkSumPtHollowConeDR03", _phTrkSumPtHollowConeDR03, "phTrkSumPtHollowConeDR03[Nph]/F");
+    _tree->Branch("phEcalRecHitSumEtConeDR03", _phEcalRecHitSumEtConeDR03, "phEcalRecHitSumEtConeDR03[Nph]/F");
+    _tree->Branch("phHcalTowerSumEtConeDR03", _phHcalTowerSumEtConeDR03, "phHcalTowerSumEtConeDR03[Nph]/F");
+    _tree->Branch("phHadronicOverEm", _phHadronicOverEm, "phHadronicOverEm[Nph]/F");
+    _tree->Branch("phSigmaIetaIeta", _phSigmaIetaIeta, "phSigmaIetaIeta[Nph]/F");
+
+	//PFlow isolation
     _tree->Branch("phChargedHadronIsoDR04",_phChargedHadronIsoDR04 , "phChargedHadronIsoDR04[Nph]/F");
     _tree->Branch("phChargedHadronIsoDR02", _phChargedHadronIsoDR02, "phChargedHadronIsoDR02[Nph]/F");
     _tree->Branch("phChargedHadronIsoDR03", _phChargedHadronIsoDR03, "phChargedHadronIsoDR03[Nph]/F");
@@ -312,22 +287,10 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _tree->Branch("elMissingHits", _elMissingHits, "elMissingHits[Nph]/I");
     _tree->Branch("phElectronDR", _phElectronDR, "phElectronDR[Nph]/F");
     _tree->Branch("phHasConversionTracks" , _phHasConversionTracks, "phHasConversionTracks[Nph]/I");
-    
-    
-    // jets
-    _tree->Branch("Njet", &_Njet, "Njet/I"); // number of jets
-    _tree->Branch("jetPt", _jetPt, "jetPt[Njet]/F"); // jet pT
-    _tree->Branch("jetEta", _jetEta, "jetEta[Njet]/F"); // jet pseudorapidity
-    _tree->Branch("jetPhi", _jetPhi, "jetPhi[Njet]/F"); // jet phi
-    _tree->Branch("jetMass", _jetMass, "jetMass[Njet]/F"); // jet mass
-    _tree->Branch("jetMuEn", _jetMuEn, "jetMuEn[Njet]/F"); // jet muon energy
-    _tree->Branch("jetElEn", _jetElEn, "jetElEn[Njet]/F"); // jet electron energy
-    // MET
-    //_tree->Branch("metPx", &_metPx, "metPx/F"); // missing transverse energy x component
-    //_tree->Branch("metPy", &_metPy, "metPy/F"); // missing transverse energy y component
-    // triggers
+
+    // Triggers
     _tree->Branch("Triggers", &_triggers, "Triggers/I"); // trigger bits (see trigger names below)
-    //define interesting trigger bits
+    //define interesting trigger bits (All triggers with same beginning string will be chosen)
     _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
     _vecTriggerNames.push_back("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
     _vecTriggerNames.push_back("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
@@ -343,6 +306,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
     _vecTriggerNames.push_back("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
     _vecTriggerNames.push_back("HLT_Photon36_Photon22_v");
     _vecTriggerNames.push_back("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+
     // primary vertex
     _tree->Branch("Npv", &_Npv, "Npv/I"); // total number of primary vertices
     _tree->Branch("pvNDOF", &_pvNDOF, "pvNDOF/I"); // number of degrees of freedom of the primary vertex
@@ -395,7 +359,6 @@ void Analyzer::InitBranchVars()
   _evRunNumber = 0;
   _evEventNumber = 0;
   _Nph = 0;
-  _Njet = 0;
   _metPx = 0;
   _metPy = 0;
   _triggers = 0;
@@ -420,14 +383,6 @@ int Analyzer::SelectEvent(const edm::Event& iEvent)
   return 0;
 }
 
-// Missing transverse energy (MET) selection
-int Analyzer::SelectMET(const edm::Handle<edm::View<reco::PFMET> >& pfmets)
-{
-  _metPx = (pfmets->front()).px();
-  _metPy = (pfmets->front()).py();
-  return 0;
-}
-
 // photon selection
 int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,const edm::Handle<reco::GsfElectronCollection>& electrons, const reco::VertexCollection::const_iterator& pv, const Handle<reco::VertexCollection>& Vertices, const edm::Handle<reco::PFCandidateCollection>& PF)
 {
@@ -449,8 +404,8 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
    
     _phNumElectronsSuperCluster[_Nph] = 0;
     _elMissingHits[_Nph] = -1;
+
     //check if there are any electrons within the supercluster 
-    //maybe there are other methods for PFlow in 2012 to find supercluster
     for (reco::GsfElectronCollection::const_iterator itEl = electrons->begin(); itEl != electrons->end(); itEl++)
     {
       float scEtaEl = itEl->superCluster()->position().eta();
@@ -463,7 +418,7 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       if(itEl->pt() < 2.5)
         continue;
       //increase electron counter
-      _phNumElectronsSuperCluster[_Nph] += 1; //should never be higher than 1
+      _phNumElectronsSuperCluster[_Nph] += 1;
       //store number of (missing) hits 
       _elMissingHits[_Nph] = itEl->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
       //deltaR for 2011 cut
@@ -506,34 +461,25 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
       //matching electron
       if(_phNumElectronsSuperCluster[_Nph] > 0 && _elMissingHits[_Nph] == 0)
         continue;
-      //charged hadron
+
+      //charged hadron Isolation
       reco::VertexRef myVtx(Vertices, 0);
       mIsolator.setRingSize(0.2);
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
       _phChargedHadronIsoDR02[_Nph] = mIsolator.getIsolationCharged();
-      //remove pile-up here (not sure if you have to in PostAnalyzer)
+      //remove pile-up
       if((_phChargedHadronIsoDR02[_Nph] - 0.017 * _rho) > 4)
         continue;  
       
     } 
+
     //conversion track
     _phHasConversionTracks[_Nph] = it->hasConversionTracks();
-    // fill four momentum (pT, eta, phi, E)
+    //four momentum
     _phE[_Nph] = it->energy();
-    // enum P4type { undefined=-1, ecal_standard=0, ecal_photons=1, regression1=2, regression2= 3 } ;
-    //_phE[_Nph] = it->getCorrectedEnergy(reco::Photon::ecal_standard);
-    //_phE[_Nph] = it->getCorrectedEnergy(reco::Photon::ecal_photons);
-    //double corr = _phE[_Nph] / it->energy();
-    //printf("corr = %f %f %f %f %f\n", it->energy(), it->getCorrectedEnergy(reco::Photon::ecal_standard), it->getCorrectedEnergy(reco::Photon::ecal_photons),
-    //       it->getCorrectedEnergy(reco::Photon::regression1), it->getCorrectedEnergy(reco::Photon::regression2));
-    //printf("%f\n", it->pt() * TMath::CosH(it->eta()));
     _phPt[_Nph] = it->pt();
     _phEta[_Nph] = it->eta();
     _phPhi[_Nph] = it->phi();
-    // fill distance to primary vertex
-    //_muDistPV0[_Nph] = TMath::Sqrt(TMath::Power(pv->x() - it->globalTrack()->vx(), 2.0) + TMath::Power(pv->y() - it->globalTrack()->vy(), 2.0));
-    //_muDistPVz[_Nph] = TMath::Abs(pv->z() - it->globalTrack()->vz());
-    // store photon
 
     // supercluster
     _phSCx[_Nph] = it->superCluster()->position().x();
@@ -545,49 +491,45 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
     _phTrkSumPtHollowConeDR04[_Nph] = it->trkSumPtHollowConeDR04();
     _phEcalRecHitSumEtConeDR04[_Nph] = it->ecalRecHitSumEtConeDR04();
     _phHcalTowerSumEtConeDR04[_Nph] = it->hcalTowerSumEtConeDR04();
-    //_phHcalDepth1TowerSumEtConeDR04[_Nph] = it->hcalDepth1TowerSumEtConeDR04();
-    //_phHcalDepth2TowerSumEtConeDR04[_Nph] = it->hcalDepth2TowerSumEtConeDR04();
     _phTrkSumPtHollowConeDR03[_Nph] = it->trkSumPtHollowConeDR03();
     _phEcalRecHitSumEtConeDR03[_Nph] = it->ecalRecHitSumEtConeDR03();
     _phHcalTowerSumEtConeDR03[_Nph] = it->hcalTowerSumEtConeDR03();
-    //_phHcalDepth1TowerSumEtConeDR03[_Nph] = it->hcalDepth1TowerSumEtConeDR03();
-    //_phHcalDepth2TowerSumEtConeDR03[_Nph] = it->hcalDepth2TowerSumEtConeDR03();
+    _phHadronicOverEm[_Nph] = it->hadronicOverEm();
+    _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();
     
-	  //PFlow isolation (not in PhotonCollection)
-    //use selected vertex, which was first 
+	//PFlow isolation (not in PhotonCollection)
+    //use selected vertex
     reco::VertexRef myVtx(Vertices, 0);
-    //isolation for different cone sizes
+    //Set cone size
     mIsolator.setRingSize(0.4);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-    //printf("Ring size (0.4) : %f \n", mIsolator.getRingSize());
     
-	  _phChargedHadronIsoDR04[_Nph] = mIsolator.getIsolationCharged();
+	_phChargedHadronIsoDR04[_Nph] = mIsolator.getIsolationCharged();
     double neutralIsoDR04 = mIsolator.getIsolationNeutral();
     double photonIsoDR04 = mIsolator.getIsolationPhoton();
     _phIsolationSumDR04[_Nph] = _phChargedHadronIsoDR04[_Nph] + neutralIsoDR04 + photonIsoDR04;
     
     mIsolator.setRingSize(0.3);
     mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
-    //printf("Ring size (0.3) : %f \n", mIsolator.getRingSize());
     double neutralIsoDR03 = mIsolator.getIsolationNeutral();
     double photonIsoDR03 = mIsolator.getIsolationPhoton();
     _phChargedHadronIsoDR03[_Nph] = mIsolator.getIsolationCharged();
     _phIsolationSumDR03[_Nph] = _phChargedHadronIsoDR03[_Nph] + neutralIsoDR03 + photonIsoDR03;
-    
-    
-        
+
     //worst ChargedHadronIsolation
     _phIsolationSumWrongVtxDR04[_Nph] = _phIsolationSumDR04[_Nph];
     _phIsolationSumWrongVtxDR03[_Nph] = _phIsolationSumDR03[_Nph];
-    //loop over all possible vertices
+    //loop over all possible vertices and save highest value
     for(int unsigned long i = 0; i < Vertices->size(); i++)
     {
       reco::VertexRef myVtx(Vertices, i);
+      //Cone Size of 0.3
       mIsolator.setRingSize(0.3);
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
       float curVal = mIsolator.getIsolationCharged() + neutralIsoDR03 + photonIsoDR03;
       if( _phIsolationSumWrongVtxDR03[_Nph] < curVal) 
         _phIsolationSumWrongVtxDR03[_Nph] = curVal;
+      //Cone Size of 0.4
       mIsolator.setRingSize(0.4);
       mIsolator.fGetIsolation(&(*it), &(*PF), myVtx, Vertices);
       curVal = mIsolator.getIsolationCharged() + neutralIsoDR04 + photonIsoDR04;
@@ -595,9 +537,6 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
         _phIsolationSumWrongVtxDR04[_Nph] = curVal;
     }
     
-    // H/E
-    _phHadronicOverEm[_Nph] = it->hadronicOverEm();
-    _phSigmaIetaIeta[_Nph] = it->sigmaIetaIeta();
     
     // matching
     if(_flagMC && _mcEventType == 1)
@@ -618,49 +557,10 @@ int Analyzer::SelectPhotons(const edm::Handle<reco::PhotonCollection>& photons,c
   return _Nph;
 }
 
-// jet selection
-int Analyzer::SelectJet(const edm::Handle<reco::PFJetCollection>& jets, const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  // Load jet energy correction service
-  const JetCorrector* corrector = JetCorrector::getJetCorrector(mJetCorr, iSetup);
-
-  _Njet = 0;
-  // Loop over jets
-  for (reco::PFJetCollection::const_iterator it = jets->begin(); it != jets->end(); it++)
-  {
-    if(_Njet == _maxNjet)
-    {
-      printf("Maximum number of jets %d reached, skipping the rest\n", _maxNjet);
-      return 0;
-    }
-    // Apply jet energy correction (JEC)
-    double jec = corrector->correction(*it, iEvent, iSetup);
-    // copy original (uncorrected) jet;
-    reco::PFJet corjet = *it;
-    // apply JEC
-    corjet.scaleEnergy(jec);
-    // select jet: pT > 20 GeV, |eta| < 4.7
-    if(corjet.pt() < 20)
-      continue;
-    if(TMath::Abs(corjet.eta()) > 4.7)
-      continue;
-    // fill jet four momentum (pT, eta, phi, mass)
-    _jetPt[_Njet] = corjet.pt();
-    _jetEta[_Njet] = corjet.eta();
-    _jetPhi[_Njet] = corjet.phi();
-    _jetMass[_Njet] = corjet.mass();
-    // fill jet muon and electron energy fractions
-    _jetMuEn[_Njet] = corjet.muonEnergy();
-    _jetElEn[_Njet] = corjet.electronEnergy();
-    _Njet++;
-  }
-  return _Njet;
-}
-
 // returns vector of integers which are trigger bits needed in the analysis
-//The construction is a bit unecessary here:
-//Each trigger is specified explicitly in the beginning but the code also works,
-//if you just push_back the beginnings of trigger names you want to use.
+// Implementation:
+// Interesting triggers are added in the beginning of this file
+//, all triggers with the same starting string are then stored and printed
 // (called in the beginning of each run)
 void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
 {
@@ -672,11 +572,9 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
   std::vector<std::string> trigNames;
   trigNames = trigConf.triggerNames();
   // for interesting trigger names find corresponding trigger bits
-  //printf("*****All available triggers*****");
   for(unsigned int i = 0; i < trigNames.size(); i++)
   {
     std::string currentName = trigConf.triggerNames()[i];
-    //printf("%5d  %s \n", i, currentName.c_str());
     for(unsigned int n = 0; n < _vecTriggerNames.size(); n++)
     {
       //if trigger is found in _vecTriggerNames
@@ -688,8 +586,8 @@ void Analyzer::FindTriggerBits(const HLTConfigProvider& trigConf)
       }
     }
   }
-  //printf("*********************");
-  PrintTriggerBits();
+  // Only for debugging
+  //PrintTriggerBits();
 }
 
 // print found trigger indices
@@ -710,7 +608,7 @@ void Analyzer::PrintTriggerBits()
   printf("****************\n");
 }
 
-// fill trigger bits
+// fill trigger bits and store them in _triggers variable
 void Analyzer::SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR)
 {
   for(unsigned int i = 0; i < _vecTriggerBits.size(); i++)
@@ -718,14 +616,12 @@ void Analyzer::SelectTriggerBits(const edm::Handle<edm::TriggerResults>& HLTR)
     int status = 0;
     for(unsigned int j = 0; j < _vecTriggerBits[i].size(); j++)
     {
-      //check if one of the triggers is accepted (fired?)
+      //check if one of the triggers is accepted
       status = status || HLTR->accept(_vecTriggerBits[i][j]);
     }
-    //printf("TRIGGER:  %d %s\n", status, _vecTriggerNames[i].c_str());
     // set ith bit of _triggers integer to the current trigger bit status
     _triggers ^= (-status ^ _triggers) & (1 << i);
   }
-  //printf("*************\n");
 }
 
 // select primary vertex
@@ -746,27 +642,6 @@ int Analyzer::SelectPrimaryVertex(const edm::Handle<reco::VertexCollection>& pri
   // return true status
   return true;
 }
-
-// get final-state stable generator level particle with required id
-// (if not found, return NULL pointer)
-/*const reco::Candidate* Analyzer::GetFinalState(const reco::Candidate* particle, const int id)
-{
-  // loop over daughters
-  for(unsigned int i = 0; i < particle->numberOfDaughters(); i++)
-  {
-    const reco::Candidate* daughter = particle->daughter(i);
-    // if this daughter has required id, return its pointer
-    if(daughter->pdgId() == id && daughter->status() == 1)
-      return daughter;
-    // otherwise call itself recursively
-    const reco::Candidate* result = GetFinalState(daughter, id);
-    // return the result of the recursive call
-    if(result)
-      return result;
-  }
-  // if gets here, there are no daughter with required id: return NULL pointer
-  return NULL;
-}*/
 
 // fill 4-momentum (p) with provided particle pointer
 void Analyzer::FillFourMomentum(const reco::Candidate* particle, float* p)
@@ -798,7 +673,6 @@ double Analyzer::MatchPhoton(const double etaGen, const double phiGen, const dou
 }
 
 // select MC generator level information
-// (analysis specific ttbar dileptonic decay)
 void Analyzer::SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genParticles)
 {
   // reset all particle momenta
@@ -806,10 +680,10 @@ void Analyzer::SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genPa
   FillFourMomentum(NULL, _mcPh[0]);
   FillFourMomentum(NULL, _mcPh[1]);
 
-  // initialise all particle pointers with NULL
+  // Initialize all particle pointers with NULL
   const reco::Candidate* genH = NULL;
   const reco::Candidate* genPh[2] = { NULL, NULL };
-  // loop over generated particeles
+  // loop over generated particles
   for(unsigned int p = 0; p < genParticles->size(); p++)
   {
     const reco::Candidate* particle = &genParticles->at(p);
@@ -859,6 +733,7 @@ void Analyzer::SelectMCGen(const edm::Handle<reco::GenParticleCollection>& genPa
   }
 }
 
+
 // ------------ method called for each event  ------------
 void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -868,14 +743,10 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // event counting, printout after each 1K processed events
   _nevents++;
-  //printf("*** EVENT %6d ***\n", _nevents);
   if( (_nevents % 1000) == 0)
   {
-    //printf("*****************************************************************\n");
     printf("************* NEVENTS = %d K, selected = %d *************\n", _nevents / 1000, _neventsSelected);
-    //printf("*****************************************************************\n");
   }
-  //return;
   
   // declare event contents
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -883,8 +754,6 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::PFCandidateCollection> PF;
   edm::Handle<reco::PhotonCollection> photons;
   edm::Handle<reco::GsfElectronCollection> electrons;
-  edm::Handle<reco::PFJetCollection> jets;
-  //edm::Handle<edm::View<reco::PFMET> > pfmets;
   Handle<TriggerResults> HLTR;
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -918,20 +787,17 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(_inputTagElectrons, electrons);
     //particle Flow
     iEvent.getByLabel(_inputTagPF, PF);
+    //Select Photons by applying soft Cuts
     SelectPhotons(photons,electrons, pv, primVertex, PF);
-    // require pair of opposite signed leptons
+    // require at least two photons
     if( _Nph >= 2 )
       selRECO = true;
     if(!selRECO && !selGEN)
       return;
-    // jets
-    iEvent.getByLabel(_inputTagJets, jets);
-    SelectJet(jets, iEvent, iSetup);
-    // fill MET
-    //iEvent.getByLabel(_inputTagMet, pfmets);
-    //SelectMET(pfmets);
+
     // fill primary vertex
     SelectPrimaryVertex(primVertex);
+
     // fill triggers
     iEvent.getByLabel(_inputTagTriggerResults, HLTR);
     SelectTriggerBits(HLTR);
@@ -947,7 +813,7 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called when starting to processes a run  ------------
 void Analyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  // trigger stuff
+  // triggers
   HLTConfigProvider triggerConfig;
   bool changed = true;
   triggerConfig.init(iRun, iSetup, _inputTagTriggerResults.process(), changed);

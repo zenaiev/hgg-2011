@@ -23,7 +23,12 @@
 #include "TMath.h"
 #include "TMultiGraph.h"
 
-
+//Calculation of chi2 on a dataset and bkg fit
+//params:
+//	int intMin	: minimum of range
+//  int intMax	: maximum of range
+//	TF1* fit_b	: Background fit
+//  TH1D* h_data: dataset as histogram
 double ChiSquared(int intMin, int intMax, TF1* fit_b,TH1D* h_data){
 	//set the range for chi2
 	double xmin = h_data->GetXaxis()->GetBinCenter(1)-0.5;
@@ -43,6 +48,12 @@ double ChiSquared(int intMin, int intMax, TF1* fit_b,TH1D* h_data){
 	return chi2;
 }
 
+//Calculation of chi2 on the mc-signal and bkg fit from data
+//params:
+//	int intMin	: minimum of range
+//  int intMax	: maximum of range
+//	TF1* fit_b	: Background fit
+//  TH1D* h_mc  : mc-signal as histogram
 double ChiSquaredMC(int intMin, int intMax, TF1* fit_b,TH1D* h_mc){
 	//set the range for chi2
 	double xmin = h_mc->GetXaxis()->GetBinCenter(1)-0.5;
@@ -64,121 +75,13 @@ double ChiSquaredMC(int intMin, int intMax, TF1* fit_b,TH1D* h_mc){
 	return chi2;
 }
 
-
 //calculate the pValue for given degrees of freedom and chi2
 double pValue(int ndf, double chi2)
 {
 	return TMath::Prob(chi2,ndf);
 }
 
-//plot integral error for several ranges
-int chi2EvolData(TH1D* h_data, TF1* fit_b, TString plotName)
-{
-	//get minimum x value
-	double xmin = h_data->GetXaxis()->GetBinCenter(1)-0.5;
-	//maximum range to each side
-	int r_max = 25;
-	double r_list[r_max],chi2_list[r_max];
-	//loop over several ranges around 125GeV
-	for(int r = 1; r <= r_max;r++)
-	{
-		r_list[r-1] = r;
-		chi2_list[r-1] = ChiSquared(125-r,125+r,fit_b,h_data);
-	}
-
-	//create new TGraph
-	TCanvas *c1 = new TCanvas("c1","Background integral error",600,600);
-	TGraph *gr = new TGraph(r_max,r_list,chi2_list);
-	gr->SetTitle("Chi_Squared");
-	gr->GetXaxis()->SetTitle("Width of range (around 125 GeV)");
-	gr->SetMarkerStyle(7);
-	gr->SetMarkerColor(kRed);
-	gr->Draw("ap");
-	c1->SaveAs("plots/" + plotName);
-	return 1;
-}
-
-int chi2EvolMC(TH1D* h_mc, TF1* fit_b, TString plotName)
-{
-	//get minimum value of histogram
-	double xmin = h_mc->GetXaxis()->GetBinCenter(1)-0.5;
-	//maximum range to each side
-	int r_max = 25;
-	double r_list[r_max], chi2_list[r_max];
-	for(int r = 1; r <= r_max; r++)
-	{
-		r_list[r-1] = r;
-		chi2_list[r-1] = ChiSquaredMC(125-r,125+r,fit_b,h_mc);
-	}
-	TCanvas *c1 = new TCanvas("c1","Background integral error",600,600);
-	TGraph *gr = new TGraph(r_max,r_list,chi2_list);
-	gr->SetTitle("Chi_Squared MC");
-	gr->GetXaxis()->SetTitle("Width of range (around 125 GeV)");
-	gr->SetMarkerStyle(7);
-	gr->SetMarkerColor(kRed);
-	gr->Draw("ap");
-	c1->SaveAs("plots/" + plotName);
-	return 1;
-
-
-}
-
-int pvalEvolData(TH1D* h_data, TF1* fit_b, TString plotName)
-{
-
-	//get minimum x value
-	double xmin = h_data->GetXaxis()->GetBinCenter(1)-0.5;
-	//maximum range to each side
-	int r_max = 25;
-	double r_list[r_max],pval_list[r_max];
-	//loop over several ranges around 125GeV
-	for(int r = 1; r <= r_max;r++)
-	{
-		r_list[r-1] = r;
-		double chi2 = ChiSquared(125-r,125+r,fit_b,h_data);
-		//degrees of freedom is 1 because all bins are summed/ integrated bkg
-		int ndf =1;
-		pval_list[r-1] = pValue(ndf,chi2);
-	}
-
-	//create new TGraph
-	TCanvas *c1 = new TCanvas("c1","Background integral error",600,600);
-	TGraph *gr = new TGraph(r_max,r_list,pval_list);
-	gr->SetTitle("p-value");
-	gr->GetXaxis()->SetTitle("Width of range (around 125 GeV)");
-	gr->SetMarkerStyle(7);
-	gr->SetMarkerColor(kRed);
-	gr->Draw("ap");
-	c1->SaveAs("plots/" + plotName);
-	return 1;
-}
-
-int pvalEvolMC(TH1D* h_mc, TF1* fit_b, TString plotName)
-{
-	//get minimum value of histogram
-	double xmin = h_mc->GetXaxis()->GetBinCenter(1)-0.5;
-	//maximum range to each side
-	int r_max = 25;
-	double r_list[r_max], pval_list[r_max];
-	for(int r = 1; r <= r_max; r++)
-	{
-		r_list[r-1] = r;
-		double chi2 = ChiSquaredMC(125-r,125+r,fit_b,h_mc);
-		pval_list[r-1] = pValue(1,chi2);
-	}
-	TCanvas *c1 = new TCanvas("c1","Background integral error",600,600);
-	TGraph *gr = new TGraph(r_max,r_list,pval_list);
-	gr->SetTitle("p-value MC");
-	gr->GetXaxis()->SetTitle("Width of range (around 125 GeV)");
-	gr->SetMarkerStyle(7);
-	gr->SetMarkerColor(kRed);
-	gr->Draw("ap");
-	c1->SaveAs("plots/" + plotName);
-	return 1;
-	
-
-}
-
+//calculate the pvalue for different ranges in around 125 GeV in each class for 2011 data
 int pvalClasses11(TString plotName)
 {
 	TString baseDir = gHistDir; //from settings.h
@@ -200,7 +103,7 @@ int pvalClasses11(TString plotName)
   	{
   		c->cd(pad);
   		//read corresponding class from argument TFile
-  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",pad));
+  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2011_1_%d",pad));
 
   		if(pad != 2)
   		{
@@ -245,7 +148,7 @@ int pvalClasses11(TString plotName)
   	}
   	c->SaveAs("plots/" + plotName);
 }
-
+//calculate the pvalue for different ranges in around 125 GeV in each class for 2012 data
 int pvalClasses12(TString plotName)
 {
 	TString baseDir = gHistDir; //from settings.h
@@ -268,7 +171,7 @@ int pvalClasses12(TString plotName)
   	{
   		c->cd(pad);
   		//read corresponding class from argument TFile
-  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",pad));
+  		TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2012_1_%d",pad));
   		TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg%d",pad));
 
   		if(pad != 2)
@@ -339,7 +242,7 @@ int pval12(TString plotName)
 	TCanvas* c = new TCanvas("","",600,600);
 
 	//read corresponding class from argument TFile
-	TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg%d",1));
+	TH1D* h_data = (TH1D*) f_data->Get(TString::Format("h_mgg2012_1_%d",1));
 	TH1D* h_mc = (TH1D*) f_mc->Get(TString::Format("h_mgg%d",1));
 
 	//fit the background
@@ -402,24 +305,9 @@ int pval12(TString plotName)
 //***********Main Function*************
 int main(int argc, char** argv)
 {
-	//Read 2011 and 2012 data
-	TString baseDir = gHistDir; //from settings.h
-	TFile* f_data11 = TFile::Open(TString::Format("%s/data2011_10GeV.root",baseDir.Data()));
-	TFile* f_data12 = TFile::Open(TString::Format("%s/data2012_10GeV.root",baseDir.Data()));
-	TH1D* h_data11 = (TH1D*) f_data11->Get(TString::Format("h_mgg1"));
-	TH1D* h_data12 = (TH1D*) f_data12->Get(TString::Format("h_mgg1"));
-	//print number of entries for each year
-	printf("Entries 2011: %f \n", h_data11->GetEntries());
-	printf("Entries 2012: %f \n", h_data12->GetEntries());
-	//combine data
-	TH1D* h_data = (TH1D*) h_data11->Clone();
-	h_data->Add(h_data12);
-	printf("Entries combined: %f \n", h_data->GetEntries());
-
 	//Classes plots
 	pvalClasses11("pval_2011_classes.pdf");
 	pvalClasses12("pval_2012_classes.pdf");
+	//combined plots for 2012
 	pval12("pval_2012.eps");
-
-
 }

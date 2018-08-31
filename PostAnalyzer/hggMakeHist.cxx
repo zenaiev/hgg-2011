@@ -1,13 +1,15 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// This code processes ROOT ntuples for ttbar analysis (see 
+// This code processes ROOT ntuples for hgg analysis (see
 // Analyzer/src/Analyzer.cc) and produces histograms, which are 
-// further used to make final plots (see ttbarMakePlots.cxx).
-// Run: ./ttbarMakeHist
+// further used to make final plots (see hggMakePlots.cxx).
+// Run: ./hggMakeHist
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //
 // additional files from this analysis (look there for description) 
 #include "eventReco.h"
 #include "settings.h"
+#include "TROOT.h"
+
 //
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // >>>>>>>>>>>>>>>>>>>>> Main function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -38,53 +40,16 @@ int main(int argc, char** argv)
   // histograms
   TH1::SetDefaultSumw2(); // keep histogram weights by default
   // ZVarHisto is a simple class which incorporates a histogram and a variable name. 
-  // This class is used to store needed input settings (variable names, binning) 
-  // for control plots and cross sections (as in TOP-11-013)
-  /*
-  std::vector<ZVarHisto> vecVH, vecVHGen; // vecVH for reconstruction level, vecVHGen for generator level
-  // histograms and variables for control plots
-  //different binning for 2011 and 2012 data
-  if(flagData2011)
-  {
-    // 1 GeV bins for 2011 data
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
-  }
-  if(flagData2012)
-  {
-    //1.5 GeV bins for 2012 data
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
-  }
-  // histograms and variables for cross sections
-  {
-    double bins[] = {0.,80.,130.,200.,300.,400.};
-    vecVHGen.push_back(ZVarHisto("ptt", new TH1D("h_ptt_cs", "pT top", 5, bins)));
-    vecVHGen.push_back(ZVarHisto("ptat", new TH1D("h_ptat_cs", "pT atop", 5, bins)));
-    vecVHGen.push_back(ZVarHisto("pttat", new TH1D("h_pttat_cs", "pT tatop", 5, bins)));
-  }
-
-  // for reconstruction level the same binning is needed, but more event classes
-  vecVH = vecVHGen;
-  vecVH.push_back(vecVHGen[0]); // m(gammagamma)
-  vecVH.back().EventClass() = 2;
-  vecVH.push_back(vecVHGen[0]); // m(gammagamma)
-  vecVH.back().EventClass() = 3;
-  vecVH.push_back(vecVHGen[0]); // m(gammagamma)
-  vecVH.back().EventClass() = 4;
-  vecVH.push_back(vecVHGen[0]); // m(gammagamma)
-  vecVH.back().EventClass() = 5;
-  vecVH.push_back(vecVHGen[0]); // m(gammagamma)
-  vecVH.back().EventClass() = 6;
-  */
-  // (here you can add more reconstruction level histograms)
-  
+  // This class is used to store needed input settings (variable names, binning)
   // **********************************************
   // **************** DATA 2011 *******************
   // **********************************************
   if(flagData2011_10bins)
   {
     //setup histograms
+	//ZVarHisto is a class that stores histogram and variable name, see its definition in eventReco.h
     std::vector<ZVarHisto> vecVH, vecVHGen;
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg2011_1_", "m_{#gamma#gamma}", 80, 100.0, 180.0)));
     vecVH = vecVHGen;
     vecVH.push_back(vecVHGen[0]); // m(gammagamma)
     vecVH.back().EventClass() = 2;
@@ -112,7 +77,7 @@ int main(int argc, char** argv)
   {
     //setup histograms
     std::vector<ZVarHisto> vecVH, vecVHGen;
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg2011_2_", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
     vecVH = vecVHGen;
     vecVH.push_back(vecVHGen[0]); // m(gammagamma)
     vecVH.back().EventClass() = 2;
@@ -143,7 +108,7 @@ int main(int argc, char** argv)
   {
     //setup histograms
     std::vector<ZVarHisto> vecVH, vecVHGen;
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg2012_1_", "m_{#gamma#gamma}", 80, 100.0, 180.0))); // m(gammagamma)
     vecVH = vecVHGen;
     vecVH.push_back(vecVHGen[0]); // m(gammagamma)
     vecVH.back().EventClass() = 2;
@@ -171,7 +136,7 @@ int main(int argc, char** argv)
   {
     //setup histograms
     std::vector<ZVarHisto> vecVH, vecVHGen;
-    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
+    vecVHGen.push_back(ZVarHisto("mgg", new TH1D("h_mgg2012_2_", "m_{#gamma#gamma}", 60, 100.0, 190.0))); // m(gammagamma)
     vecVH = vecVHGen;
     vecVH.push_back(vecVHGen[0]); // m(gammagamma)
     vecVH.back().EventClass() = 2;
@@ -233,18 +198,12 @@ int main(int argc, char** argv)
     vecVH.back().EventClass() = 6;
     // MC signal reco level
     ZEventRecoInput in;
-    //in.MaxNEvents = 1000;
     in.Weight = 0.0015054; // weight (see above)
     in.Name = "mcSigReco";
     in.Type = 2;
     in.VecVarHisto = vecVH;
-    //in.AddToChain(mcDir + "/VBFHiggs0PToGG_M-125p6_7TeV-JHUGenV4-pythia6-tauola/*.root");
     in.AddToChain(mcDir + "/GluGluToHToGG_M-125_8TeV-powheg15-pythia6/*.root");
     eventreco(in);
-    /*// MC other (background): re-use existing ZEventRecoInput, just change type
-    in.Name = "mcSigOtherReco";
-    in.Type = 3;
-    eventreco(in);*/
     // MC signal, generator level: again re-use existing ZEventRecoInput, change type and set proper flag (see below)
     in.Name = "mcSigGen";
     in.Type = 2;
@@ -255,6 +214,3 @@ int main(int argc, char** argv)
 
   return 0;
 }
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
