@@ -19,9 +19,9 @@ cd ./WorkingArea
 cmsrel CMSSW_5_3_32
 cd ./CMSSW_5_3_32/src
 cmsenv
-git clone git://github.com/christian512/hgg-2011.git
+git clone git://github.com/christian512/2011-photon-2012-doublephoton-higgs-hgaga.git
 scram b
-cd hgg-2011/Analyzer
+cd 2011-photon-2012-doublephoton-higgs-hgaga/Analyzer
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT_53_LV5_AN1_RUNA FT_53_LV5_AN1
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/START53_LV6A1 START53_LV6A1
 ln -sf /cvmfs/cms-opendata-conddb.cern.ch/FT53_V21A_AN6_FULL FT53_V21A_AN6
@@ -73,7 +73,7 @@ cd WorkingArea/
 cmsrel CMSSW_10_1_9
 cd CMSSW_10_1_9/src/
 cmsenv
-cd ../../CMSSW_5_3_32/src/hgg-2011
+cd ../../CMSSW_5_3_32/src/2011-photon-2012-doublephoton-higgs-hgaga
 #perform your git actions here, e.g.:
 git push
 ```
