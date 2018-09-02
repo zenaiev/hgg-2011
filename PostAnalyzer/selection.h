@@ -24,9 +24,9 @@ int PhotonClass(const double eta, const double r9)
     return 3;
   if(TMath::Abs(eta) < 1.44 && r9 < 0.94)
     return 4;
-  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) < 2.5 && r9 > 0.94)
+  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) <= 2.5 && r9 > 0.94)
     return 5;
-  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) < 2.5 && r9 < 0.94)
+  if(TMath::Abs(eta) > 1.57 && TMath::Abs(eta) <= 2.5 && r9 < 0.94)
     return 6;
 
   printf("Error: cannot determine photon in barrel or endcap, return 0\n");
