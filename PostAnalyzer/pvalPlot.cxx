@@ -82,7 +82,7 @@ double pValue(int ndf, double chi2)
 }
 
 //calculate the pvalue for different ranges in around 125 GeV in each class for 2011 data
-int pvalClasses11(TString plotName)
+int pvalClasses11(const std::vector<TString>& plotName)
 {
 	TString baseDir = gHistDir; //from settings.h
 	TFile* f_data = TFile::Open(TString::Format("%s/data2011_10GeV.root",baseDir.Data()));
@@ -146,10 +146,11 @@ int pvalClasses11(TString plotName)
   		}
 
   	}
-  	c->SaveAs("plots/" + plotName);
+        for(const auto fileName : plotName)
+          c->SaveAs("plots/" + fileName);
 }
 //calculate the pvalue for different ranges in around 125 GeV in each class for 2012 data
-int pvalClasses12(TString plotName)
+int pvalClasses12(const std::vector<TString>& plotName)
 {
 	TString baseDir = gHistDir; //from settings.h
 	TFile* f_data = TFile::Open(TString::Format("%s/data2012_10GeV.root",baseDir.Data()));
@@ -231,10 +232,11 @@ int pvalClasses12(TString plotName)
   		}
 
   	}
-  	c->SaveAs("plots/" + plotName);
+        for(const auto fileName : plotName)
+          c->SaveAs("plots/" + fileName);
 }
 
-int pval12(TString plotName)
+int pval12(const std::vector<TString>& plotName)
 {
 	TString baseDir = gHistDir; //from settings.h
 	TFile* f_data = TFile::Open(TString::Format("%s/data2012_10GeV.root",baseDir.Data()));
@@ -300,14 +302,15 @@ int pval12(TString plotName)
 
 
 
-  	c->SaveAs("plots/" + plotName);
+        for(const auto fileName : plotName)
+          c->SaveAs("plots/" + fileName);
 }
 //***********Main Function*************
 int main(int argc, char** argv)
 {
 	//Classes plots
-	pvalClasses11("pval_2011_classes.pdf");
-	pvalClasses12("pval_2012_classes.pdf");
+        pvalClasses11({ "pval_2011_classes.pdf", "pval_2011_classes.eps" });
+        pvalClasses12({ "pval_2012_classes.pdf", "pval_2012_classes.eps" });
 	//combined plots for 2012
-	pval12("pval_2012.eps");
+	pval12({ "pval_2012.pdf",  "pval_2012.eps" });
 }
