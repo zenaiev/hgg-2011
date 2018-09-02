@@ -20,9 +20,10 @@ mv Analyzer/ntuples-data PostAnalyzer/ntuples-data
 mv Analyzer/ntuples-mc PostAnalyzer/ntuples-mc
 then compile the code:
 ./compile.sh
-and run two commands:
+and run three commands:
 ./hggMakeHist
 ./hggMakePlots
+./ pvalPlot
 
 Also you could do only the last step (plotting) by using "reference" 
 histograms produced with the full samples and available with the code 
