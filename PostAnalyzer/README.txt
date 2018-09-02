@@ -30,3 +30,6 @@ histograms produced with the full samples and available with the code
 (PostAnalyzerhist-REF directory), for this modify settings.h. 
 Another application of the "reference" histograms could be for 
 validation (produce new histograms and compare to the reference ones).
+
+To calculate luminosity, run:
+python lumicalc.py
